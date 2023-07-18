@@ -1,24 +1,22 @@
-import logo from './logo.svg';
-import './App.css';
-
+import "./App.css";
+import Navbar from "./components/Navbar";
+import Index1 from "./components/Index12";
+import React, { useEffect } from "react";
+import { Helmet } from "react-helmet";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import InvoicePageWrapper from "./components/InvoicePageWrapper";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route  path="/add-invoice" element={<InvoicePageWrapper />} />
+          <Route  path="/" element={<Index1 />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 

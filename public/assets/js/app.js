@@ -27,6 +27,7 @@ $(document).ready(function() {
     function init() {
         var $this = Sidemenu;
         $('#sidebar-menu a').on('click', function(e) {
+            e.stopImmediatePropagation();
             if ($(this).parent().hasClass('submenu')) {
                 e.preventDefault();
             }
@@ -49,7 +50,8 @@ $(document).ready(function() {
     // Mobile menu sidebar overlay
 
     $('body').append('<div class="sidebar-overlay"></div>');
-    $(document).on('click', '#mobile_btn', function() {
+    $(document).on('click', '#mobile_btn', function(e) {
+        e.stopImmediatePropagation();
         $wrapper.toggleClass('slide-nav');
         $('.sidebar-overlay').toggleClass('opened');
         $('html').addClass('menu-opened');
@@ -57,7 +59,8 @@ $(document).ready(function() {
         return false;
     });
 
-    $(".sidebar-overlay").on("click", function() {
+    $(".sidebar-overlay").on("click", function(e) {
+        e.stopImmediatePropagation();
         $('html').removeClass('menu-opened');
         $(this).removeClass('opened');
         $wrapper.removeClass('slide-nav');
@@ -67,7 +70,8 @@ $(document).ready(function() {
 
     // Chat sidebar overlay
 
-    $(document).on('click', '#task_chat', function() {
+    $(document).on('click', '#task_chat', function(e) {
+        e.stopImmediatePropagation();
         $('.sidebar-overlay').toggleClass('opened');
         $('#task_window').addClass('opened');
         return false;
@@ -105,6 +109,7 @@ $(document).ready(function() {
 
     if ($('.floating').length > 0) {
         $('.floating').on('focus blur', function(e) {
+            e.stopImmediatePropagation();
             $(this).parents('.form-focus').toggleClass('focused', (e.type === 'focus' || this.value.length > 0));
         }).trigger('blur');
     }
@@ -162,7 +167,8 @@ $(document).ready(function() {
 
     // Logo Hide Btn
 
-    $(document).on("click",".logo-hide-btn",function () {
+    $(document).on("click",".logo-hide-btn",function (e) {
+        e.stopImmediatePropagation();
         $(this).parent().hide();
     });
     
@@ -189,26 +195,30 @@ $(document).ready(function() {
     // Email Inbox
 
     if ($('.clickable-row').length > 0) {
-        $('.clickable-row').on('click', function() {
+        $('.clickable-row').on('click', function(e) {
+            e.stopImmediatePropagation();
             window.location = $(this).data("href");
         });
     }
 
 
     if ($('.clickable-row').length > 0) {
-        $('.clickable-row').on('click', function() {
+        $('.clickable-row').on('click', function(e) {
+            e.stopImmediatePropagation();
             window.location = $(this).data("href");
         });
     }
     // Check all email
 
-    $(document).on('click', '#check_all', function() {
+    $(document).on('click', '#check_all', function(e) {
+        e.stopImmediatePropagation();
         $('.checkmail').click();
         return false;
     });
     if ($('.checkmail').length > 0) {
         $('.checkmail').each(function() {
-            $(this).on('click', function() {
+            $(this).on('click', function(e) {
+                e.stopImmediatePropagation();
                 if ($(this).closest('tr').hasClass('checked')) {
                     $(this).closest('tr').removeClass('checked');
                 } else {
@@ -220,7 +230,8 @@ $(document).ready(function() {
 
     // Mail important
 
-    $(document).on('click', '.mail-important', function() {
+    $(document).on('click', '.mail-important', function(e) {
+        e.stopImmediatePropagation();
         $(this).find('i.fa').toggleClass('fa-star').toggleClass('fa-star-o');
     });
 
@@ -267,7 +278,8 @@ $(document).ready(function() {
 
     // Task Complete
 
-    $(document).on('click', '#task_complete', function() {
+    $(document).on('click', '#task_complete', function(e) {
+        e.stopImmediatePropagation();
         $(this).toggleClass('task-completed');
         return false;
     });
@@ -283,20 +295,23 @@ $(document).ready(function() {
 
     // Leave Settings button show
 
-    $(document).on('click', '.leave-edit-btn', function() {
+    $(document).on('click', '.leave-edit-btn', function(e) {
+        e.stopImmediatePropagation();
         $(this).removeClass('leave-edit-btn').addClass('btn btn-white leave-cancel-btn').text('Cancel');
         $(this).closest("div.leave-right").append('<button class="btn btn-primary leave-save-btn" type="submit">Save</button>');
         $(this).parent().parent().find("input").prop('disabled', false);
         return false;
     });
-    $(document).on('click', '.leave-cancel-btn', function() {
+    $(document).on('click', '.leave-cancel-btn', function(e) {
+        e.stopImmediatePropagation();
         $(this).removeClass('btn btn-white leave-cancel-btn').addClass('leave-edit-btn').text('Edit');
         $(this).closest("div.leave-right").find(".leave-save-btn").remove();
         $(this).parent().parent().find("input").prop('disabled', true);
         return false;
     });
 
-    $(document).on('change', '.leave-box .onoffswitch-checkbox', function() {
+    $(document).on('change', '.leave-box .onoffswitch-checkbox', function(e) {
+        e.stopImmediatePropagation();
         var id = $(this).attr('id').split('_')[1];
         if ($(this).prop("checked") == true) {
             $("#leave_" + id + " .leave-edit-btn").prop('disabled', false);
@@ -327,10 +342,12 @@ $(document).ready(function() {
     // Placeholder Hide
 
     if ($('.otp-input, .zipcode-input input, .noborder-input input').length > 0) {
-        $('.otp-input, .zipcode-input input, .noborder-input input').focus(function() {
+        $('.otp-input, .zipcode-input input, .noborder-input input').focus(function(e) {
+            e.stopImmediatePropagation();
             $(this).data('placeholder', $(this).attr('placeholder'))
                 .attr('placeholder', '');
-        }).blur(function() {
+        }).blur(function(e) {
+            e.stopImmediatePropagation();
             $(this).attr('placeholder', $(this).data('placeholder'));
         });
     }
@@ -339,6 +356,7 @@ $(document).ready(function() {
 
     if ($('.otp-input').length > 0) {
         $(".otp-input").keyup(function(e) {
+            e.stopImmediatePropagation();
             if ((e.which >= 48 && e.which <= 57) || (e.which >= 96 && e.which <= 105)) {
                 $(e.target).next('.otp-input').focus();
             } else if (e.which == 8) {
@@ -346,7 +364,8 @@ $(document).ready(function() {
             }
         });
     }
-    $(".links-info-discount").on('click','.service-trash-one', function () {
+    $(".links-info-discount").on('click','.service-trash-one', function (e) {
+        e.stopImmediatePropagation();
 		$(this).closest('.links-cont-discount').remove();
 		return false;
     });
@@ -364,7 +383,8 @@ $(document).ready(function() {
 
 
 
-    $(document).on("click",".add-links",function  () {
+    $(document).on("click",".add-links",function  (e) {
+        e.stopImmediatePropagation();
 		var experiencecontent = '<div class="links-cont">' +
 			'<div class="service-amount">' +
 				'<a href="#" class="service-trash"><i class="fe fe-minus-circle me-1"></i>Transport Charges</a> <span>$ 4</span' +
@@ -377,27 +397,30 @@ $(document).ready(function() {
         return false;
     });
 
-     $(".links-info-discount").on('click','.service-trash-one', function () {
+     $(".links-info-discount").on('click','.service-trash-one', function (e) {
+        e.stopImmediatePropagation();
 		$(this).closest('.links-cont-discount').remove();
 		return false;
     });
 
     // Invoices Table Add More
 	
-    $(".add-table-items").on('click','.remove-btn', function () {
+    $(".add-table-items").on('click','.remove-btn', function (e) {
+        e.stopImmediatePropagation();
 		$(this).closest('.add-row').remove();
 		return false;
     });
 
    // Invoices Table Add More
 	
-   $(".add-table-items").on('click','.remove-btn', function () {
+   $(".add-table-items").on('click','.remove-btn', function (e) {
+    e.stopImmediatePropagation();
     $(this).closest('.').remove();
     return false;
 });
 
-    $(document).on("click",".",function () {
-        
+    $(document).on("click",".",function (e) {
+        e.stopImmediatePropagation();
         var experiencecontent = '<tr class="">' +
             '<td>' +
                 '<select class="selectBox form-control" name="ProductName" id="Product_Id"  onchange="selectProduct()"> <option value="$show[Product_Id] $show[Product_Id]"</option></select>'
@@ -443,7 +466,8 @@ $(document).ready(function() {
 
     // Small Sidebar
 
-    $(document).on('click', '#toggle_btn', function() {
+    $(document).on('click', '#toggle_btn', function(e) {
+        e.stopImmediatePropagation();
         if ($('body').hasClass('mini-sidebar')) {
             $('body').removeClass('mini-sidebar');
             $('.subdrop + ul').slideDown();
@@ -454,7 +478,7 @@ $(document).ready(function() {
         return false;
     });
     $(document).on('mouseover', function(e) {
-        e.stopPropagation();
+        e.stopImmediatePropagation();
         if ($('body').hasClass('mini-sidebar') && $('#toggle_btn').is(':visible')) {
             var targ = $(e.target).closest('.sidebar').length;
             if (targ) {
@@ -468,15 +492,18 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on('click', '.top-nav-search .responsive-search', function() {
+    $(document).on('click', '.top-nav-search .responsive-search', function(e) {
+        e.stopImmediatePropagation();
         $('.top-nav-search').toggleClass('active');
     });
 
-    $(document).on('click', '#file_sidebar_toggle', function() {
+    $(document).on('click', '#file_sidebar_toggle', function(e) {
+        e.stopImmediatePropagation();
         $('.file-wrap').toggleClass('file-sidebar-toggle');
     });
 
-    $(document).on('click', '.file-side-close', function() {
+    $(document).on('click', '.file-side-close', function(e) {
+        e.stopImmediatePropagation();
         $('.file-wrap').removeClass('file-sidebar-toggle');
     });
 
@@ -492,7 +519,8 @@ $(document).ready(function() {
 
 // Loader
 
-$(window).on('load', function() {
+$(window).on('load', function(e) {
+    e.stopImmediatePropagation();
     $('#loader').delay(100).fadeOut('slow');
     $('#loader-wrapper').delay(500).fadeOut('slow');
 });
@@ -563,13 +591,15 @@ $(function() {
 
     draggableInit();
 
-    $('.panel-heading').on('click', function() {
+    $('.panel-heading').on('click', function(e) {
+        e.stopImmediatePropagation();
         var $panelBody = $(this).parent().children('.panel-body');
         $panelBody.slideToggle();
     });
 });
 
-$(document).on("click",".add-links",function () {
+$(document).on("click",".add-links",function (e) {
+    e.stopImmediatePropagation();
     var experiencecontent = '<div class="links-info"><div class="row form-row links-cont">' +
             '<div class="form-group form-placeholder d-flex">' +
                 '<button class="btn social-icon"><i class="feather-github"></i></button>' +
@@ -584,12 +614,14 @@ $(document).on("click",".add-links",function () {
     $(".settings-form").append(experiencecontent);
     return false;
 });
-$(".settings-form").on('click','.trash', function () {
+$(".settings-form").on('click','.trash', function (e) {
+    e.stopImmediatePropagation();
     $(this).closest('.links-cont').remove();
     return false;
 });
 
-$(document).on("click",".add-links1",function () {
+$(document).on("click",".add-links1",function (e) {
+    e.stopImmediatePropagation();
     alert("added")
     var experiencecontent = '<div class="links-cont">' +
         '<div class="service-amount">' +
@@ -600,13 +632,15 @@ $(document).on("click",".add-links1",function () {
     $(".links-info-one").append(experiencecontent);
     return false;
 });
-$(".links-info-one").on('click','.service-trash1', function () {
+$(".links-info-one").on('click','.service-trash1', function (e) {
+    e.stopImmediatePropagation();
     $(this).closest('.links-cont').remove();
     return false;
 });
 
 
- $(".links-info-discount").on('click','.service-trash-one', function () {
+ $(".links-info-discount").on('click','.service-trash-one', function (e) {
+    e.stopImmediatePropagation();
     $(this).closest('.links-cont-discount').remove();
     return false;
 });
@@ -614,49 +648,115 @@ $(".links-info-one").on('click','.service-trash1', function () {
 
 // Invoices Table Add More
 	
-$(".add-table-items").on('click','.remove-btn', function () {
+$(".add-table-items").on('click','.remove-btn', function (e) {
+    e.stopImmediatePropagation();
     $(this).closest('.add-row').remove();
     return false;
 });
 
-$(document).on("click",".add-btn",function () {
+$(document).on("click",".add-btns",function (e) {
+    e.stopImmediatePropagation();
+var optionList='';
+    $.ajax({
+        url:'http://localhost:8081/erp/invoiceproducts',
+        method:'GET',
+        async:false,
+        success:(data)=>{
+            data.map((product)=>{
+                optionList+='<option value="'+product.invoiceProductId+'">'+product.productName+'</option>' 
+            })
+        },
+        error:(error)=>{
+console.log("error")
+        }
+    })
+
+    var prodCont=window.getProductCount();
+    window.setProdCount(prodCont+1)
+    console.log("prodCont"+prodCont)
+
     var experiencecontent = '<tr class="add-row">' +
         '<td>' +
-            '<input type="text" class="form-control">' +
+            '<select class="prodListSelect prodListSelect'+(prodCont+1)+'" name="state"><option  onchange="window [prodSelectOnChange](e);" value="-1">--Select--</option>'+optionList+'</select>' +
+        '<input id="productId" type="hidden" value="'+(prodCont+1)+'"'+
+            '</td>' +
+        '<td>' +
+            '<input type="text" id="category" class="form-control">' +
         '</td>' +
         '<td>' +
-            '<input type="text" class="form-control">' +
+            '<input type="text" id="quantity" class="form-control">' +
         '</td>' +
         '<td>' +
-            '<input type="text" class="form-control">' +
+            '<input type="text" id="price" class="form-control">' +
         '</td>' +
         '<td>' +
-            '<input type="text" class="form-control">' +
+            '<input type="text" id="amount" class="form-control">' +
         '</td>' +
         '<td>' +
-            '<input type="text" class="form-control">' +
-        '</td>' +
-        '<td>' +
-            '<input type="text" class="form-control">' +
+            '<input type="text" id="discount" class="form-control">' +
         '</td>' +
         '<td class="add-remove text-end">' +
-            '<a href="javascript:void(0);" class="add-btn me-2"><i class="fas fa-plus-circle"></i></a> ' +
-            '<a href="#" class="copy-btn me-2"><i class="fe fe-copy"></i></a>' +
-            '<a href="javascript:void(0);" class="remove-btn"><i class="fe fe-trash-2"></i></a>' +
+            '<a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
+            '<a href="#" class="copy-btn me-2"><i class="fas fa-copy"></i></a>' +
+            '<a href="javascript:void(0);" class="remove-btn"><i class="fa fa-trash-alt"></i></a>' +
         '</td>' +
     '</tr>';
-    
     $(".add-table-items").append(experiencecontent);
+    setTimeout(()=>{
+       
+        $('.prodListSelect').select2();
+        $('.prodListSelect'+(prodCont+1)).on('change',(event)=>{
+            var td=event.target.parentElement;
+
+
+            var productId=td.querySelector("#productId").value;
+            console.log("calling:"+event.target.value)
+
+            td=td.parentElement;
+            var category=td.querySelector("#category");
+            var quantity=td.querySelector("#quantity");
+            var price=td.querySelector("#price");
+            var amount=td.querySelector("#amount");
+            var discount=td.querySelector("#discount");
+            $.ajax({
+                url:'http://localhost:8081/erp/invoiceproduct/'+event.target.value,
+                method:'GET',
+                async:false,
+                success:(data)=>{
+                   category.value=data.category;
+                   quantity.value=data.unit;
+                   price.value=data.rate;
+                   if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
+                    amount.value=data.unit*data.rate;
+                   }
+                   discount.value=0;
+
+                },
+                error:(error)=>{
+                console.log("error")
+                }
+            })
+            window.prodSelectOnChange(event)
+        })
+    },1)
     return false;
 });
 // Checkbox Select
 	
-$('.app-listing .selectBox').on("click", function() {
+$('.app-listing .selectBox').on("click", function(e) {
+    e.stopImmediatePropagation();
     $(this).parent().find('#checkBoxes').fadeToggle();
     $(this).parent().parent().siblings().find('#checkBoxes').fadeOut();
 });
 
-$('.invoices-main-form .selectBox').on("click", function() {
+$('.invoices-main-form .selectBox').on("click", function(e) {
+    e.stopImmediatePropagation();
+    $(this).parent().find('#checkBoxes-one').fadeToggle();
+    $(this).parent().parent().siblings().find('#checkBoxes-one').fadeOut();
+});
+
+$('.invoice-add-table .selectBox').on("click", function(e) {
+    e.stopImmediatePropagation();
     $(this).parent().find('#checkBoxes-one').fadeToggle();
     $(this).parent().parent().siblings().find('#checkBoxes-one').fadeOut();
 });
@@ -667,7 +767,7 @@ if($('.SortBy').length > 0) {
     var show = true;
     var checkbox1 = document.getElementById("checkBox");
     $('.selectBoxes').on("click", function() {
-        
+        e.stopImmediatePropagation();
         if (show) {
             checkbox1.style.display = "block";
             show = false;
@@ -681,7 +781,8 @@ if($('.SortBy').length > 0) {
 // Invoices Checkbox Show
 
 $(function() {
-    $("input[name='invoice']").click(function() {
+    $("input[name='invoice']").click(function(e) {
+        e.stopImmediatePropagation();
         if ($("#chkYes").is(":checked")) {
             $("#show-invoices").show();
         } else {
@@ -714,15 +815,18 @@ function draggableInit() {
     var sourceId;
 
     $('[draggable=true]').bind('dragstart', function(event) {
+        event.stopImmediatePropagation();
         sourceId = $(this).parent().attr('id');
         event.originalEvent.dataTransfer.setData("text/plain", event.target.getAttribute('id'));
     });
 
     $('.panel-body').bind('dragover', function(event) {
+        event.stopImmediatePropagation();
         event.preventDefault();
     });
 
     $('.panel-body').bind('drop', function(event) {
+        event.stopImmediatePropagation();
         var children = $(this).children();
         var targetId = children.attr('id');
 
@@ -813,12 +917,50 @@ function product() {
   const node = document.createElement("option");
 node.value="modular kitchen"
 elem.appendChild(node);
-// $('#<Product_ID>').on('click', '#Product_ID', function () {
-
-// });
 
 }
 
+$(".custom_check.w-100 input[type='checkbox']").click((event)=>{
+    event.stopImmediatePropagation();
+    $(".custom_check.w-100 input[type='checkbox']").map((a,b)=>{
+        console.log(b)
+        b.checked=false
+    })
+    event.target.checked=true;
+  })
+
+  $('.prodListSelect').select2();
+
+  $('.prodListSelect1').on('change',(event)=>{
+    var td=event.target.parentElement;
 
 
- 
+    var productId=td.querySelector("#productId").value;
+    console.log("calling:"+event.target.value)
+
+    td=td.parentElement;
+    var category=td.querySelector("#category");
+    var quantity=td.querySelector("#quantity");
+    var price=td.querySelector("#price");
+    var amount=td.querySelector("#amount");
+    var discount=td.querySelector("#discount");
+    $.ajax({
+        url:'http://localhost:8081/erp/invoiceproduct/'+event.target.value,
+        method:'GET',
+        async:false,
+        success:(data)=>{
+           category.value=data.category;
+           quantity.value=data.unit;
+           price.value=data.rate;
+           if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
+            amount.value=data.unit*data.rate;
+           }
+           discount.value=0;
+
+        },
+        error:(error)=>{
+        console.log("error")
+        }
+    })
+    window.prodSelectOnChange(event)
+    })

@@ -22,7 +22,11 @@ export default function Index1() {
 		script4.async = false;
 		document.body.appendChild(script4);
 		
+    const script7 = document.createElement("script");
+    script7.src = "/assets/js/select2.min.js";
+    script7.async = false;
 
+    document.body.appendChild(script7); //can be uncommented
 		
 		const script5 = document.createElement('script');
 		script5.src = "/assets/plugins/raphael/raphael.min.js";
@@ -79,6 +83,7 @@ export default function Index1() {
 		  document.body.removeChild(script3);
 		  document.body.removeChild(script2);
 		  document.body.removeChild(script6);
+		  document.body.removeChild(script7);
 		}
 	  },[]);
   

@@ -407,6 +407,9 @@ $(document).ready(function() {
 	
     $(".add-table-items").on('click','.remove-btn', function (e) {
         e.stopImmediatePropagation();
+        let tr=$(this).closest('.add-row');
+        let prodTrId=tr.querySelector("#productId").value;
+        window.removeTr(prodTrId);
 		$(this).closest('.add-row').remove();
 		return false;
     });
@@ -415,6 +418,9 @@ $(document).ready(function() {
 	
    $(".add-table-items").on('click','.remove-btn', function (e) {
     e.stopImmediatePropagation();
+    let tr=$(this).closest('.add-row');
+        let prodTrId=tr.querySelector("#productId").value;
+        window.removeTr(prodTrId);
     $(this).closest('.').remove();
     return false;
 });
@@ -622,7 +628,6 @@ $(".settings-form").on('click','.trash', function (e) {
 
 $(document).on("click",".add-links1",function (e) {
     e.stopImmediatePropagation();
-    alert("added")
     var experiencecontent = '<div class="links-cont">' +
         '<div class="service-amount">' +
             '<a href="#" class="service-trash1"><i class="fa fa-minus-circle me-1"></i>Service Charge</a> <span>$ 4</span' +
@@ -650,6 +655,9 @@ $(".links-info-one").on('click','.service-trash1', function (e) {
 	
 $(".add-table-items").on('click','.remove-btn', function (e) {
     e.stopImmediatePropagation();
+    let tr=$(this).closest('.add-row');
+    let prodTrId=tr.find("#productId").val();
+    window.removeTr(prodTrId);
     $(this).closest('.add-row').remove();
     return false;
 });
@@ -681,20 +689,27 @@ console.log("error")
         '<input id="productId" type="hidden" value="'+(prodCont+1)+'"'+
             '</td>' +
         '<td>' +
-            '<input type="text" id="category" class="form-control">' +
+            '<input type="text" id="description" class="form-control description'+(prodCont+1)+'">' +
         '</td>' +
         '<td>' +
-            '<input type="text" id="quantity" class="form-control">' +
+            '<input type="text" id="hsnSac" class="form-control hsnSac'+(prodCont+1)+'">' +
         '</td>' +
         '<td>' +
-            '<input type="text" id="price" class="form-control">' +
+            '<input type="text" id="quantity" class="form-control quantity'+(prodCont+1)+'">' +
         '</td>' +
         '<td>' +
-            '<input type="text" id="amount" class="form-control">' +
+            '<input type="text" id="price" class="form-control price'+(prodCont+1)+'">' +
         '</td>' +
         '<td>' +
-            '<input type="text" id="discount" class="form-control">' +
+        '<input type="text" id="discount" class="form-control discount'+(prodCont+1)+'">' +
         '</td>' +
+        '<td>' +
+            '<input type="text" id="amount" class="form-control amount'+(prodCont+1)+'">' +
+        '</td>' +
+        '<td>' +
+            '<input type="text" id="tax" class="form-control tax'+(prodCont+1)+'">' +
+        '</td>' +
+       
         '<td class="add-remove text-end">' +
             '<a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
             '<a href="#" class="copy-btn me-2"><i class="fas fa-copy"></i></a>' +
@@ -713,7 +728,9 @@ console.log("error")
             console.log("calling:"+event.target.value)
 
             td=td.parentElement;
-            var category=td.querySelector("#category");
+            var description=td.querySelector("#description");
+            var hsnSac=td.querySelector("#hsnSac");
+            var tax=td.querySelector("#tax");
             var quantity=td.querySelector("#quantity");
             var price=td.querySelector("#price");
             var amount=td.querySelector("#amount");
@@ -723,7 +740,9 @@ console.log("error")
                 method:'GET',
                 async:false,
                 success:(data)=>{
-                   category.value=data.category;
+                    description.value=data.productDescription;
+                    hsnSac.value=data.hsnCode;
+                    tax.value=data.applicableTax;
                    quantity.value=data.unit;
                    price.value=data.rate;
                    if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
@@ -738,9 +757,24 @@ console.log("error")
             })
             window.prodSelectOnChange(event)
         })
+
+        $('.quantity'+(prodCont+1)).on('change',(e)=>{onQuantityUnitChange(e)})
+        $('.price'+(prodCont+1)).on('change',(e)=>{onPriceUnitChange(e)})
+        $('.discount'+(prodCont+1)).on('change',(e)=>{onDiscountUnitChange(e)})
     },1)
     return false;
 });
+
+function testRegex(a){
+    var reg = /^-?\d+\.?\d*$/;
+    var regxp=new RegExp(reg);
+    return regxp.test(a);
+  }
+  
+  const checkRegex=(num)=>{
+    if(num==null || num==undefined || num=='' || !testRegex(num)) return false;
+    return true;
+  }
 // Checkbox Select
 	
 $('.app-listing .selectBox').on("click", function(e) {
@@ -920,16 +954,26 @@ elem.appendChild(node);
 
 }
 
-$(".custom_check.w-100 input[type='checkbox']").click((event)=>{
-    event.stopImmediatePropagation();
-    $(".custom_check.w-100 input[type='checkbox']").map((a,b)=>{
-        console.log(b)
-        b.checked=false
-    })
-    event.target.checked=true;
-  })
+// $(".custom_check.w-100 input[type='checkbox']").click((event)=>{
+//     event.stopImmediatePropagation();
+//     $(".custom_check.w-100 input[type='checkbox']").map((a,b)=>{
+//         console.log(b)
+//         b.checked=false
+//     })
+//     event.target.checked=true;
+//   })
+
+  const roundNum=(num)=>{
+    num=num*100;
+    num=Math.round(num);
+    num=num/100;
+  
+    return num;
+  }
 
   $('.prodListSelect').select2();
+
+  $('#customer').select2()
 
   $('.prodListSelect1').on('change',(event)=>{
     var td=event.target.parentElement;
@@ -939,7 +983,9 @@ $(".custom_check.w-100 input[type='checkbox']").click((event)=>{
     console.log("calling:"+event.target.value)
 
     td=td.parentElement;
-    var category=td.querySelector("#category");
+    var description=td.querySelector("#description");
+    var hsnSac=td.querySelector("#hsnSac");
+    var tax=td.querySelector("#tax")
     var quantity=td.querySelector("#quantity");
     var price=td.querySelector("#price");
     var amount=td.querySelector("#amount");
@@ -949,11 +995,14 @@ $(".custom_check.w-100 input[type='checkbox']").click((event)=>{
         method:'GET',
         async:false,
         success:(data)=>{
-           category.value=data.category;
-           quantity.value=data.unit;
-           price.value=data.rate;
+            debugger;
+            description.value=data.productDescription;
+            hsnSac.value=data.hsnCode;
+            tax.value=data.applicableTax;
+            quantity.value=data.unit;
+            price.value=roundNum(data.rate);
            if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
-            amount.value=data.unit*data.rate;
+            amount.value=roundNum(data.unit*data.rate);
            }
            discount.value=0;
 
@@ -964,3 +1013,149 @@ $(".custom_check.w-100 input[type='checkbox']").click((event)=>{
     })
     window.prodSelectOnChange(event)
     })
+
+
+    const onQuantityUnitChange=(event)=>{
+        debugger;
+        let tr=event.target.parentElement.parentElement;
+        
+        let quantity=tr.querySelector("#quantity")
+
+        let quantityVal=quantity.value;
+        
+        if(!checkRegex(quantityVal)){
+            quantityVal=0;
+            quantity.value=0;
+        }
+
+
+        let discount=tr.querySelector("#discount");
+
+        let discountVal=roundNum(discount.value);
+
+        if(!checkRegex(discountVal)){
+            discount.value=0;
+            discountVal=0;
+        }
+
+        let price=tr.querySelector("#price");
+
+        let priceVal=roundNum(price.value);
+
+        if(!checkRegex(priceVal)){
+            price.value=0;
+            priceVal=0;
+        }
+
+
+        let amount=tr.querySelector("#amount");
+
+        amount.value=roundNum((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100));
+
+        window.onQuantityChange(event)
+    }
+
+    const onPriceUnitChange=(event)=>{
+        let tr=event.target.parentElement.parentElement;
+        
+        let quantity=tr.querySelector("#quantity")
+
+        let quantityVal=quantity.value;
+        
+        if(!checkRegex(quantityVal)){
+            quantityVal=0;
+            quantity.value=0;
+        }
+
+
+        let discount=tr.querySelector("#discount");
+
+        let discountVal=roundNum(discount.value);
+
+        if(!checkRegex(discountVal)){
+            discount.value=0;
+            discountVal=0;
+        }
+
+        let price=tr.querySelector("#price");
+
+        let priceVal=roundNum(price.value);
+
+        if(!checkRegex(priceVal)){
+            price.value=0;
+            priceVal=0;
+        }
+
+
+        let amount=tr.querySelector("#amount");
+
+        amount.value=roundNum((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100));
+
+        window.onPriceChange(event)
+    }
+
+    const onDiscountUnitChange=(event)=>{
+        let tr=event.target.parentElement.parentElement;
+        
+        let quantity=tr.querySelector("#quantity")
+
+        let quantityVal=quantity.value;
+        
+        if(!checkRegex(quantityVal)){
+            quantityVal=0;
+            quantity.value=0;
+        }
+
+
+        let discount=tr.querySelector("#discount");
+
+        let discountVal=roundNum(discount.value);
+
+        if(!checkRegex(discountVal)){
+            discount.value=0;
+            discountVal=0;
+        }
+
+        let price=tr.querySelector("#price");
+
+        let priceVal=roundNum(price.value);
+
+        if(!checkRegex(priceVal)){
+            price.value=0;
+            priceVal=0;
+        }
+
+
+        let amount=tr.querySelector("#amount");
+
+        amount.value=roundNum((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100));
+
+        window.onDiscountChange(event)
+    }
+
+
+    $('.quantity1').on('change',(e)=>{onQuantityUnitChange(e)})
+    $('.price1').on('change',(e)=>{onPriceUnitChange(e)})
+    $('.discount1').on('change',(e)=>{onDiscountUnitChange(e)})
+
+
+    $("#customer").on('change',(e)=>{
+        window.selectCustomer(e)
+    })
+
+$("#invoiceDate").on("dp.change",(e)=>{
+    window.onInvoiceDateChange(e);
+})
+
+$("#poDate").on("dp.change",(e)=>{
+    window.onPoDateChange(e);
+})
+
+
+$("#dueDate").on("dp.change",(e)=>{
+    window.onDueDateChange(e);
+})
+
+$("#challanDate").on("dp.change",(e)=>{
+    window.onChallanDateChange(e);
+})

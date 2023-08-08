@@ -123,7 +123,7 @@ export default function Sidebar() {
 							<li className="submenu">
 								<a href="#"><i className="feather-clipboard"></i> <span>  Invoices </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
-									<li><a href="invoices.html" >Invoices List</a></li>
+									<li><Link to="/InvoiceList">Invoices List</Link></li>
 									<li><a href="invoice-grid.html" >Invoices Grid</a></li>
 									<li><Link to="/add-invoice">Add Invoices</Link></li>
 									<li><a href="edit-invoice.html">Edit Invoices</a></li>

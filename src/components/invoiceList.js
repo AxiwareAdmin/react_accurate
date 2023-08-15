@@ -1,6 +1,9 @@
 import React,{useEffect ,useState} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import ViewInvoice from "./view-Invoice";
+
 
 export default function InvoiceList () {
 
@@ -20,6 +23,7 @@ export default function InvoiceList () {
 
     useEffect(() => {
 
+		window.nadimid=1;
         axios.get("http://localhost:8081/erp/invoices").then((res) => {
             res.data.map(elem=>{
             let trElem=document.createElement("tr");
@@ -49,11 +53,11 @@ export default function InvoiceList () {
 
             let aElem=document.createElement("a");
 
-            aElem.href="view-invoice.html";
-
             aElem.className="invoice-link";
 
-            aElem.appendChild(textElem)
+		    aElem.href="/viewInvoice?id="+elem.invoiceNo;
+
+             aElem.appendChild(textElem)
 
             tdElem.appendChild(aElem);
 
@@ -242,7 +246,7 @@ export default function InvoiceList () {
           document.body.removeChild(script8);
           document.body.removeChild(script9);
           document.body.removeChild(script10);
-          //   document.body.removeChild(script11);
+          document.body.removeChild(script11);
         };
       }, []);
   
@@ -587,13 +591,14 @@ export default function InvoiceList () {
 												</tr>
 											</thead>
 											<tbody>
+												
 												{/* <tr>
 													<td>
 														<label class="custom_check">
 															<input type="checkbox" name="invoice"/>
 															<span class="checkmark"></span> 
 														</label>
-														<a href="view-invoice.html" class="invoice-link">IN093439#@09</a>
+														<Link to={{pathname:"view-invoice",useState:"1234",}} class="invoice-link">IN093439#@09</Link>
 													</td>
 													<td>Advertising</td>
 													<td>16 Mar 2022</td>

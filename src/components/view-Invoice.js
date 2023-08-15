@@ -8,6 +8,22 @@ import { useLocation,useParams,useNavigate } from "react-router-dom";
 
 export default function ViewInvoice (){
 
+
+
+
+   function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+    
+        if (month.length < 2) 
+            month = '0' + month;
+        if (day.length < 2) 
+            day = '0' + day;
+    
+        return [day, month, year].join('-');
+    }
   
     useEffect(() => {
 
@@ -95,34 +111,21 @@ export default function ViewInvoice (){
 
       }, [])  
 
-      function formatDate(date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-    
-        if (month.length < 2) 
-            month = '0' + month;
-        if (day.length < 2) 
-            day = '0' + day;
-    
-        return [day, month, year].join('-');
-    }
-
-            
+                  
       useEffect(() => {
-           
-        var url=new URL(window.location.href);
-        let id1=url.searchParams.get("id")
-        console.log("id:"+id1);
-        setinvNo(id1);
         
-        console.log("Invoice no "+id1);
-      
+
+
+        var url=new URL(window.location.href);
+        let id1=url.searchParams.get("id");
+        setinvNo(id1);
+
+
           axios
           .get("http://localhost:8081/erp/viewInvoice?invNo="+id1)
           .then((res) => {
           
+
           let billingaddr = res.data.billingAddress;
           if(billingaddr !=null && billingaddr != undefined && billingaddr != "")
           setToAddr(billingaddr);
@@ -170,6 +173,46 @@ export default function ViewInvoice (){
           let tot = res.data.invoiceValue;
           if(tot != null && tot != undefined && tot != "")
           settotal(tot);
+
+         res.data.productdo.map(ele => {
+
+           let trEle = document.createElement("tr");
+           let tdEle = document.createElement("td");
+           let textEle = document.createTextNode(ele.productName);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           tdEle = document.createElement("td");
+           textEle = document.createTextNode(ele.productDescription);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           tdEle = document.createElement("td");
+           textEle = document.createTextNode("$"+ele.rate);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           tdEle = document.createElement("td");
+           textEle = document.createTextNode(ele.quantity);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           tdEle = document.createElement("td");
+           textEle = document.createTextNode(ele.discount+"%");
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           tdEle = document.createElement("td");
+           tdEle.className = "text-end";
+           textEle = document.createTextNode("$"+ele.amount);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           document.querySelector("#productTable").appendChild(trEle);
+
+
+         });
+
       
         });
 
@@ -291,31 +334,15 @@ export default function ViewInvoice (){
                               <th class="text-end">Amount</th>
                             </tr>
                           </thead>
-                          <tbody>
-                            <tr>
-                              <td>Dell Laptop</td>
-                              <td>Laptop</td>
-                              <td>$1,110</td>
-                              <td>2</td>
-                              <td>2%</td>
-                              <td class="text-end">$400</td>
-                            </tr>
-                            <tr>
-                              <td>HP Laptop</td>
-                              <td>Laptop</td>
-                              <td>$1,500</td>
-                              <td>3</td>
-                              <td>6%</td>
-                              <td class="text-end">$3,000</td>
-                            </tr>
-                            <tr>
+                          <tbody id="productTable">
+                            {/* <tr>
                               <td>Apple Ipad</td>
                               <td>Ipad</td>
                               <td>$11,500</td>
                               <td>1</td>
                               <td>10%</td>
                               <td class="text-end">$11,000</td>
-                            </tr>
+                            </tr> */}
                           </tbody>
                         </table>
                       </div>

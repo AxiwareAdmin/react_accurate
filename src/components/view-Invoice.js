@@ -1,4 +1,4 @@
-import React,{useEffect , useState} from "react";
+import React,{useEffect , useRef, useState} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import { useLocation,useParams,useNavigate } from "react-router-dom";
@@ -8,7 +8,7 @@ import { useLocation,useParams,useNavigate } from "react-router-dom";
 
 export default function ViewInvoice (){
 
-
+  const initilized = useRef(false);
 
 
    function formatDate(date) {
@@ -116,11 +116,13 @@ export default function ViewInvoice (){
         
 
 
-        var url=new URL(window.location.href);
-        let id1=url.searchParams.get("id");
-        setinvNo(id1);
+          var url=new URL(window.location.href);
+          let id1=url.searchParams.get("id");
+          setinvNo(id1);
 
+          if(!initilized.current){  
 
+            initilized.current=true;
           axios
           .get("http://localhost:8081/erp/viewInvoice?invNo="+id1)
           .then((res) => {
@@ -215,6 +217,7 @@ export default function ViewInvoice (){
 
       
         });
+      }
 
       });
 

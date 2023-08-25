@@ -95,19 +95,8 @@ export default function InvoicePageWrapper(props) {
 
     return num;
   };
-
-  // function testRegex(a){
-  //   var reg = /^-?\d+\.?\d*$/;
-  //   var regxp=new RegExp(reg);
-  //   return regxp.test(a);
-  // }
-
-  // const checkRegex=(num)=>{
-  //   if(num==null || num==undefined || num=='' || !testRegex(num)) return false;
-  //   return true;
-  // }
-
-  const calculateTotalAmt = () => {
+  
+const calculateTotalAmt = () => {
     let totalAmt = 0;
     let tempProdUnits = [...productUnits];
     tempProdUnits.map((product) => {

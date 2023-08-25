@@ -771,7 +771,7 @@ function testRegex(a){
     return regxp.test(a);
   }
   
-  const checkRegex=(num)=>{
+  function checkRegex(num){
     if(num==null || num==undefined || num=='' || !testRegex(num)) return false;
     return true;
   }
@@ -963,7 +963,7 @@ elem.appendChild(node);
 //     event.target.checked=true;
 //   })
 
-  const roundNum=(num)=>{
+  function roundNum(num){
     num=num*100;
     num=Math.round(num);
     num=num/100;
@@ -1015,7 +1015,7 @@ elem.appendChild(node);
     })
 
 
-    const onQuantityUnitChange=(event)=>{
+    function onQuantityUnitChange(event){
         debugger;
         let tr=event.target.parentElement.parentElement;
         
@@ -1055,7 +1055,7 @@ elem.appendChild(node);
         window.onQuantityChange(event)
     }
 
-    const onPriceUnitChange=(event)=>{
+    function onPriceUnitChange(event){
         let tr=event.target.parentElement.parentElement;
         
         let quantity=tr.querySelector("#quantity")
@@ -1094,7 +1094,7 @@ elem.appendChild(node);
         window.onPriceChange(event)
     }
 
-    const onDiscountUnitChange=(event)=>{
+    function onDiscountUnitChange(event){
         let tr=event.target.parentElement.parentElement;
         
         let quantity=tr.querySelector("#quantity")

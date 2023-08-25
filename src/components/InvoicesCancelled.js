@@ -1,21 +1,13 @@
-import React,{useEffect ,useState , createContext , useRef} from "react";
+import React,{useState,useEffect} from "react";
 import Sidebar from "./Sidebar";
-import axios from "axios";
-import InvoicesPaid from "./InvoicesPaid";
-import InvoicesOverDue from "./InvoicesOverDue";
-import InvoicesDraft from "./InvoicesDraft";
-import invoicesRecurring from "./invoicesRecurring";
-import { useNavigate } from "react-router-dom";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { Link, useLocation ,useNavigate } from "react-router-dom";
 
 
+export default function InvoicesCancelled (){
 
-
-
-export default function InvoiceList () {
-
+    const location = useLocation();
 	const [month , setMonth] = useState("");
+    const [invoicedo , setInvoiceDo] = useState("");
 	const [allInv , setAllInv] = useState(0);
 	const [paidInv , setPaidInv] = useState(0);
 	const [unPaidInv , setUnPaidInv] = useState(0);
@@ -24,17 +16,24 @@ export default function InvoiceList () {
 	const [paidInvVal , setPaidInvVal] = useState(0);
 	const [unpaidInvVal , setUnpaidInvVal] = useState(0);
 	const [canInvVal , setCanInvVal] = useState(0);
-	//  "/viewInvoice?id="
-	const actionmap = [{name:"Edit",path:'#',classname:"far fa-edit me-2"},{name:"View",path:'#',classname:"far fa-eye me-2"},
-	{name:"Delete",path:"#",classname:"far fa-trash-alt me-2"},{name:"Mark as sent",path:"#",classname:"far fa-check-circle me-2"},
-	{name:"Send Invoice",path:"#",classname:"far fa-paper-plane me-2"},{name:"Clone Invoice",path:"#",classname:"far fa-copy me-2"},
-	{name:"Print Invoice",path:"#",classname:"far fa-copy me-2"},{name:"Download Invoice",path:"#",classname:"far fa-copy me-2"}];
-    const otionsDate = ["Today","Tomarrow","Lastweek"];
-	const [invoicedo , setInvoicedo] = useState("");
+	const navigate = useNavigate();
+	  const rendertoinvList = () => {
+		navigate("/invoiceList?month="+month);
+	  };
+      const rendertoInvPaid = () => {
+		navigate("/InvoicesPaid", { state: invoicedo });
+	  };
+	  const rendertoInvOverDue = () => {
+		navigate("/InvoicesOverDue", { state: invoicedo });
+	  };
+	  const rendertoInvDraft = () => {
+		navigate("/InvoicesDraft", { state: invoicedo });
+	  };
+	  const rendertoInvRecur = () => {
+		navigate("/invoicesRecurring", { state: invoicedo });
+	  };
 
-
-
-    function formatDate(date) {
+      function formatDate(date) {
         var d = new Date(date),
             month = '' + (d.getMonth() + 1),
             day = '' + d.getDate(),
@@ -47,12 +46,15 @@ export default function InvoiceList () {
     
         return [day, month, year].join('-');
     }
-
-    useEffect(() => {
-
-		var url=new URL(window.location.href);
-          let month1=url.searchParams.get("month");
-          setMonth(month1);
+	  
+	useEffect(() =>{
+	
+     const data = location.state;
+	 let invdotmp =invoicedo;
+	 console.log("temp invoice do"+invdotmp);
+	 if(data != null && data != "" && invdotmp == ""){
+		setMonth(data[0].month);
+		setInvoiceDo(data);
 		  let allinvs = 0;
 		  let paidinvs = 0;
 		  let unpaidinvs = 0;
@@ -61,14 +63,10 @@ export default function InvoiceList () {
 		  let paidinvvals = 0;
 		  let unpaidinvvals = 0;
 		  let caninvvals = 0;
-          let srNo = 0;
-        axios.get("http://localhost:8081/erp/invoices/"+month1).then((res) => {
-			setInvoicedo(res.data);
-            res.data.map(elem=>{
-
-				srNo = srNo + 1;
-
-           allinvs = allinvs + 1;
+		  let srNo = 0;
+	 data.map((elem) => {
+		   
+		   allinvs = allinvs + 1;
 		   setAllInv(allinvs);
 		   allinvvals = allinvvals + parseInt(elem.invoiceValue);
 		   setAllInvVal(allinvvals);
@@ -96,318 +94,108 @@ export default function InvoiceList () {
 		   caninvvals = caninvvals + parseInt(elem.invoiceValue);
 		   setCanInvVal(caninvvals);
 		   }
+        if(elem.invoiceStatus == "Cancelled"){
+
+            srNo = srNo + 1;
 
             let trElem=document.createElement("tr");
 
 			let tdElem = document.createElement("td");
-			let textElem =  document.createTextNode(srNo);
+			let textElem = document.createTextNode(srNo);
 			tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 
             tdElem=document.createElement("td");
             textElem=document.createTextNode(elem.invoiceNo );//set data
-            //let inputElem=document.createElement("input");
-           // let spanElem=document.createElement("span");
-          //  let labelElem=document.createElement("label")
-           // labelElem.className="custom_check";
-           // inputElem.type="checkbox";
-          //  inputElem.name="invoice";
-            //spanElem.className="checkmark";
-           // labelElem.appendChild(inputElem);
-           // labelElem.appendChild(spanElem);
-          //  tdElem.appendChild(labelElem);
-            let aElem=document.createElement("a"); 
-			aElem.className="invoice-link";
+            // let inputElem=document.createElement("input");
+            // let spanElem=document.createElement("span");
+            // let labelElem=document.createElement("label")
+            // labelElem.className="custom_check";
+            // inputElem.type="checkbox";
+            // inputElem.name="invoice";
+            // spanElem.className="checkmark";
+            // labelElem.appendChild(inputElem);
+            // labelElem.appendChild(spanElem);
+            // tdElem.appendChild(labelElem);
+            let aElem=document.createElement("a");
+            aElem.className="invoice-link";
 		    aElem.href="/viewInvoice?id="+elem.invoiceNo;
-            aElem.appendChild(textElem); 
-			tdElem.appendChild(aElem);
+            aElem.appendChild(textElem)
+            tdElem.appendChild(aElem);
             trElem.appendChild(tdElem);
 
-
-            //invoice category
-            tdElem=document.createElement("td");
-
-            textElem=document.createTextNode("Advertising")
-
-            tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem);
-
-
-
-            tdElem=document.createElement("td");
-
-            textElem=document.createTextNode(formatDate(elem.createdDate));
-
-            tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem)
-
-
-            tdElem=document.createElement("td");
-
+			tdElem=document.createElement("td");
             textElem=document.createTextNode(elem.customerName);
-
             tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
 
-            trElem.appendChild(tdElem)
-
-
-            tdElem=document.createElement("td");
-
+			tdElem=document.createElement("td");
             tdElem.className="text-primary";
-
             textElem=document.createTextNode(elem.invoiceValue);
-
             tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem)  
-
+            trElem.appendChild(tdElem);
 
             tdElem=document.createElement("td");
-
-            textElem=document.createTextNode(formatDate(elem.dueDate));
-
+            textElem=document.createTextNode(formatDate(elem.createdDate));
             tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+			
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(formatDate(elem.createdDate));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
 
-            trElem.appendChild(tdElem) 
-            
-            
-            tdElem=document.createElement("td");
-           let spanElem=document.createElement("span")
-            
-			if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
-            spanElem.className="badge bg-success-light" 
-			if(elem.invoiceStatus == "Overdue")
-			spanElem.className="badge bg-danger-light";
-			if(elem.invoiceStatus == "Cancelled")
-			spanElem.className="badge bg-primary-light";
-		    if(elem.invoiceStatus == "Draft")
-			spanElem.className="badge bg-warning";
+			// tdElem=document.createElement("td");
+            // spanElem=document.createElement("span")
+            // spanElem.className="badge bg-success-light"
+			// textElem=document.createTextNode(elem.invoiceStatus);
+            // spanElem.appendChild(textElem)
+            // tdElem.appendChild(spanElem);
+            // trElem.appendChild(tdElem) 
 
-
-            textElem=document.createTextNode(elem.invoiceStatus);
-
-            spanElem.appendChild(textElem)
-
-            tdElem.appendChild(spanElem);
-
-            trElem.appendChild(tdElem)  
-
-            tdElem=document.createElement("td");
-            tdElem.className="text-end";
-			let divEle = document.createElement("div");
-			divEle.className = "dropdown dropdown-action";
-			let aEle = document.createElement("a");
-            aEle.className = "action-icon dropdown-toggle";
-			aEle.href = "#";
-			aEle.setAttribute("data-bs-toggle" , "dropdown");
-			aEle.setAttribute("aria-expanded" , "false");
+			tdElem = document.createElement("td");
+			tdElem.className ="text-end";
+            aElem = document.createElement("a");
+			aElem.href = "#";
+			aElem.className = "btn btn-sm btn-white text-success me-2";
 			let iEle = document.createElement("i");
-			iEle.className = "fas fa-ellipsis-v";
-			aEle.appendChild(iEle);
-			divEle.appendChild(aEle);
-			let innerDiv = document.createElement("div");
-			innerDiv.className = "dropdown-menu dropdown-menu-end";
-			innerDiv.style = "";
-			actionmap.map(ele =>{
-				aEle = document.createElement("a");
-				iEle = document.createElement("i");
-				aEle.className = "dropdown-item"
-				aEle.href=ele.path;
-				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.invoiceNo+"')");
-				iEle.className = ele.classname;
-				textElem = document.createTextNode(ele.name);
-				aEle.appendChild(iEle);
-				aEle.appendChild(textElem);
-				innerDiv.appendChild(aEle);
-			});
-			divEle.appendChild(innerDiv);
-			tdElem.appendChild(divEle);
-            trElem.appendChild(tdElem) 
+			iEle.className = "far fa-edit me-1";
+			textElem = document.createTextNode("Edit");
+			aElem.appendChild(iEle);
+			aElem.appendChild(textElem);
+			tdElem.appendChild(aElem);
+			aElem = document.createElement("a");
+			aElem.href = "#";
+			aElem.className = "btn btn-sm btn-white text-danger";
+			iEle = document.createElement("i");
+			iEle.className = "far fa-trash-alt me-1";
+			textElem = document.createTextNode("Delete");
+			aElem.appendChild(iEle);
+			aElem.appendChild(textElem);
+			tdElem.appendChild(aElem);
+			trElem.appendChild(tdElem);
+
+
+			document.querySelector(".datatable tbody").appendChild(trElem);
+		}
+	 })
+	 }
+	},[]);
+
+
+    useEffect(() =>{
+
+
+    },[]);
+
+    return(
+        <div>
+            <Sidebar/>
+
+            {/* <!-- Page Wrapper --> */}
+            <div class="page-wrapper">
 			
-            document.querySelector(".datatable tbody").appendChild(trElem);
-        })
-
-          });
-
-		axios.get("http://localhost:8081/erp/customers").then((res) => {
-		console.log(res.data);
-		res.data.map((a) => {
-        var option = document.createElement("option");
-        option.value = a.customerId;
-        option.append(document.createTextNode(a.customerName));
-        document.querySelector("#customer").append(option);
-			});
-		});
-				
-	    const script11 = document.createElement("script");
-        script11.src = "/assets/js/jquery-3.6.0.min.js";
-        script11.async = false;
-    
-        document.body.appendChild(script11);
-    
-        const script8 = document.createElement("script");
-        script8.src = "/assets/plugins/moment/moment.min.js";
-        script8.async = false;
-    
-        document.body.appendChild(script8);
-    
-        const script10 = document.createElement("script");
-        script10.src = "/assets/js/bootstrap.bundle.min.js";
-        script10.async = false;
-    
-        document.body.appendChild(script10); //can be uncommented
-    
-        const script9 = document.createElement("script");
-        script9.src = "/assets/js/jquery.slimscroll.min.js";
-        script9.async = false;
-    
-        document.body.appendChild(script9); //can be uncommented
-    
-        const script7 = document.createElement("script");
-        script7.src = "/assets/js/bootstrap-datetimepicker.min.js";
-        script7.async = false;
-    
-        document.body.appendChild(script7); //can be uncommented
-    
-        const script6 = document.createElement("script");
-        script6.src = "/assets/js/jquery.dataTables.min.js";
-        script6.async = false;
-    
-        document.body.appendChild(script6); //can be uncommented
-    
-        const script5 = document.createElement("script");
-        script5.src = "/assets/js/dataTables.bootstrap4.min.js";
-        script5.async = false;
-    
-        document.body.appendChild(script5); //can be uncommented
-    
-        const script4 = document.createElement("script");
-        script4.src = "/assets/js/feather.min.js";
-        script4.async = false;
-    
-        document.body.appendChild(script4); //can be uncommented
-    
-        const script3 = document.createElement("script");
-        script3.src = "/assets/js/select2.min.js";
-        script3.async = false;
-    
-        document.body.appendChild(script3); //can be uncommented
-    
-        const script2 = document.createElement("script");
-        script2.src = "/assets/js/theme-settings.js";
-        script2.async = false;
-    
-        document.body.appendChild(script2); //can be uncommented
-    
-        const script = document.createElement("script");
-        script.src = "/assets/js/app.js";
-        script.async = false;
-    
-        document.body.appendChild(script);
-    
-        return () => {
-          document.body.removeChild(script);
-          document.body.removeChild(script2);
-          document.body.removeChild(script3);
-          document.body.removeChild(script4);
-          document.body.removeChild(script5);
-          document.body.removeChild(script6);
-          document.body.removeChild(script7);
-          document.body.removeChild(script8);
-          document.body.removeChild(script9);
-          document.body.removeChild(script10);
-          document.body.removeChild(script11);
-        };
-      }, []);
-
-	  useEffect(() => {
-		window.selectCustomer = (e) => {
-			
-		  };
-		  window.rendercommon = (name , invno) => {
-			rendercommon(name , invno);
-		  }
-
-	  });
-
-	  
-	  const navigate = useNavigate();
-	  const rendertoInvPaid = () => {
-		navigate("/InvoicesPaid", { state: invoicedo });
-	  };
-	  const rendertoInvOverDue = () => {
-		navigate("/InvoicesOverDue", { state: invoicedo });
-	  };
-	  const rendertoInvDraft = () => {
-		navigate("/InvoicesDraft", { state: invoicedo });
-	  };
-	  const rendertoInvRecur = () => {
-		navigate("/invoicesRecurring", { state: invoicedo });
-	  };
-	  const rendertoInvCancl = () => {
-		navigate("/InvoicesCancelled", { state: invoicedo });
-	  };
-
-	  function rendercommon(name , invt) {
-         console.log("on click target value"+name+"invoice no :"+invt);
-		 if(name == "Edit"){
-			navigate("/InvoicesCancelled");
-		 }else if(name == "View" || name == "Print Invoice"){
-			navigate("/viewInvoice?id="+invt);
-		 }else if(name == "Delete"){
-			axios.get("http://localhost:8081/erp/deleteInv?invNo="+invt).then((res) => {
-		    console.log(res.data);
-			if(res!=null && res.data.res=='sucess'){
-				alert("Invoice deleted successfully!!")
-		  
-				// setTimeout(()=>{
-				//   alert(null)
-				// },2000)
-		  
-				}
-				else
-				  alert("There is some issue delete invoice. kindly check wherether all the data is entered or not.");		   
-		});
-		 } else if(name == "Mark as sent"){
-			navigate("/InvoicesCancelled");
-		 }else if(name == "Send Invoice"){
-			navigate("/InvoicesCancelled");
-		 } else if(name == "Clone Invoice"){
-			navigate("/InvoicesCancelled");
-		 }else if(name == "Download Invoice"){
-			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt);
-
-			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
-			// 	document.body.appendChild(canvas);  
-			// 	const imgData = canvas.toDataURL('image/png');
-			// 	const pdf = new jsPDF();
-			// 	pdf.addImage(imgData, 'PNG', 0, 0,210,310);
-			// 	pdf.save("download.pdf"); 
-			// });
-
-				// html2canvas(inputRef.current).then((canvas) => {
-				// 	const imgData = canvas.toDataURL("image/png");
-				// 	const pdf = new jsPDF();
-				// 	pdf.addImage(imgData, "JPEG", 0, 0,210,310);
-				// 	pdf.save("download.pdf");
-				//   });
-			
-		 }
-	  };
-  
-  return (
-    <div>
-		<Sidebar />
-		
-        {/* <div style={{color:'white',backgroundColor:'red',textAlign:'center'}}>
-            Hello Axiware <h1> I am here </h1>
-        </div> */}
-
-        <div class="page-wrapper" >
-			
+				{/* <!-- Page Content --> */}
                 <div class="content container-fluid">
 
                 	<div class="crms-title row bg-white">
@@ -417,14 +205,15 @@ export default function InvoiceList () {
 			                  <i class="fa fa-file" aria-hidden="true"></i>
 			                </span> Invoice </h3>
                 		</div>
-                        <div class="col p-0 text-end">
+                		<div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
 								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
 								<li class="breadcrumb-item active">Invoice</li>
 							</ul>
                 		</div>
-                    </div>
-                    <div class="row align-items-center">
+                	</div>
+
+					<div class="row align-items-center">
 						<div class="col">
 						</div>
 						<div class="col-auto py-3">
@@ -436,25 +225,19 @@ export default function InvoiceList () {
 							</a>
 						</div>
 					</div>
-                 {/* Report filter start */}
-                    <div class="card report-card" >
+					{/* <!-- Report Filter --> */}
+					<div class="card report-card">
 						<div class="card-body pb-0">
 							<div class="row">
 								<div class="col-md-12">
 									<ul class="app-listing">
 										<li>
 											<div class="multipleSelection">
-												{/* <div class="selectBox">
+												<div class="selectBox">
 													<p class="mb-0"><i data-feather="user-plus" class="me-1 select-icon"></i> Select User</p>
 													<span class="down-icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
-												</div>	 */}
-												 <span>
-												{/*<i style={{position: "absolute",zIndex: "1",marginTop: "7%",marginLeft:"4%",color: "#9a55ff"}}data-feather="user-plus" class="me-1 select-icon"></i> */}
-												<select class="form-control select2"
-					                              name="product"	id="customer">
-												  <option  value="-1" > &emsp; &nbsp; Select User</option>
-												  </select>	</span>  
-												{/* <div id="checkBoxes">
+												</div>						  
+												<div id="checkBoxes">
 													<form action="#">
 														<p class="checkbox-title">Customer Search</p>
 														<div class="form-custom">
@@ -493,17 +276,16 @@ export default function InvoiceList () {
 														<button type="submit" class="btn w-100 btn-primary">Apply</button>
 														<button type="reset" class="btn w-100 btn-grey">Reset</button>
 													</form>
-												</div> */}
+												</div>
 											</div>
 										</li>
 										<li>
 											<div class="multipleSelection">
-												 <div class="selectBox">
+												<div class="selectBox">
 													<p class="mb-0"><i data-feather="calendar" class="me-1 select-icon"></i> Select Date</p>
 													<span class="down-icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
-												</div> 
-																		  
-												 <div id="checkBoxes">
+												</div>						  
+												<div id="checkBoxes">
 													<form action="#">
 														<p class="checkbox-title">Date Filter</p>
 														<div class="selectBox-cont selectBox-cont-one h-auto">
@@ -527,8 +309,8 @@ export default function InvoiceList () {
 																</ul>
 															</div>
 														</div>
-													</form> 
-												</div> 
+													</form>
+												</div>
 											</div>
 										</li>
 										<li>
@@ -633,22 +415,20 @@ export default function InvoiceList () {
 							</div>
 						</div>
 					</div>
-                    {/* Report filter End */}
-
-                    <div class="card invoices-tabs-card">
+					{/* <!-- /Report Filter --> */}
+					<div class="card invoices-tabs-card">
 						<div class="card-body card-body pt-0 pb-0">
 							<div class="invoices-main-tabs">
 								<div class="row align-items-center">
 									<div class="col-lg-8 col-md-8">
 										<div class="invoices-tabs">
 											<ul>
-												
-												<li><a href="#" class="active">All Invoice</a></li>
-												<li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
-												<li><a href="#" onClick={rendertoInvOverDue}>Overdue</a></li>		
-												<li><a href="#" onClick={rendertoInvDraft}>Draft</a></li>	
-												<li><a href="#" onClick={rendertoInvRecur}>Recurring</a></li>
-												<li><a href="#" onClick={rendertoInvCancl}>Cancelled</a></li>
+                                                <li><a to="#" onClick={rendertoinvList}>All Invoice</a></li>
+												<li><a to="#" onClick={rendertoInvPaid} >Paid</a></li>	
+												<li><a to="#" onClick={rendertoInvOverDue} >Overdue</a></li>		
+												<li><a to="#" onClick={rendertoInvDraft} >Draft</a></li>	
+												<li><a to="#"  onClick={rendertoInvRecur}>Recurring</a></li>
+												<li><a to="#" class="active">Cancelled</a></li>
 											</ul>
 										</div>
 									</div>
@@ -657,9 +437,9 @@ export default function InvoiceList () {
 											<a href="invoices-settings.html" class="invoices-settings-icon">
 												<i data-feather="settings"></i>
 											</a>
-											<a href="/add-invoice" class="btn">
+											<Link to="/add-invoice" class="btn">
 												<i data-feather="plus-circle"></i> New Invoice
-											</a>
+											</Link>
 										</div>
 									</div>
 								</div>
@@ -737,49 +517,35 @@ export default function InvoiceList () {
 										<table class="table table-striped table-nowrap custom-table mb-0 datatable">
 											<thead class="thead-light">
 												<tr>
-													<th>Sr No</th>
+												   <th>Sr No</th> 
 												   <th>Invoice ID</th>
-												   <th>Category</th>
-												   <th>Created on</th>
 												   <th>Invoice to</th>
 												   <th>Amount</th>
-												   <th>Due date</th>
-												   <th>Status</th>
+												   <th>Created on</th>
+												   <th>Cancelled on</th>
 												   <th class="text-end">Action</th>
 												</tr>
 											</thead>
 											<tbody>
-												
 												{/* <tr>
 													<td>
 														<label class="custom_check">
 															<input type="checkbox" name="invoice"/>
 															<span class="checkmark"></span> 
 														</label>
-														<Link to={{pathname:"view-invoice",useState:"1234",}} class="invoice-link">IN093439#@09</Link>
+														<a href="view-invoice.html" class="invoice-link">IN093439#@09</a>
 													</td>
-													<td>Advertising</td>
-													<td>16 Mar 2022</td>
 													<td>
 														<h2 class="table-avatar">
 															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-04.jpg" alt="User Image"/> Barbara Moore</a>
 														</h2>
 													</td>
 													<td class="text-primary">$1,54,220</td>
+													<td>16 Mar 2022</td>
 													<td>23 Mar 2022</td>
-													<td><span class="badge bg-success-light">Paid</span></td>
 													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
+														<a href="edit-invoice.html" class="btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Edit</a> 
+														<a class="btn btn-sm btn-white text-danger" href="#" data-bs-toggle="modal" data-bs-target="#delete_paid"><i class="far fa-trash-alt me-1"></i>Delete</a>
 													</td>
 												</tr>
 												<tr>
@@ -790,28 +556,17 @@ export default function InvoiceList () {
 														</label>
 														<a href="view-invoice.html" class="invoice-link">IN093439#@10</a>
 													</td>
-													<td>Food</td>
-													<td>14 Mar 2022</td>
 													<td>
 														<h2 class="table-avatar">
 															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-06.jpg" alt="User Image"/> Karlene Chaidez</a>
 														</h2>
 													</td>
 													<td class="text-primary">$1,222</td>
+													<td>14 Mar 2022</td>
 													<td>18 Mar 2022</td>
-													<td><span class="badge bg-danger-light">Overdue</span></td>
 													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
+														<a href="edit-invoice.html" class="btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Edit</a> 
+														<a class="btn btn-sm btn-white text-danger" href="#" data-bs-toggle="modal" data-bs-target="#delete_paid"><i class="far fa-trash-alt me-1"></i>Delete</a>
 													</td>
 												</tr>
 												<tr>
@@ -822,28 +577,17 @@ export default function InvoiceList () {
 														</label>
 														<a href="view-invoice.html" class="invoice-link">IN093439#@11</a>
 													</td>
-													<td>Marketing</td>
-													<td>7 Mar 2022</td>
 													<td>
 														<h2 class="table-avatar">
 															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-08.jpg" alt="User Image"/> Russell Copeland</a>
 														</h2>
 													</td>
 													<td class="text-primary">$3,470</td>
+													<td>7 Mar 2022</td>
 													<td>10 Mar 2022</td>
-													<td><span class="badge bg-primary-light">Cancelled</span></td>
 													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
+														<a href="edit-invoice.html" class="btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Edit</a> 
+														<a class="btn btn-sm btn-white text-danger" href="#" data-bs-toggle="modal" data-bs-target="#delete_paid"><i class="far fa-trash-alt me-1"></i>Delete</a>
 													</td>
 												</tr>
 												<tr>
@@ -854,28 +598,17 @@ export default function InvoiceList () {
 														</label>
 														<a href="view-invoice.html" class="invoice-link">IN093439#@12</a>
 													</td>
-													<td>Repairs</td>
-													<td>24 Mar 2022</td>
 													<td>
 														<h2 class="table-avatar">
 															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-10.jpg" alt="User Image"/> Joseph Collins</a>
 														</h2>
 													</td>
 													<td class="text-primary">$8,265</td>
+													<td>24 Mar 2022</td>
 													<td>30 Mar 2022</td>
-													<td><span class="badge bg-success-light">Paid</span></td>
 													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
+														<a href="edit-invoice.html" class="btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Edit</a> 
+														<a class="btn btn-sm btn-white text-danger" href="#" data-bs-toggle="modal" data-bs-target="#delete_paid"><i class="far fa-trash-alt me-1"></i>Delete</a>
 													</td>
 												</tr>
 												<tr>
@@ -886,28 +619,17 @@ export default function InvoiceList () {
 														</label>
 														<a href="view-invoice.html" class="invoice-link">IN093439#@13</a>
 													</td>
-													<td>Software</td>
-													<td>17 Mar 2022</td>
 													<td>
 														<h2 class="table-avatar">
 															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-11.jpg" alt="User Image"/> Jennifer Floyd</a>
 														</h2>
 													</td>
 													<td class="text-primary">$5,200</td>
+													<td>17 Mar 2022</td>
 													<td>20 Mar 2022</td>
-													<td><span class="badge bg-danger-light">Overdue</span></td>
 													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
+														<a href="edit-invoice.html" class="btn btn-sm btn-white text-success me-2"><i class="far fa-edit me-1"></i> Edit</a> 
+														<a class="btn btn-sm btn-white text-danger" href="#" data-bs-toggle="modal" data-bs-target="#delete_paid"><i class="far fa-trash-alt me-1"></i>Delete</a>
 													</td>
 												</tr> */}
 											</tbody>
@@ -917,12 +639,13 @@ export default function InvoiceList () {
 							</div>
 						</div>
 					</div>
-                   
-
                 </div>
-        </div>
-     </div>
-	 
-	 );
+				{/* <!-- /Page Content --> */}
+				
+            </div>
+			{/* <!-- /Page Wrapper --> */}
 
+
+        </div>
+    );
 }

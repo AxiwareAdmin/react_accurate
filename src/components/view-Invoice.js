@@ -1,6 +1,8 @@
 import React,{useEffect , useRef, useState} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { useLocation,useParams,useNavigate } from "react-router-dom";
 
 
@@ -220,6 +222,21 @@ export default function ViewInvoice (){
       }
 
       });
+       
+      const invoicepdf = useRef(null);
+      useEffect (() =>{
+     
+        if(initilized.current){
+
+          html2canvas(invoicepdf.current).then((canvas) => {
+					const imgData = canvas.toDataURL("image/png");
+					const pdf = new jsPDF();
+					pdf.addImage(imgData, "JPEG", 0, 0,210,310);
+					pdf.save("download.pdf");
+				  });
+        }
+
+      });
 
       const [invNo,setinvNo]=useState(null);
   const [compName , setcmpName] = useState("");
@@ -241,7 +258,7 @@ export default function ViewInvoice (){
   return (
     <div>
 		<Sidebar />
-    <div class="page-wrapper">
+    <div class="page-wrapper" ref={invoicepdf}>
 			
       
               <div class="content container-fluid">

@@ -698,6 +698,9 @@ console.log("error")
             '<input type="text" id="quantity" class="form-control quantity'+(prodCont+1)+'">' +
         '</td>' +
         '<td>' +
+        '<input type="text" id="unit" class="form-control unit'+(prodCont+1)+'">' +
+        '</td>' +
+        '<td>' +
             '<input type="text" id="price" class="form-control price'+(prodCont+1)+'">' +
         '</td>' +
         '<td>' +
@@ -719,7 +722,7 @@ console.log("error")
     $(".add-table-items").append(experiencecontent);
     setTimeout(()=>{
        
-        $('.prodListSelect').select2();
+        $('.prodListSelect'+(prodCont+1)).select2();
         $('.prodListSelect'+(prodCont+1)).on('change',(event)=>{
             var td=event.target.parentElement;
 
@@ -730,25 +733,39 @@ console.log("error")
             td=td.parentElement;
             var description=td.querySelector("#description");
             var hsnSac=td.querySelector("#hsnSac");
+            hsnSac.style="text-align:end;"
             var tax=td.querySelector("#tax");
+            tax.style="text-align:end;"
             var quantity=td.querySelector("#quantity");
+            quantity.style="text-align:end;"
             var price=td.querySelector("#price");
+            price.style="text-align:end;"
             var amount=td.querySelector("#amount");
+            amount.style="text-align:end;";
+            amount.readOnly=true;
             var discount=td.querySelector("#discount");
+            discount.style="text-align:end;"
+
+            td.querySelector("#tax").readOnly=true;
+            var unit=td.querySelector("#unit");
+            unit.readOnly=true;
             $.ajax({
                 url:'http://localhost:8081/erp/invoiceproduct/'+event.target.value,
                 method:'GET',
                 async:false,
                 success:(data)=>{
+                    debugger;
                     description.value=data.productDescription;
                     hsnSac.value=data.hsnCode;
-                    tax.value=data.applicableTax;
-                   quantity.value=data.unit;
-                   price.value=data.rate;
+                    tax.value=toCurrency(data.applicableTax).replace(/[\$]/g,'');
+                   quantity.value=toCurrency(data.unit).replace(/[\$]/g,'');
+                   price.value=toCurrency(data.rate).replace(/[\$]/g,'');
                    if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
-                    amount.value=data.unit*data.rate;
-                   }
-                   discount.value=0;
+                    amount.value=toCurrency(data.unit*data.rate).replace(/[\$]/g,'');
+                   }     
+                   discount.value=toCurrency(0).replace(/[\$]/g,'');
+
+                   unit.value=data.unitVarchar;
 
                 },
                 error:(error)=>{
@@ -764,6 +781,25 @@ console.log("error")
     },1)
     return false;
 });
+
+function toCurrency(value) {
+    try {
+      if( isNaN(Number(value)) ) return value;
+      return Number(value).toLocaleString("en-US",{style:"currency", currency:"USD"});    
+    }
+    catch(err) {
+      throw err;
+    }
+  }
+  function fromCurrency(value) {
+    try {
+      let num = Number(value.replace(/[\$,]/g,''));
+      return isNaN(num) ? 0 : num;
+    }
+    catch(err) {
+      throw err;
+    }
+  }
 
 function testRegex(a){
     var reg = /^-?\d+\.?\d*$/;
@@ -971,6 +1007,10 @@ elem.appendChild(node);
     return num;
   }
 
+  $("#paymentTerm").select2()
+
+  $("#transportModes").select2( )
+
   $('.prodListSelect').select2();
 
   $('#customer').select2()
@@ -990,6 +1030,7 @@ elem.appendChild(node);
     var price=td.querySelector("#price");
     var amount=td.querySelector("#amount");
     var discount=td.querySelector("#discount");
+    var unit=td.querySelector("#unit");
     $.ajax({
         url:'http://localhost:8081/erp/invoiceproduct/'+event.target.value,
         method:'GET',
@@ -998,13 +1039,14 @@ elem.appendChild(node);
             debugger;
             description.value=data.productDescription;
             hsnSac.value=data.hsnCode;
-            tax.value=data.applicableTax;
-            quantity.value=data.unit;
-            price.value=roundNum(data.rate);
+            tax.value=toCurrency(data.applicableTax).replace(/[\$]/g,'');
+            quantity.value=toCurrency(data.unit).replace(/[\$]/g,'');
+            price.value=toCurrency(data.rate).replace(/[\$]/g,'');
            if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
-            amount.value=roundNum(data.unit*data.rate);
+            amount.value=toCurrency(data.unit*data.rate).replace(/[\$]/g,'');
            }
-           discount.value=0;
+           discount.value=toCurrency(0).replace(/[\$]/g,'');
+           unit.value=data.unitVarchar;
 
         },
         error:(error)=>{
@@ -1021,36 +1063,43 @@ elem.appendChild(node);
         
         let quantity=tr.querySelector("#quantity")
 
-        let quantityVal=quantity.value;
+        let quantityVal=fromCurrency(toCurrency(quantity.value));
         
-        if(!checkRegex(quantityVal)){
-            quantityVal=0;
-            quantity.value=0;
-        }
+        // if(!checkRegex(quantityVal)){
+        //     quantityVal=0.00;
+        //     quantity.value=0.00;
+        // }
 
+        quantity.value=toCurrency(quantityVal).replace(/[\$]/g,'');
 
         let discount=tr.querySelector("#discount");
 
-        let discountVal=roundNum(discount.value);
+        let discountVal=fromCurrency(toCurrency(discount.value));
 
-        if(!checkRegex(discountVal)){
-            discount.value=0;
-            discountVal=0;
-        }
+        // if(!checkRegex(discountVal)){
+        //     discount.value=0.00;
+        //     discountVal=0.00;
+        // }
+
+
+
+        // discountVal=toCurrency(discount.value).replace(/[\$]/g,'');
 
         let price=tr.querySelector("#price");
 
-        let priceVal=roundNum(price.value);
+        let priceVal=fromCurrency(toCurrency(price.value));
 
-        if(!checkRegex(priceVal)){
-            price.value=0;
-            priceVal=0;
-        }
+        // if(!checkRegex(priceVal)){
+        //     price.value=0;
+        //     priceVal=0;
+        // }
+
+        // priceVal=toCurrency(price.value).replace(/[\$]/g,'');
 
 
         let amount=tr.querySelector("#amount");
 
-        amount.value=roundNum((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100));
+        amount.value=toCurrency((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100)).replace(/[\$]/g,'');
 
         window.onQuantityChange(event)
     }
@@ -1060,36 +1109,38 @@ elem.appendChild(node);
         
         let quantity=tr.querySelector("#quantity")
 
-        let quantityVal=quantity.value;
+        let quantityVal=fromCurrency(toCurrency(quantity.value));
         
-        if(!checkRegex(quantityVal)){
-            quantityVal=0;
-            quantity.value=0;
-        }
+        // if(!checkRegex(quantityVal)){
+        //     quantityVal=0;
+        //     quantity.value=0;
+        // }
 
 
         let discount=tr.querySelector("#discount");
 
-        let discountVal=roundNum(discount.value);
+        let discountVal=fromCurrency(toCurrency(discount.value));
 
-        if(!checkRegex(discountVal)){
-            discount.value=0;
-            discountVal=0;
-        }
+        // if(!checkRegex(discountVal)){
+        //     discount.value=0;
+        //     discountVal=0;
+        // }
 
         let price=tr.querySelector("#price");
 
-        let priceVal=roundNum(price.value);
+        let priceVal=fromCurrency(toCurrency(price.value));
 
-        if(!checkRegex(priceVal)){
-            price.value=0;
-            priceVal=0;
-        }
+        price.value=toCurrency(priceVal).replace(/[\$]/g,'');
+
+        // if(!checkRegex(priceVal)){
+        //     price.value=0;
+        //     priceVal=0;
+        // }
 
 
         let amount=tr.querySelector("#amount");
 
-        amount.value=roundNum((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100));
+        amount.value=toCurrency((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100)).replace(/[\$]/g,'');
 
         window.onPriceChange(event)
     }
@@ -1099,36 +1150,37 @@ elem.appendChild(node);
         
         let quantity=tr.querySelector("#quantity")
 
-        let quantityVal=quantity.value;
+        let quantityVal=fromCurrency(toCurrency(quantity.value));
         
-        if(!checkRegex(quantityVal)){
-            quantityVal=0;
-            quantity.value=0;
-        }
+        // if(!checkRegex(quantityVal)){
+        //     quantityVal=0;
+        //     quantity.value=0;
+        // }
 
 
         let discount=tr.querySelector("#discount");
 
-        let discountVal=roundNum(discount.value);
+        let discountVal=fromCurrency(toCurrency(discount.value));
 
-        if(!checkRegex(discountVal)){
-            discount.value=0;
-            discountVal=0;
-        }
+        discount.value=toCurrency(discountVal).replace(/[\$]/g,'');
+        // if(!checkRegex(discountVal)){
+        //     discount.value=0;
+        //     discountVal=0;
+        // }
 
         let price=tr.querySelector("#price");
 
-        let priceVal=roundNum(price.value);
+        let priceVal=fromCurrency(toCurrency(price.value));
 
-        if(!checkRegex(priceVal)){
-            price.value=0;
-            priceVal=0;
-        }
+        // if(!checkRegex(priceVal)){
+        //     price.value=0;
+        //     priceVal=0;
+        // }
 
 
         let amount=tr.querySelector("#amount");
 
-        amount.value=roundNum((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100));
+        amount.value=toCurrency((quantityVal*priceVal)-((quantityVal*priceVal)*discountVal/100)).replace(/[\$]/g,'');
 
         window.onDiscountChange(event)
     }
@@ -1159,3 +1211,85 @@ $("#dueDate").on("dp.change",(e)=>{
 $("#challanDate").on("dp.change",(e)=>{
     window.onChallanDateChange(e);
 })
+
+$("#paymentTerm").on("change",(e)=>{
+    window.onPaymentTermsChange(e);
+})
+
+$("#transportModes").on("change",(e)=>{
+    window.onTransportModeChange(e);
+})
+
+$("#description").on("change",(e)=>{
+    window.onDescriptionChange(e)
+})
+
+
+$(".select2-selection--single").css({ 'border':"1px solid #9a55ff"})
+
+
+$(".printBtn").click((e)=>{
+    e.stopImmediatePropagation();
+    printPage()
+})
+
+
+function printPage() {
+      var contents = $(".page-wrapper").html();
+      var frame1 = $('<iframe>', {
+          id: "frame1",
+          name: "frame1"
+        })
+        .css({
+          "position": "absolute",
+          "top": "-1000000px"
+        })
+        .appendTo($("body"));
+      var myHTML = $("<html>");
+      $("<head>").appendTo(myHTML);
+      $("<title>").html("DIV Contents").appendTo($("head", myHTML));
+      $("<body>").appendTo(myHTML);
+      $("head > link").clone().appendTo($("body", myHTML));
+      $("body", myHTML).append(contents);
+      console.log("Content", myHTML.prop("outerHTML"));
+      var frameDoc = window.frames.frame1;
+      frameDoc.document.open();
+      //Create a new HTML document.
+      frameDoc.document.write(myHTML.prop("outerHTML"));
+      frameDoc.document.close();
+      setTimeout(function() {
+        frame1.focus();
+        window.frames.frame1.print();
+        frame1.remove();
+      }, 500);
+  };
+
+
+//   otherCharge
+
+  document.getElementById("otherCharge")&&document.getElementById("otherCharge").addEventListener("blur",function(e){
+    e.stopImmediatePropagation();
+    document.getElementById("otherCharge").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
+  })
+
+//   transportCharge
+
+document.getElementById("transportCharge")&&document.getElementById("transportCharge").addEventListener("blur",function(e){
+    e.stopImmediatePropagation();
+    document.getElementById("transportCharge").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
+  })
+
+// otherDiscount
+
+document.getElementById("otherDiscount")&&document.getElementById("otherDiscount").addEventListener("blur",function(e){
+    e.stopImmediatePropagation();
+    document.getElementById("otherDiscount").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
+  })
+
+
+//   discountInPercentage
+
+document.getElementById("discountInPercentage")&&document.getElementById("discountInPercentage").addEventListener("blur",function(e){
+    e.stopImmediatePropagation();
+    document.getElementById("discountInPercentage").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
+  })

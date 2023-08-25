@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
-import { useAsyncError } from "react-router-dom";
+import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 export default function InvoicePageWrapper(props) {
   const [productUnits, setProductUnits] = useState([
     {
@@ -16,8 +16,28 @@ export default function InvoicePageWrapper(props) {
       price: 0,
       amount: 0,
       discount: null,
+      unit:null
     },
   ]);
+
+  function toCurrency(value) {
+    try {
+      if( isNaN(Number(value)) ) return value;
+      return Number(value).toLocaleString("en-US",{style:"currency", currency:"USD"});    
+    }
+    catch(err) {
+      throw err;
+    }
+  }
+  function fromCurrency(value) {
+    try {
+      let num = Number(value.replace(/[\$,]/g,''));
+      return isNaN(num) ? 0 : num;
+    }
+    catch(err) {
+      throw err;
+    }
+  }
 
   const [productCount, setProductCount] = useState(1);
   function prodSelectOnChange(event) {
@@ -30,11 +50,12 @@ export default function InvoicePageWrapper(props) {
         td = td.parentElement;
         var description = td.querySelector("#description").value;
         var hsnSac=td.querySelector("#hsnSac").value;
-        var tax=td.querySelector("#tax").value;
-        var quantity = td.querySelector("#quantity").value;
-        var price = td.querySelector("#price").value;
-        var discount = td.querySelector("#discount").value;
-        var amount = td.querySelector("#amount").value;
+        var tax=fromCurrency(td.querySelector("#tax").value);
+        var quantity = fromCurrency(td.querySelector("#quantity").value);
+        var price = fromCurrency(td.querySelector("#price").value);
+        var discount = fromCurrency(td.querySelector("#discount").value);
+        var amount = fromCurrency(td.querySelector("#amount").value);
+        var unit=td.querySelector("#unit").value;
         var productName = event.target.querySelector("option:checked").text;
 
         let tempProdUnits = [...productUnits];
@@ -49,6 +70,7 @@ export default function InvoicePageWrapper(props) {
             prodUnit.discount = discount;
             prodUnit.amount = amount;
             prodUnit.productName = productName;
+            prodUnit.unit=unit;
           }
         });
 
@@ -78,7 +100,8 @@ export default function InvoicePageWrapper(props) {
       quantity: 0,
       price: 0,
       amount: 0,
-      discount: null
+      discount: null,
+      unit:null
     };
 
  
@@ -108,12 +131,12 @@ export default function InvoicePageWrapper(props) {
   // }
 
   const calculateTotalAmt = () => {
-    let totalAmt = 0;
+    console.log(productUnits)
+    let totAmt = 0;
     let tempProdUnits = [...productUnits];
     tempProdUnits.map((product) => {
       let quantity = product.quantity;
-      if (
-        quantity == null ||
+      let temp=( quantity == null ||
         quantity == undefined ||
         quantity == "" ||
         product.price == null ||
@@ -123,19 +146,38 @@ export default function InvoicePageWrapper(props) {
         product.discount == null ||
         product.discount == "" ||
         product.productName == null ||
+        product.productName == "--Select--")
+
+        console.log(product.discount+".."+ (product.discount == null ||
+          product.discount == ""))
+      if (
+        quantity == null ||
+        quantity == undefined ||
+        quantity === "" ||
+        product.price == null ||
+        product.price === "" ||
+        product.amount == null ||
+        product.amount === "" ||
+        product.discount == null ||
+        product.discount === "" ||
+        product.productName == null ||
         product.productName == "--Select--"
       )
         return 0;
 
       let price = roundNum(product.price);
       let discount = roundNum(product.discount);
-      product.amount = roundNum(
+      // product.amount = roundNum(
+      //   quantity * price - quantity * price * (discount / 100)
+      // );
+
+      let amt=roundNum(
         quantity * price - quantity * price * (discount / 100)
       );
 
-      totalAmt = roundNum(totalAmt + product.amount);
+      totAmt = roundNum(totAmt + amt);
     });
-    return totalAmt;
+    return totAmt;
   };
   const [totalAmt, setTotalAmt] = useState(calculateTotalAmt());
 
@@ -143,11 +185,11 @@ export default function InvoicePageWrapper(props) {
     var tr = event.target.parentElement.parentElement;
     var productTrNo = tr.querySelector("#productId").value;
 
-    let quantity = tr.querySelector("#quantity").value;
+    let quantity = fromCurrency(tr.querySelector("#quantity").value);
 
-    let price = tr.querySelector("#price").value;
-    let discount = tr.querySelector("#discount").value;
-    let amount = tr.querySelector("#amount").value;
+    let price = fromCurrency(tr.querySelector("#price").value);
+    let discount = fromCurrency(tr.querySelector("#discount").value);
+    let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
     tempProdUnits.map((prodUnit) => {
@@ -164,18 +206,18 @@ export default function InvoicePageWrapper(props) {
     });
 
     setProductUnits(tempProdUnits);
-    setTotalAmt(calculateTotalAmt());
+    // setTotalAmt(calculateTotalAmt());
   };
 
   const onDiscountChange = (event) => {
     var tr = event.target.parentElement.parentElement;
     var productTrNo = tr.querySelector("#productId").value;
 
-    let quantity = tr.querySelector("#quantity").value;
+    let quantity = fromCurrency(tr.querySelector("#quantity").value);
 
-    let price = tr.querySelector("#price").value;
-    let discount = tr.querySelector("#discount").value;
-    let amount = tr.querySelector("#amount").value;
+    let price = fromCurrency(tr.querySelector("#price").value);
+    let discount = fromCurrency(tr.querySelector("#discount").value);
+    let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
     tempProdUnits.map((prodUnit) => {
@@ -192,18 +234,18 @@ export default function InvoicePageWrapper(props) {
     });
 
     setProductUnits(tempProdUnits);
-    setTotalAmt(calculateTotalAmt());
+    // setTotalAmt(calculateTotalAmt());
   };
 
   const onQuantityChange = (event) => {
     var tr = event.target.parentElement.parentElement;
     var productTrNo = tr.querySelector("#productId").value;
 
-    let quantity = event.target.value;
+    let quantity = fromCurrency(event.target.value);
 
-    let price = tr.querySelector("#price").value;
-    let discount = tr.querySelector("#discount").value;
-    let amount = tr.querySelector("#amount").value;
+    let price = fromCurrency(tr.querySelector("#price").value);
+    let discount = fromCurrency(tr.querySelector("#discount").value);
+    let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
     tempProdUnits.map((prodUnit) => {
@@ -221,7 +263,7 @@ export default function InvoicePageWrapper(props) {
 
     setProductUnits(tempProdUnits);
 
-    setTotalAmt(calculateTotalAmt());
+    // setTotalAmt(calculateTotalAmt());
   };
 
   const removeTr = (prodTrId) => {
@@ -245,7 +287,9 @@ export default function InvoicePageWrapper(props) {
       let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
       console.log("invoice:" + invoiceNum);
       setInvoiceNumber(invoiceNum);
-    });
+    }).catch((e)=>{
+      console.log(e)
+    })
 
     axios
       .get("http://localhost:8081/erp/customer/" + customerId)
@@ -275,9 +319,10 @@ export default function InvoicePageWrapper(props) {
   useEffect(() => {
     console.log("produnit changed" + productUnits);
     setTotalAmt(calculateTotalAmt());
-    setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
-    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
-    setTotalTaxableAmt(tempTotalTaxableAmt)
+    // setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
+    // let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
+    // setTotalTaxableAmt(tempTotalTaxableAmt)
+
   }, [productUnits]);
 
 
@@ -285,6 +330,18 @@ export default function InvoicePageWrapper(props) {
 
 
   useEffect(() => {
+window.onPaymentTermsChange=(e)=>{
+  onPaymentTermsChange(e);
+}
+
+window.onDescriptionChange=(e)=>{
+  onDescriptionChange(e);
+}
+
+window.onTransportModeChange=(e)=>{
+  onTransportModeChange(e);
+}
+
     window.onDueDateChange=(e)=>{
       onDueDateChange(e);
     }
@@ -456,6 +513,7 @@ export default function InvoicePageWrapper(props) {
   const [fromAddr1, setFromAddr1] = useState("");
   const [fromAddr2, setFromAddr2] = useState("");
 
+
   const [shippingAddress1, setShippingAddress1] = useState("");
 
   const [shippingAddress2, setShippingAddress2] = useState("");
@@ -490,15 +548,22 @@ export default function InvoicePageWrapper(props) {
 
   const [challanDate,setChallanDate]=useState("");
 
-  const [paymentTerms,setPaymentTerms]=useState("");
+  const [paymentTerm,setPaymentTerm]=useState(["15 Days","30 Days","45 Days","60 Days","90 Days","50% Advance","100% Advance","As Per Remarks"]);
 
   const [dueDate,setDueDate]=useState("");
 
-  const [transportMode,setTransportMode]=useState("");
+  const [transportModes,setTransportModes]=useState(["By Air","By Road"])
+
+  const [paymentTermVal,setPaymentTermVal]=useState("15 days");
+
+  const [transportModeVal,setTransportModeVal]=useState("By Air");
 
   const [vehicleNumber,setVehicleNumber]=useState("");
+
+  const [isSaved,setIsSaved]=useState(0)
+
+  const navigate=useNavigate();
 useEffect(()=>{
-    debugger;
     document.querySelector(".gstContainer").innerHTML='';
     let tempGstPercentageArr=[];
     let tempGstPercentageVal=[];
@@ -517,11 +582,14 @@ useEffect(()=>{
 
   setGstPercentageArr(tempGstPercentageArr);
   setGstPercentageVal(tempGstPercentageVal);
+debugger;
+
+   setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
+   let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
+    setTotalTaxableAmt(tempTotalTaxableAmt)
 },[totalAmt])
 
     useEffect(()=>{
-      debugger;
-     
 
       gstPercentageArr.map((elem)=>{
         let index=gstPercentageArr.indexOf(elem);
@@ -541,7 +609,7 @@ useEffect(()=>{
 
         let spanElem=document.createElement("span");
 
-        textElem=document.createTextNode(roundNum(roundNum(parseFloat(gstPercentageVal[index]))/2));
+        textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
 
         spanElem.appendChild(textElem);
 
@@ -572,7 +640,7 @@ useEffect(()=>{
          
         spanElem=document.createElement("span");
 
-         textElem=document.createTextNode(roundNum(roundNum(parseFloat(gstPercentageVal[index]))/2));
+         textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
 
          spanElem.appendChild(textElem);
 
@@ -623,9 +691,11 @@ useEffect(()=>{
   }
 
   const onOtherChargeChange=(e)=>{
-    setOtherCharge(e.target.value);
-
+    setOtherCharge(fromCurrency(e.target.value));
+    // document.getElementById("otherCharge").value=toCurrency(e.target.value).replace(/[\$]/g,'');
   }
+
+  
 
   const onDiscountInPercentageChange=(e)=>{
     setDiscountInPercentage(e.target.value);
@@ -636,6 +706,25 @@ useEffect(()=>{
     setDiscountInRupees(e.target.value);
    
   }
+
+const onDescriptionChange=(e)=>{
+  var tr = e.target.parentElement.parentElement;
+    var productTrNo = tr.querySelector("#productId").value;
+
+    let quantity = tr.querySelector("#description").value;
+    let tempProdUnits = [...productUnits];
+    tempProdUnits.map((prodUnit) => {
+      if (
+        prodUnit.id == productTrNo &&
+        prodUnit.productName != null &&
+        prodUnit.productName != ""
+      ) {
+        prodUnit.description=e.target.value;
+      }
+    });
+
+    setProductUnits(tempProdUnits);
+}
 
   function getCurrentFinancialYear() {
     var fiscalyear = "";
@@ -659,6 +748,7 @@ useEffect(()=>{
     })
 
     let invoiceData={
+      invoiceProducts:productUnits,
       invoiceNo:invoiceNumber,
       sgstValue:totalSgst,
       cgstValue:totalCgst,
@@ -676,9 +766,9 @@ useEffect(()=>{
       poDate:poDate,
       challanNumber:challanNumber,
       challanDate:challanDate,
-      paymentTerms:paymentTerms,
+      paymentTerms:paymentTermVal,
       dueDate:dueDate,
-      transportMode:transportMode,
+      transportMode:transportModeVal,
       vehicleNumber:vehicleNumber
     }
 
@@ -694,6 +784,8 @@ useEffect(()=>{
       if(response!=null && response.data.res=='success'){
       props.onAlertChange("Invoice created successfully!!")
 
+      setIsSaved(1);
+
       setTimeout(()=>{
         props.onAlertChange(null)
       },2000)
@@ -708,6 +800,18 @@ useEffect(()=>{
   }
 
   const onInvoiceDateChange=(e)=>{
+    debugger; 
+    var inDateArr=e.target.value.split("/")
+    var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
+    console.log(inDate)
+    inDate=inDate.addDays(parseInt(paymentTermVal.split(" ")[0]));
+    console.log(inDate)
+    inDate=getFormattedDate(inDate)
+
+    document.getElementById("dueDate").value=inDate
+    setDueDate(inDate)
+
+
     setInvoiceDate(e.target.value)
   }
 
@@ -725,18 +829,57 @@ useEffect(()=>{
 
   const onChallanNumberChange=(e)=>{
     setChallanNumber(e.target.value);
-  }
+  } 
 
   const onPaymentTermsChange=(e)=>{
-    setPaymentTerms(e.target.value);
+    if(invoiceDate!=null && invoiceDate!=undefined && invoiceDate!='' && invoiceDate.length>0){
+      var inDateArr=invoiceDate.split("/")
+    var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
+    console.log(inDate)
+    inDate=inDate.addDays(parseInt(e.target.value.split(" ")[0]));
+    console.log(inDate)
+    inDate=getFormattedDate(inDate)
+
+    document.getElementById("dueDate").value=inDate
+    setDueDate(inDate)
+
+
+    }
+    setPaymentTermVal(e.target.value);
   }
 
   const onTransportModeChange=(e)=>{
-    setTransportMode(e.target.value)
+    setTransportModeVal(e.target.value)
   }
 
   const onVehicleNumberChange=(e)=>{
     setVehicleNumber(e.target.value)
+  }
+
+  const printButtonClicked=(e)=>{
+    if(isSaved==0)
+      alert("please save the invoice first!!.");
+    else
+     navigate("/viewInvoice?id="+invoiceNumber)
+  }
+
+
+  Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+  }
+
+  function getFormattedDate(date) {
+    var year = date.getFullYear();
+  
+    var month = (1 + date.getMonth()).toString();
+    month = month.length > 1 ? month : '0' + month;
+  
+    var day = date.getDate().toString();
+    day = day.length > 1 ? day : '0' + day;
+    
+    return day + '/' + month + '/' + year;
   }
   return (
     <div>
@@ -1041,7 +1184,14 @@ useEffect(()=>{
 <div class="invoice-inner-date">
 <div class="form-group">
 <label>Payment Terms</label>
-<input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" />
+{/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
+<select id="paymentTerm">
+
+{paymentTerm.map((val,key)=>{
+  return (<option value={val}>{val}</option>)
+})}
+
+</select>
 </div>
 </div>
 </div>
@@ -1049,7 +1199,7 @@ useEffect(()=>{
 <div class="invoice-inner-date invoice-inner-datepic">
 <div class="form-group">
 <label for="">Due Date</label>
-<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="dueDate" type="text"  placeholder="Select"/>
+<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="dueDate" type="text"  placeholder="Select" readOnly="true"/>
 </div>
 </div>
 </div>
@@ -1058,7 +1208,15 @@ useEffect(()=>{
 <div class="invoice-inner-date">
 <div class="form-group">
 <label>Transport Mode</label>
-<input value={transportMode} onChange={onTransportModeChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" />
+{/* <input value={transportMode} onChange={onTransportModeChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
+<select id="transportModes" onChange={onTransportModeChange} style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}}>
+{
+  transportModes.map((val,key)=>{
+    return <option value={val}>{val}</option>
+  })
+}
+
+</select>
 </div>
 </div>
 </div>
@@ -1086,6 +1244,7 @@ useEffect(()=>{
                               <th>Product Description</th>
                               <th>HSN/SAC</th>
                               <th>Quantity</th>
+                              <th>Unit</th>
                               <th>Rate</th>
                               <th>Discount</th>
                               <th>Amount</th>
@@ -1121,42 +1280,52 @@ useEffect(()=>{
                                 <input
                                   id="hsnSac"
                                   type="text"
-                                  className="form-control quantity1"
+                                  className="form-control quantity1 alignEnd"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="quantity"
                                   type="text"
+                                  className="form-control quantity1 alignEnd"
+                                />
+                              </td>
+                              <td>
+                                <input
+                                  id="unit"
+                                  type="text"
                                   className="form-control quantity1"
+                                  readonly="true"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="price"
                                   type="text"
-                                  className="form-control price1"
+                                  className="form-control price1 alignEnd"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="discount"
                                   type="text"
-                                  className="form-control discount1"
+                                  className="form-control discount1 alignEnd"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="amount"
                                   type="text"
-                                  className="form-control"
+                                  className="form-control alignEnd"
+                                  readonly="true"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="tax"
                                   type="text"
-                                  className="form-control"
+                                  className="form-control alignEnd"
+                                  readonly="true"
                                 />
                               </td>
                              
@@ -1293,7 +1462,7 @@ useEffect(()=>{
                               <h4>
                                 {" "}
                                 Gross Total
-                                <span style={{marginLeft:"10%"}} id="grossTotal" name="grossTotal">{totalAmt}</span>
+                                <span style={{marginLeft:"10%"}} id="grossTotal" name="grossTotal">{toCurrency(totalAmt).replace(/[\$]/g,'')}</span>
                               </h4>
                               <hr />
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
@@ -1304,10 +1473,12 @@ useEffect(()=>{
                                     style={{
                                       width: "50px",
                                       marginLeft: "200px",
+                                      textAlign:"end"
                                     }}
                                     type="text"
                                     id="transportCharge"
-                                    value={transportCharge}
+                                    placeholder="0.00"
+                                    // value={toCurrency(transportCharge).replace(/[\$]/g,'')}
                                     onChange={onTransportChargeChange}
                                   />
                                 </span>
@@ -1320,11 +1491,13 @@ useEffect(()=>{
                                     style={{
                                       width: "50px",
                                       marginLeft: "200px",
+                                      textAlign:"end"
                                     }}
                                     type="text"
                                     id="otherCharge"
                                     name="othercharges"
-                                    value={otherCharge}
+                                    placeholder="0.00"
+                                    // value={toCurrency(otherCharge).replace(/[\$]/g,'')}
                                     onChange={onOtherChargeChange}
                                   />
                                 </span>
@@ -1338,10 +1511,12 @@ useEffect(()=>{
                                     style={{
                                       width: "50px",
                                       marginLeft: "200px",
+                                      textAlign:"end"
                                     }}
                                     type="text"
                                     id="otherDiscount"
-                                    value={discountInRuppes}
+                                    placeholder="0.00"
+                                    // value={toCurrency(discountInRuppes).replace(/[\$]/g,'')}
                                     onChange={onDiscountInRuppesChange}
                                   />
                                 </span>
@@ -1354,15 +1529,18 @@ useEffect(()=>{
                                     style={{
                                       width: "50px",
                                       marginLeft: "200px",
+                                      textAlign:"end"
                                     }}
                                     type="text"
-                                    value={discountInPercentage}
+                                    id="discountInPercentage"
+                                    placeholder="0.00"
+                                    // value={discountInPercentage}
                                     onChange={onDiscountInPercentageChange}
                                   />
                                 </span>
                               </p>
                               <p>
-                                Total Discount in $<span id="finalDiscount">{totalDiscount}</span>
+                                Total Discount in $<span id="finalDiscount">{toCurrency(fromCurrency(totalDiscount+"")).replace(/[\$]/g,'')}</span>
                               </p>
                               {/* </p> */}
                               <div class="invoice-total-footer">
@@ -1374,9 +1552,9 @@ useEffect(()=>{
                                   <a
                                     style={{ color: "grey" }}
                                     href="javascript:void(0);"
-                                    onchange=" updatemount(), calculateSGST12onvalue(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"
+                                    onchange="updatemount(), calculateSGST12onvalue(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"
                                   >
-                                    Taxable Amount <span id="finalTotal">{totalTaxableAmt}</span>
+                                    Taxable Amount <span id="finalTotal">{toCurrency(fromCurrency(totalTaxableAmt+"")).replace(/[\$]/g,'')}</span>
                                   </a>
                                 </h4>
                               </div>
@@ -1426,7 +1604,7 @@ useEffect(()=>{
 
                               <div class="invoice-total-footer">
                                 <h4>
-                                  Total Amount <span id="totalAmount">{finalAmt}</span>
+                                  Total Amount <span id="totalAmount">{toCurrency(fromCurrency(finalAmt+"")).replace(/[\$]/g,'')}</span>
                                 </h4>
                               </div>
                             </div>
@@ -1501,11 +1679,33 @@ useEffect(()=>{
                               placeholder="Name of the Signatuaory"
                             />
                           </div>
-                          <div className="form-group float-end mb-0">
-                            <button className="btn btn-primary" onClick={saveInvoice}>
+
+
+                          {/* <div class="col-lg-12 col-md-12"><a style={{color:'grey'}}/>
+<div class="form-group float-end mb-0">
+<button className="btn btn-success" onClick={saveInvoice}>
                               Save Invoice
                             </button>
-                          </div>
+</div>
+<div class="form-group float-end mb-0">
+<button class="btn btn-primary" id="submitButton" type="submit" value="Submit">Print</button>
+</div>
+<div class="form-group float-end mb-0">
+<button class="btn btn-danger" id="submitButton" type="submit" value="Submit">Cancel</button>
+</div>
+</div> */}
+
+
+
+
+
+
+
+
+
+                          {/* <div className="form-group float-end mb-0">
+                            
+                          </div> */}
                         </div>
                       </div>
                     </div>
@@ -1514,6 +1714,37 @@ useEffect(()=>{
               </div>
             </div>
           </div>
+
+          <div class="page-header invoices-page-header">
+<div class="row align-items-center">
+<div class="col-lg-3">
+<ul class="breadcrumb invoices-breadcrumb">
+<li class="breadcrumb-item invoices-breadcrumb-item">
+<a href="invoices.html">
+<i class="fa fa-chevron-left"></i> Back to Invoice List
+</a>
+</li>
+</ul>
+</div>
+<div class="col-lg-9 col-md-12"><a style={{color:'grey'}}/>
+<div class="form-group float-end mb-0">
+<button class="btn btn-danger" id="submitButton" type="submit" value="Submit">Cancel</button>
+</div>
+<div class="form-group float-end mb-0">
+<button class="btn btn-primary" onClick={printButtonClicked} id="submitButton" type="submit" value="Submit">Print</button>
+</div>
+<div class="form-group float-end mb-0">
+<button className="btn btn-success" onClick={saveInvoice}>
+                              Save Invoice
+                            </button>
+</div>
+</div>
+</div>
+</div>
+
+
+
+
         </div>
       </div>
 
@@ -1885,6 +2116,8 @@ useEffect(()=>{
         </div>
       </div>
       {/* <!-- /Save Invoices Modal --> */}
+
+      <iframe id="ifmcontentstoprint" style={{height: '0px', width: '0px', position: 'absolute'}}></iframe>
     </div>
   );
 }

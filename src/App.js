@@ -7,6 +7,8 @@ import InvoicePageWrapper from "./components/InvoicePageWrapper";
 import InvoiceList from "./components/invoiceList";
 import Alert from "./components/alert";
 import { BrowserRouter } from "react-router-dom";
+import ViewInvoice from "./components/view-Invoice";
+
 function App() {
   const [alertMsg,setAlertMsg]=useState("");
   const onAlertChange=(msg)=>{
@@ -20,6 +22,7 @@ function App() {
         <Routes>
           <Route  path="/add-invoice" element={<InvoicePageWrapper onAlertChange={onAlertChange}/>} />
           <Route path="/invoiceList" element={<InvoiceList/>}/>
+          <Route path="/viewInvoice" element={<ViewInvoice/>}/>
           <Route  path="/" element={<Index1 />} />
         </Routes>
         </BrowserRouter>

@@ -1,6 +1,9 @@
 import React,{useEffect ,useState} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import ViewInvoice from "./view-Invoice";
+
 
 export default function InvoiceList () {
 
@@ -49,9 +52,9 @@ export default function InvoiceList () {
 
             let aElem=document.createElement("a");
 
-            aElem.href="view-invoice.html";
-
             aElem.className="invoice-link";
+
+            aElem.href="/viewInvoice?id="+elem.invoiceNo;
 
             aElem.appendChild(textElem)
 

@@ -1,6 +1,8 @@
 import React,{useEffect , useRef, useState} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import { useLocation,useParams,useNavigate } from "react-router-dom";
 
 
@@ -35,17 +37,50 @@ export default function ViewInvoice (){
       // pri.print();
 
 
-      var panel = document.getElementsByClassName("page-wrapper")[0];
-      var printWindow = window.open();
+      // var panel = document.getElementsByClassName("page-wrapper")[0];
+      // var printWindow = window.open();
 
-      printWindow.document.write(panel.innerHTML);
+      // printWindow.document.write(panel.innerHTML);
 
-      printWindow.document.close();
-      setTimeout(function () {
-          printWindow.print();
-      }, 500);
+      // printWindow.document.close();
+      // setTimeout(function () {
+      //     printWindow.print();
+      // }, 500);
+
+      html2canvas(invoicepdf.current).then((canvas) => {
+        const myImage = canvas.toDataURL("image/png");
+
+        var nWindow = window.open('');
+
+        // append the canvas to the body
+        nWindow.document.body.appendChild(canvas);
+    
+        // focus on the window
+        nWindow.focus();
+    
+        // print the window
+        nWindow.print();
+
+    });
+    
 
     }
+
+    function ImageSourcetoPrint(source) {
+      return "<html><head><script>function step1(){\n" +
+     "setTimeout('step2()', 10);}\n" +
+     "function step2(){window.print();window.close()}\n" +
+     "</scri" + "pt></head><body onload='step1()'>\n" +
+     "<img src='" + source + "' /></body></html>";
+   }
+  
+   function ImagePrint(source) {
+     var Pagelink = "about:blank";
+     var pwa = window.open(Pagelink, "_new");
+     pwa.document.open();
+     pwa.document.write(ImageSourcetoPrint(source));
+     pwa.document.close();
+   }
   
     useEffect(() => {
 
@@ -235,13 +270,38 @@ export default function ViewInvoice (){
            document.querySelector("#productTable").appendChild(trEle);
 
 
+
          });
 
       
-        });
+        }).catch((e)=>{
+          console.log(e)
+        })
+
+        setTimeout(function () {
+          downloadpdf();
+      }, 500);
       }
 
       });
+       
+      const invoicepdf = useRef(null);
+      // useEffect (() =>{
+     
+      //   if(initilized.current){
+     const downloadpdf = () =>{
+          html2canvas(invoicepdf.current).then((canvas) => {
+					const imgData = canvas.toDataURL("image/png");
+					const pdf = new jsPDF();
+					pdf.addImage(imgData, "JPEG", 0, 0,210,310);
+					pdf.save("download.pdf");
+          
+				//   });
+        // }
+
+      });
+      
+    }
 
       const [invNo,setinvNo]=useState(null);
   const [compName , setcmpName] = useState("");
@@ -263,7 +323,7 @@ export default function ViewInvoice (){
   return (
     <div>
 		<Sidebar />
-    <div class="page-wrapper">
+    <div class="page-wrapper" ref={invoicepdf}>
 			
       
               <div class="content container-fluid">
@@ -418,7 +478,7 @@ export default function ViewInvoice (){
 <div class="col-lg-9 col-md-12"><a style={{color:'grey'}}/>
 
 <div class="form-group float-end mb-0">
-<button class="btn btn-primary printBtn"  id="submitButton" type="submit" value="Submit">Print</button>
+<button onClick={printButtonClicked} class="btn btn-primary"  id="submitButton" type="submit" value="Submit">Print</button>
 </div>
 
 </div>

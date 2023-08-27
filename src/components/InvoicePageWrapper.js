@@ -281,8 +281,8 @@ export default function InvoicePageWrapper(props) {
     e.preventDefault();
     var a = document.querySelector("#customer option:checked");
     var customerId = a.value;
-
-    axios.get("http://localhost:8081/erp/invoices").then((res) => {
+ 
+    axios.get("http://localhost:8081/erp/allInvoices").then((res) => {
       let invoiceLen = res.data.length;
       let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
       console.log("invoice:" + invoiceNum);

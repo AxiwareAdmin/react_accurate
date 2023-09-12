@@ -175,6 +175,7 @@ export default function ViewInvoice (){
 
           var url=new URL(window.location.href);
           let id1=url.searchParams.get("id");
+          let action=url.searchParams.get("action");
           setinvNo(id1);
 
           if(!initilized.current){  
@@ -274,34 +275,31 @@ export default function ViewInvoice (){
          });
 
       
-        }).catch((e)=>{
-          console.log(e)
-        })
+        }).catch(function(error) {
+          console.log(error);
+        });
 
-        setTimeout(function () {
-          downloadpdf();
-      }, 500);
+        if(action == "download" && action != null && action != "" && action != undefined){
+          
+          setTimeout(()=>{
+            invoicedownload();
+             },2000);
+        }
+
       }
 
       });
        
       const invoicepdf = useRef(null);
-      // useEffect (() =>{
-     
-      //   if(initilized.current){
-     const downloadpdf = () =>{
-          html2canvas(invoicepdf.current).then((canvas) => {
-					const imgData = canvas.toDataURL("image/png");
-					const pdf = new jsPDF();
-					pdf.addImage(imgData, "JPEG", 0, 0,210,310);
-					pdf.save("download.pdf");
-          
-				//   });
-        // }
 
-      });
-      
-    }
+      const invoicedownload = () =>{
+        html2canvas(invoicepdf.current).then((canvas) => {
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF();
+          pdf.addImage(imgData, "JPEG", 0, 0,210,310);
+          pdf.save("download.pdf");
+          });
+      }
 
       const [invNo,setinvNo]=useState(null);
   const [compName , setcmpName] = useState("");

@@ -157,9 +157,9 @@ export default function SalesRegister () {
             }
           });
 
-        }).catch((e)=>{
-            console.log(e)
-          })
+        }).catch(function (error) {
+            console.log(error);
+          });
 
       });
 

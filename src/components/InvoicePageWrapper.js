@@ -4,7 +4,10 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
+import { useRef } from "react";
 export default function InvoicePageWrapper(props) {
+
+  const editref = useRef(true);
   const [productUnits, setProductUnits] = useState([
     {
       id: 1,
@@ -59,7 +62,7 @@ export default function InvoicePageWrapper(props) {
         var productName = event.target.querySelector("option:checked").text;
 
         let tempProdUnits = [...productUnits];
-
+        
         tempProdUnits.map((prodUnit) => {
           if (prodUnit.id == productId) {
             prodUnit.description=description;
@@ -282,11 +285,11 @@ export default function InvoicePageWrapper(props) {
     var a = document.querySelector("#customer option:checked");
     var customerId = a.value;
  
-    axios.get("http://localhost:8081/erp/allInvoices").then((res) => {
-      let invoiceLen = res.data.length;
-      let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
-      console.log("invoice:" + invoiceNum);
-      setInvoiceNumber(invoiceNum);
+    // axios.get("http://localhost:8081/erp/allInvoices").then((res) => {
+      axios.get("http://localhost:8081/erp/getInvNo").then((res) => {
+      let invoiceLen = res.data;
+      console.log("invoice:" + invoiceLen);
+      setInvoiceNumber(res.data);
     }).catch((e)=>{
       console.log(e)
     })
@@ -521,6 +524,7 @@ window.onTransportModeChange=(e)=>{
   const [poNumber, setPoNumber] = useState("");
 
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [invoiceId , setInvoiceId] = useState("");
 
   const [transportCharge, setTransportCharge]=useState(0);
 
@@ -554,7 +558,7 @@ window.onTransportModeChange=(e)=>{
 
   const [transportModes,setTransportModes]=useState(["By Air","By Road"])
 
-  const [paymentTermVal,setPaymentTermVal]=useState("15 days");
+  const [paymentTermVal,setPaymentTermVal]=useState("15 Days");
 
   const [transportModeVal,setTransportModeVal]=useState("By Air");
 
@@ -582,7 +586,7 @@ useEffect(()=>{
 
   setGstPercentageArr(tempGstPercentageArr);
   setGstPercentageVal(tempGstPercentageVal);
-debugger;
+
 
    setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
@@ -750,6 +754,7 @@ const onDescriptionChange=(e)=>{
     let invoiceData={
       invoiceProducts:productUnits,
       invoiceNo:invoiceNumber,
+      invoiceId : invoiceId,
       sgstValue:totalSgst,
       cgstValue:totalCgst,
       taxableValue:totalTaxableAmt,
@@ -800,7 +805,7 @@ const onDescriptionChange=(e)=>{
   }
 
   const onInvoiceDateChange=(e)=>{
-    debugger; 
+   
     var inDateArr=e.target.value.split("/")
     var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
     console.log(inDate)
@@ -881,6 +886,198 @@ const onDescriptionChange=(e)=>{
     
     return day + '/' + month + '/' + year;
   }
+
+  // start code for edit invoice
+  
+  useEffect (() => {
+ 
+   if(editref.current){
+    
+           
+          var url=new URL(window.location.href);
+          let invNoEdit=url.searchParams.get("InvNo");
+          let actionedit = url.searchParams.get("action");
+
+          if(actionedit == "Edit" || actionedit == "Clone"){
+
+            axios.get("http://localhost:8081/erp/viewInvoice?invNo="+invNoEdit).then((res) => {
+              console.log("after got data"+res.data.invoiceNo);
+
+
+              if(res.data.invoiceId != null)
+               setInvoiceId(res.data.invoiceId);
+              
+              if(res.data.customerName != null){
+                const text = res.data.customerName;
+                const $select = document.querySelector('#customer');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+              
+              if(res.data.invoiceNo != null)
+              setInvoiceNumber(res.data.invoiceNo);
+
+              if(res.data.poNumber != null)
+              setPoNumber(res.data.poNumber);
+
+              if(res.data.invoiceDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.invoiceDate));
+              setInvoiceDate(finvdate);
+              }
+
+              if(res.data.poDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.poDate));
+              setPoDate(finvdate);
+              }
+
+              if(res.data.billingAddress != null)
+              setFromAddr1(res.data.billingAddress);
+
+              if(res.data.shippingAddress != null)
+              setShippingAddress1(res.data.shippingAddress);
+
+              if(res.data.challanNo != null)
+              setChallanNumber(res.data.challanNo);
+
+              if(res.data.challanDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.challanDate));
+              setChallanDate(finvdate);
+              }
+
+              if(res.data.transportMode != null){
+                const text = res.data.transportMode;
+                const $select = document.querySelector('#transportModes');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+
+              if(res.data.paymentTerms != null)
+              {
+               // let payterm = (res.data.paymentTerms).replace('-'," ");
+                const text = res.data.paymentTerms;
+                const $select = document.querySelector('#paymentTerm');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+              
+               if(res.data.dueDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.dueDate));
+               setDueDate(finvdate);
+               }
+              
+
+              if(res.data.vehicleNo != null)
+              setVehicleNumber(res.data.vehicleNo);
+             
+              //start prod set code
+              window.fetchProdList();
+              
+              res.data.invoiceProductDO.map((elem,index)=>{
+                
+                console.log('product data '+ elem.productName+':index id :'+index);
+               
+              if(index == 0){
+                if(elem.productName != null)
+              {
+                const text = elem.productName;
+                const $select = document.querySelector('.prodListSelect1');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+               
+              // setdesc(elem.productDescription);
+                document.querySelector("#description").value=elem.productDescription;
+                document.querySelector("#hsnSac").value=elem.hsnSac;
+                document.querySelector("#quantity").value=elem.quantity;
+                document.querySelector("#unit").value=elem.unit;
+                document.querySelector("#price").value=elem.rate;
+                document.querySelector("#discount").value=elem.discount;
+                document.querySelector("#amount").value=elem.amount;
+                document.querySelector("#tax").value=elem.tax;
+
+                // var description = document.querySelector("#description").value;
+                // var hsnSac=document.querySelector("#hsnSac").value;
+                // var tax=fromCurrency(document.querySelector("#tax").value);
+                // var quantity = fromCurrency(document.querySelector("#quantity").value);
+                // var price = fromCurrency(document.querySelector("#price").value);
+                // var discount = fromCurrency(document.querySelector("#discount").value);
+                // var amount = fromCurrency(document.querySelector("#amount").value);
+                // var unit=document.querySelector("#unit").value;
+                //var productName = event.target.querySelector("option:checked").text;
+                //let productId = document.querySelector("#productId").value;
+
+                 }
+               
+                if(index > 0){
+                  window.addRowOnEdit(elem , index);
+              }
+              
+              // var temp = {
+              //   id: elem.invoiceProductId,
+              //   productName: elem.productName,
+              //   description: elem.productDescription,
+              //   hsnSac:elem.hsnSac,
+              //   tax:elem.tax,
+              //   quantity: elem.quantity,
+              //   price: elem.price,
+              //   amount: elem.amount,
+              //   discount: elem.discount,
+              //   unit:elem.unit
+              // };
+             
+              setProductUnits([...productUnits,{
+                id: elem.invoiceProductId,
+                productName: elem.productName,
+                description: elem.productDescription,
+                hsnSac:elem.hsnSac,
+                tax:elem.tax,
+                quantity: elem.quantity,
+                price: elem.price,
+                amount: elem.amount,
+                discount: elem.discount,
+                unit:elem.unit
+              }]);
+            
+              setProductCount(index+1);
+              //setProductUnits(newList);
+              console.log('product length ::::'+productUnits);
+
+              // let tempProdUnits = [...productUnits];
+
+              // tempProdUnits.map((prodUnit) => {
+              //   // if (prodUnit.id == productId) {
+              //     prodUnit.description=elem.productDescription;
+              //     prodUnit.hsnSac=elem.hsnSac;
+              //     prodUnit.tax=elem.tax;
+              //     prodUnit.quantity = elem.quantity;
+              //     prodUnit.price = elem.price;
+              //     prodUnit.discount = elem.discount;
+              //     prodUnit.amount = elem.amount;
+              //     prodUnit.productName = elem.productName;
+              //     prodUnit.unit=elem.unit;
+              //  // }
+             // });
+
+             // setProductUnits(tempProdUnits);
+
+              });
+              //end prod set code             
+             
+            }).catch(function (error) {
+              console.log(error);
+            });
+
+          }
+          editref.current = false;
+        }
+   });
+   
+  // End code of edit invoice
+
   return (
     <div>
       <Sidebar />
@@ -1121,10 +1318,11 @@ const onDescriptionChange=(e)=>{
                         </div>
                       </div>
                     </div>
-                    <div className="invoice-item">
+    
+                    <div className="invoice-item" style={{border: "1px solid #E5E5E5",borderRadius: "10px", width: "100%",marginBottom:"15px", background: "#FFFFFF"}}>
                       <div className="row">
-                        <div className="col-xl-4 col-lg-6 col-md-6">
-                          <div className="invoice-info">
+                        <div className="col-xl-6 col-lg-6 col-md-6 h-100 d-flex">
+                          <div className="invoice-info w-100" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
                             <strong className="customer-text">
                               Billing Address{" "}
                               <a className="small" href="edit-invoice.html">
@@ -1141,8 +1339,8 @@ const onDescriptionChange=(e)=>{
                             </p>
                           </div>
                         </div>
-                        <div className="col-xl-4 col-lg-6 col-md-6">
-                          <div className="invoice-info">
+                        <div className="col-xl-6 col-lg-6 col-md-6 h-100 d-flex">
+                          <div className="invoice-info w-100" style={{marginBottom:"0px",padding:"20px"}} >
                             <strong className="customer-text">
                               Shipping Address
                             </strong>
@@ -1156,6 +1354,22 @@ const onDescriptionChange=(e)=>{
                           </div>
                         </div>
                       </div>
+                     <hr style={{margin:"0",color:"#E2E2E2"}}/>
+                      <div className="row">
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value="" style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      GST No.&nbsp;
+                      <input class="form-control" type="text" value="" style={{border: "1px solid rgb(154, 85, 255)", width: "50%",padding: "10px"}}></input>
+                      </div>
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value="" style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      </div>
+
                     </div>
 
 
@@ -1175,7 +1389,7 @@ const onDescriptionChange=(e)=>{
 <div class="invoice-inner-date invoice-inner-datepic">
 <div class="form-group">
 <label for="">Challan Date</label>
-<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="challanDate" type="text"  placeholder="Select"/>
+<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="challanDate" type="text" value={challanDate}  placeholder="Select"/>
 </div>
 </div>
 </div>
@@ -1237,7 +1451,7 @@ const onDescriptionChange=(e)=>{
                     <div className="invoice-add-table">
                       <h4>Item Details</h4>
                       <div className="table-responsive">
-                        <table className="table table-striped table-nowrap  mb-0 no-footer add-table-items">
+                        <table  className="table table-striped table-nowrap  mb-0 no-footer add-table-items">
                           <thead>
                             <tr>
                               <th>Product</th>
@@ -1252,7 +1466,7 @@ const onDescriptionChange=(e)=>{
                               <th>Actions</th>
                             </tr>
                           </thead>
-                          <tbody>
+                          <tbody id ="prodtable">
                             <tr className="add-row">
                               <td>
                                 {/* <select class="form-select selectpicker form-select-lg mb-1" aria-label=".form-select-lg example">
@@ -1273,28 +1487,29 @@ const onDescriptionChange=(e)=>{
                                 <input
                                   id="description"
                                   type="text"
-                                  className="form-control"
+                                  className="form-control description1"
                                 />
+                               
                               </td>
                               <td>
                                 <input
                                   id="hsnSac"
                                   type="text"
-                                  className="form-control quantity1 alignEnd"
+                                  className="form-control alignEnd hsnSac1"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="quantity"
                                   type="text"
-                                  className="form-control quantity1 alignEnd"
+                                  className="form-control quantity1 alignEnd quantity1"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="unit"
                                   type="text"
-                                  className="form-control quantity1"
+                                  className="form-control quantity1 unit1"
                                   readonly="true"
                                 />
                               </td>
@@ -1302,21 +1517,21 @@ const onDescriptionChange=(e)=>{
                                 <input
                                   id="price"
                                   type="text"
-                                  className="form-control price1 alignEnd"
+                                  className="form-control price1 alignEnd price1"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="discount"
                                   type="text"
-                                  className="form-control discount1 alignEnd"
+                                  className="form-control discount1 alignEnd discount1"
                                 />
                               </td>
                               <td>
                                 <input
                                   id="amount"
                                   type="text"
-                                  className="form-control alignEnd"
+                                  className="form-control alignEnd amount1"
                                   readonly="true"
                                 />
                               </td>
@@ -1324,7 +1539,7 @@ const onDescriptionChange=(e)=>{
                                 <input
                                   id="tax"
                                   type="text"
-                                  className="form-control alignEnd"
+                                  className="form-control alignEnd tax1"
                                   readonly="true"
                                 />
                               </td>

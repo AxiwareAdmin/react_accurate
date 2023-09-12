@@ -754,7 +754,7 @@ console.log("error")
                 method:'GET',
                 async:false,
                 success:(data)=>{
-                    debugger;
+                    
                     description.value=data.productDescription;
                     hsnSac.value=data.hsnCode;
                     tax.value=toCurrency(data.applicableTax).replace(/[\$]/g,'');
@@ -1293,3 +1293,81 @@ document.getElementById("discountInPercentage")&&document.getElementById("discou
     e.stopImmediatePropagation();
     document.getElementById("discountInPercentage").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
   })
+
+
+
+
+  //edit invoice code start
+
+  var optionListProd='';
+  function fetchProdList(){
+    $.ajax({
+        url:'http://localhost:8081/erp/invoiceproducts',
+        method:'GET',
+        async:false,
+        success:(data)=>{
+            data.map((product)=>{
+                optionListProd+='<option value="'+product.invoiceProductId+'">'+product.productName+'</option>' 
+            })
+        },
+        error:(error)=>{
+console.log("error")
+        }
+    })
+}
+
+
+  function addRowOnEdit(elem , index){
+    window.setProdCount(index+1)
+    console.log("prodCont index"+index+1)
+   
+     var experiencecontent =  '<tr class="add-row">' +
+     '<td>' +
+         '<select class="prodListSelect prodListSelect'+(index+1)+'" name="state"><option  onchange="window [prodSelectOnChange](e);" value="-1">--Select--</option>'+optionListProd+'</select>' +
+     '<input id="productId" type="hidden" value="'+(index+1)+'"'+
+         '</td>' +
+     '<td>' +
+         '<input type="text" value="'+(elem.productDescription)+'" id="description" class="form-control description'+(index+1)+'">' +
+     '</td>' +
+     '<td>' +
+         '<input type="text" value="'+(elem.hsnSac)+'" id="hsnSac" class="form-control hsnSac'+(index+1)+'">' +
+     '</td>' +
+     '<td>' +
+         '<input type="text" value="'+(elem.quantity)+'" id="quantity" class="form-control quantity'+(index+1)+'">' +
+     '</td>' +
+     '<td>' +
+     '<input type="text" value="'+(elem.unit)+'" id="unit" class="form-control unit'+(index+1)+'">' +
+     '</td>' +
+     '<td>' +
+         '<input type="text" value="'+(elem.rate)+'" id="price" class="form-control price'+(index+1)+'">' +
+     '</td>' +
+     '<td>' +
+     '<input type="text" value="'+(elem.discount)+'" id="discount" class="form-control discount'+(index+1)+'">' +
+     '</td>' +
+     '<td>' +
+         '<input type="text" value="'+(elem.amount)+'" id="amount" class="form-control amount'+(index+1)+'">' +
+     '</td>' +
+     '<td>' +
+         '<input type="text" value="'+(elem.tax)+'" id="tax" class="form-control tax'+(index+1)+'">' +
+     '</td>' +
+    
+     '<td class="add-remove text-end">' +
+         '<a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
+         '<a href="#" class="copy-btn me-2"><i class="fas fa-copy"></i></a>' +
+         '<a href="javascript:void(0);" class="remove-btn"><i class="fa fa-trash-alt"></i></a>' +
+     '</td>' +
+ '</tr>';
+ $(".add-table-items").append(experiencecontent);
+
+ if(elem.productName != null)
+ {
+   const text = elem.productName;
+   const $select = document.querySelector('.prodListSelect'+(index+1));
+   const $options = Array.from($select.options);
+   const optionToSelect = $options.find(item => item.text ===text);
+   $select.value = optionToSelect.value;
+ }
+
+  };
+
+  //edit invoice code end

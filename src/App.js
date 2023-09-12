@@ -14,6 +14,7 @@ import InvoicesOverDue from "./components/InvoicesOverDue";
 import InvoicesDraft from "./components/InvoicesDraft";
 import InvoicesRecurring from "./components/invoicesRecurring";
 import InvoicesCancelled from "./components/InvoicesCancelled";
+import DocumentSequence from "./components/Manage/DocumentSequence";
 
 function App() {
   const [alertMsg,setAlertMsg]=useState("");
@@ -35,6 +36,7 @@ function App() {
           <Route path="/InvoicesDraft" element={<InvoicesDraft/>} />
           <Route path="/invoicesRecurring" element={<InvoicesRecurring/>} />
           <Route path="/InvoicesCancelled" element={<InvoicesCancelled/>} />
+          <Route path="/DocumentSequence" element={<DocumentSequence/>} />
           <Route  path="/" element={<Index1 />} />
         </Routes>
         </BrowserRouter>

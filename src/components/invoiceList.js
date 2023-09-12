@@ -103,16 +103,7 @@ export default function InvoiceList () {
 
             tdElem=document.createElement("td");
             textElem=document.createTextNode(elem.invoiceNo );//set data
-            //let inputElem=document.createElement("input");
-           // let spanElem=document.createElement("span");
-          //  let labelElem=document.createElement("label")
-           // labelElem.className="custom_check";
-           // inputElem.type="checkbox";
-          //  inputElem.name="invoice";
-            //spanElem.className="checkmark";
-           // labelElem.appendChild(inputElem);
-           // labelElem.appendChild(spanElem);
-          //  tdElem.appendChild(labelElem);
+           
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
 		    aElem.href="/viewInvoice?id="+elem.invoiceNo;
@@ -222,13 +213,13 @@ export default function InvoiceList () {
 			divEle.appendChild(innerDiv);
 			tdElem.appendChild(divEle);
             trElem.appendChild(tdElem) 
-
+			
             document.querySelector(".datatable tbody").appendChild(trElem);
-        })
+           });
 
-          }).catch((e)=>{
-			console.log(e)
-		  })
+        }).catch(function (error) {
+			console.log(error);
+		});
 
 		axios.get("http://localhost:8081/erp/customers").then((res) => {
 		console.log(res.data);
@@ -238,9 +229,9 @@ export default function InvoiceList () {
         option.append(document.createTextNode(a.customerName));
         document.querySelector("#customer").append(option);
 			});
-		}).catch((e)=>{
-			console.log(e)
-		  })
+		}).catch(function(error) {
+			console.log(error);
+		});
 				
 	    const script11 = document.createElement("script");
         script11.src = "/assets/js/jquery-3.6.0.min.js";
@@ -354,43 +345,46 @@ export default function InvoiceList () {
 	  function rendercommon(name , invt) {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
-			navigate("/InvoicesCancelled");
+			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print Invoice"){
 			navigate("/viewInvoice?id="+invt);
 		 }else if(name == "Delete"){
 			axios.get("http://localhost:8081/erp/deleteInv?invNo="+invt).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
-				alert("Invoice deleted successfully!!")
-		  
-				// setTimeout(()=>{
-				//   alert(null)
-				// },2000)
-		  
+				alert("Invoice deleted successfully!!");		  
 				}
 				else
-				  alert("There is some issue delete invoice. kindly check wherether all the data is entered or not.");		   
-		}).catch((e)=>{
-			console.log(e)
-		  })
+				  alert("There is some issue delete invoice.");		   
+		    });
 		 } else if(name == "Mark as sent"){
 			navigate("/InvoicesCancelled");
 		 }else if(name == "Send Invoice"){
-			navigate("/InvoicesCancelled");
+					axios.get("http://localhost:8081/erp/sendmail?invNo="+invt+"&custName=Samarth Industries").then((res) => {
+					console.log(res.data);
+					if(res!=null && res.data.res=='sucess'){
+						alert("Invoice mail send successfully!!");		  
+						}
+						else
+						alert("There is some issue to send invoice amil.");		   
+				}).catch(function(error) {
+					console.log(error);
+				});
 		 } else if(name == "Clone Invoice"){
-			axios.get("http://localhost:8081/erp/cloneInv?invNo="+invt).then((res) => {
-		    console.log(res.data);
-			if(res!=null && res.data.res=='sucess'){
-				alert("Invoice Cloned successfully!!");		  
-				}
-				else
-				  alert("There is some issue delete invoice. kindly check wherether all the data is entered or not.");		   
-		}).catch((e)=>{
-			console.log(e)
-		  })
+					axios.get("http://localhost:8081/erp/cloneInv?invNo="+invt).then((res) => {
+					console.log(res.data);
+					if(res!=null && res.data.res=='sucess'){
+						alert("Invoice Cloned successfully!!");	
+						navigate("/add-invoice?InvNo="+invt+"&action=Clone");	  
+						}
+						else
+						alert("There is some issue clone invoice.");		   
+				}).catch(function(error) {
+					console.log(error);
+				});
 		 }else if(name == "Download Invoice"){
 			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt);
+			navigate("/viewInvoice?id="+invt+"&action=download");
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
 			// 	document.body.appendChild(canvas);  

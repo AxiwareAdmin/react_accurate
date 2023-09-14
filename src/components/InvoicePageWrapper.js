@@ -294,8 +294,18 @@ export default function InvoicePageWrapper(props) {
     axios
       .get("http://localhost:8081/erp/customer/" + customerId)
       .then((res) => {
+        debugger;
         var address1 = res.data.address1;
         var address2 = res.data.address2;
+
+        var remark=res.data.remarks;
+        console.log("remark:"+remark)
+        setRemarks(remark);
+
+        if(remarks!=null && remark!=undefined && remark!="NULL")
+        document.getElementById("remark").value=remark;
+        else
+        document.getElementById("remark").value="";
 
         if (address1 != null && address1 != undefined && address1 != "")
           setFromAddr1(address1);
@@ -513,6 +523,7 @@ window.onTransportModeChange=(e)=>{
   const [fromAddr1, setFromAddr1] = useState("");
   const [fromAddr2, setFromAddr2] = useState("");
 
+  const [remarks,setRemarks]=useState("")
 
   const [shippingAddress1, setShippingAddress1] = useState("");
 
@@ -769,7 +780,8 @@ const onDescriptionChange=(e)=>{
       paymentTerms:paymentTermVal,
       dueDate:dueDate,
       transportMode:transportModeVal,
-      vehicleNumber:vehicleNumber
+      vehicleNumber:vehicleNumber,
+      remarks:remarks
     }
 
     console.log(invoiceData)
@@ -1427,7 +1439,7 @@ const onDescriptionChange=(e)=>{
                                       aria-controls="collapseThree"
                                     >
                                       <i className="fas fa-plus-circle me-1"></i>{" "}
-                                      Add Notes
+                                      Remarks
                                     </a>
                                   </p>
                                 </div>
@@ -1439,7 +1451,7 @@ const onDescriptionChange=(e)=>{
                                   data-bs-parent="#accordion"
                                 >
                                   <div className="panel-body">
-                                    <textarea className="form-control"></textarea>
+                                    <textarea id="remark" className="form-control"></textarea>
                                   </div>
                                 </div>
                               </div>
@@ -1459,20 +1471,20 @@ const onDescriptionChange=(e)=>{
                           <div class="invoice-total-box" id="GrossTotal">
                             <div class="invoice-total-inner">
                               {/* <a onchange="finalSum(),calculateDiscount(),calculateSGST12onvalue(),start();finalamount(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),totalAmountWithTax(),calculateSGST28onvalue(),getNumberOFRowsInTable()"> */}
-                              <h4>
+                              <h4 style={{display:"flex",justifyContent:"space-between"}}>
                                 {" "}
                                 Gross Total
                                 <span style={{marginLeft:"10%"}} id="grossTotal" name="grossTotal">{toCurrency(totalAmt).replace(/[\$]/g,'')}</span>
                               </h4>
                               <hr />
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
-                              <p>
-                                Transport charge
+                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                                <p style={{marginBottom:"5px"}}>Transport charge</p>
                                 <span>
                                   <input
                                     style={{
                                       width: "50px",
-                                      marginLeft: "200px",
+
                                       textAlign:"end"
                                     }}
                                     type="text"

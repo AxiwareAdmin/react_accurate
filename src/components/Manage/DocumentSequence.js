@@ -313,14 +313,22 @@ export default function DocumentSequence() {
     }
 
     function deleteDoc(){
-        setDelShow(true);
+        //setDelShow(true);
         axios.get("http://localhost:8081/erp/deleteDocMaster?docId="+delDocId).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
-				alert("Document deleted successfully!!");		  
+                // setTimeout(()=>{
+                    alert("Document deleted successfully!!");
+                //   },2000)
+						  
 				}
 				else
-				  alert("There is some issue delete Document.");		   
+                {
+                    // setTimeout(()=>{
+                        alert("There is some issue delete Document.");
+                    //   },2000)
+                }
+				 		   
 		    });
     }
 
@@ -554,8 +562,8 @@ export default function DocumentSequence() {
                 </div>
             </div>
         </div>
-		{/* <!-- Modal --> */}
-		<div class="modal fade contentmodal" style={delShow ? {display:"none"} : {display : "block"}} id="deleteModal" tabindex="-1" aria-hidden="true">
+		{/* <!-- Modal -->style={delShow ? {display:"none"} : {display : "block"}} */}
+		<div class="modal fade contentmodal"  id="deleteModal" tabindex="-1" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered">
 				<div class="modal-content doctor-profile">
 					<div class="modal-header pb-0 border-bottom-0  justify-content-end">
@@ -566,7 +574,7 @@ export default function DocumentSequence() {
 							<div class="del-icon"><i class="feather-x-circle"></i></div>
 							<h2>Sure you want to delete</h2>
 							<div class="submit-section">
-								<a href="#" onClick={deleteDoc} class="btn btn-success me-2">Yes</a>
+								<a href="#" onClick={deleteDoc} data-bs-dismiss="modal" class="btn btn-success me-2">Yes</a>
 								<a href="#" class="btn btn-danger" data-bs-dismiss="modal">No</a>
 							</div>								
 						</div>

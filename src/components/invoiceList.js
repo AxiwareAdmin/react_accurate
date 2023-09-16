@@ -24,7 +24,7 @@ export default function InvoiceList () {
 	//  "/viewInvoice?id="
 	const actionmap = [{name:"Edit",path:'#',classname:"far fa-edit me-2"},{name:"View",path:'#',classname:"far fa-eye me-2"},
 	{name:"Delete",path:"#",classname:"far fa-trash-alt me-2"},{name:"Mark as sent",path:"#",classname:"far fa-check-circle me-2"},
-	{name:"Send Invoice",path:"#",classname:"far fa-paper-plane me-2"},{name:"Clone Invoice",path:"#",classname:"far fa-copy me-2"},
+	{name:"Send Invoice",path:"#",classname:"far fa-paper-plane me-2"},{name:"Copy Invoice",path:"#",classname:"far fa-copy me-2"},
 	{name:"Print Invoice",path:"#",classname:"far fa-copy me-2"},{name:"Download Invoice",path:"#",classname:"far fa-copy me-2"}];
     const otionsDate = ["Today","Tomarrow","Lastweek"];
 	const [invoicedo , setInvoicedo] = useState("");
@@ -221,6 +221,37 @@ export default function InvoiceList () {
 			console.log(error);
 		});
 
+		setTimeout(()=>{
+			let trEle = document.createElement("tr");
+			let tdEle = document.createElement("td");
+			trEle.appendChild(tdEle);
+			 tdEle = document.createElement("td");
+			trEle.appendChild(tdEle);
+			 tdEle = document.createElement("td");
+			trEle.appendChild(tdEle);
+			tdEle = document.createElement("td");
+			trEle.appendChild(tdEle);
+			tdEle = document.createElement("td");
+			let textEle = document.createTextNode("Total");
+			tdEle.style = "font-size: 20px"
+			tdEle.appendChild(textEle);
+			trEle.appendChild(tdEle);
+			tdEle = document.createElement("td");
+			tdEle.style = "font-size: 20px"
+			tdEle.className = "text-primary";
+			 textEle = document.createTextNode(allinvvals);
+			tdEle.appendChild(textEle);
+			trEle.appendChild(tdEle);
+			tdEle = document.createElement("td");
+			trEle.appendChild(tdEle);
+			tdEle = document.createElement("td");
+			trEle.appendChild(tdEle);
+			tdEle = document.createElement("td");
+			trEle.appendChild(tdEle);
+			document.querySelector(".datatable tbody").appendChild(trEle);
+			
+		  },500)
+
 		axios.get("http://localhost:8081/erp/customers").then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
@@ -370,15 +401,15 @@ export default function InvoiceList () {
 				}).catch(function(error) {
 					console.log(error);
 				});
-		 } else if(name == "Clone Invoice"){
+		 } else if(name == "Copy Invoice"){
 					axios.get("http://localhost:8081/erp/cloneInv?invNo="+invt).then((res) => {
 					console.log(res.data);
 					if(res!=null && res.data.res=='sucess'){
-						alert("Invoice Cloned successfully!!");	
+						alert("Invoice Copied successfully!!");	
 						navigate("/add-invoice?InvNo="+invt+"&action=Clone");	  
 						}
 						else
-						alert("There is some issue clone invoice.");		   
+						alert("There is some issue Copy invoice.");		   
 				}).catch(function(error) {
 					console.log(error);
 				});
@@ -420,16 +451,16 @@ export default function InvoiceList () {
                 			<h3 class="page-title m-0">
 			                <span class="page-title-icon bg-gradient-primary text-white me-2">
 			                  <i class="fa fa-file" aria-hidden="true"></i>
-			                </span> Invoice </h3>
+			                </span > Invoice </h3>
                 		</div>
                         <div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
-								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+								<li class="breadcrumb-item"><a href="index.html" >Dashboard</a></li>
 								<li class="breadcrumb-item active">Invoice</li>
 							</ul>
                 		</div>
                     </div>
-                    <div class="row align-items-center">
+                    <div class="row align-items-center" >
 						<div class="col">
 						</div>
 						<div class="col-auto py-3">
@@ -648,11 +679,11 @@ export default function InvoiceList () {
 											<ul>
 												
 												<li><a href="#" class="active">All Invoice</a></li>
-												<li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
+												{/* <li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
 												<li><a href="#" onClick={rendertoInvOverDue}>Overdue</a></li>		
 												<li><a href="#" onClick={rendertoInvDraft}>Draft</a></li>	
 												<li><a href="#" onClick={rendertoInvRecur}>Recurring</a></li>
-												<li><a href="#" onClick={rendertoInvCancl}>Cancelled</a></li>
+												<li><a href="#" onClick={rendertoInvCancl}>Cancelled</a></li> */}
 											</ul>
 										</div>
 									</div>
@@ -747,12 +778,13 @@ export default function InvoiceList () {
 												   <th>Created on</th>
 												   <th>Invoice to</th>
 												   <th>Amount</th>
-												   <th>Due date</th>
+												   <th class="sorting_asc">Due date</th>
 												   <th>Status</th>
 												   <th class="text-end">Action</th>
 												</tr>
 											</thead>
 											<tbody>
+											
 												{/* <tr>
 													<td>
 														<label class="custom_check">

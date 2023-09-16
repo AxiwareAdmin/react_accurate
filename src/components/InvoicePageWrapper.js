@@ -566,6 +566,8 @@ window.onTransportModeChange=(e)=>{
 
   const [isSaved,setIsSaved]=useState(0)
 
+  const [serviceCheck , setServiceCheck] = useState(false)
+
   const navigate=useNavigate();
 useEffect(()=>{
     document.querySelector(".gstContainer").innerHTML='';
@@ -865,7 +867,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the invoice first!!.");
     else
-     navigate("/viewInvoice?id="+invoiceNumber)
+     navigate("/viewInvoice?id="+invoiceNumber+"&serviceChk="+serviceCheck);
   }
 
 
@@ -1196,8 +1198,9 @@ const onDescriptionChange=(e)=>{
                                 type="checkbox"
                                 id="chkYes"
                                 name="invoice"
+                                checked = {serviceCheck}
                               />
-                              <span className="checkmark"></span> Recurring
+                              <span className="checkmark"></span> Service
                               Invoice
                             </label>
                           </div>

@@ -176,7 +176,10 @@ export default function ViewInvoice (){
           var url=new URL(window.location.href);
           let id1=url.searchParams.get("id");
           let action=url.searchParams.get("action");
+          let serviceChkT = url.searchParams.get("serviceChk");
+          setBillToAddrShow(serviceChkT);
           setinvNo(id1);
+          
 
           if(!initilized.current){  
 
@@ -316,6 +319,7 @@ export default function ViewInvoice (){
   const [total , settotal] = useState("");
   const [subTotal , setsubTotal] = useState("");
   const [payTerm , setpayTerm] = useState("");
+  const [billToAddrShow , setBillToAddrShow] = useState(false);
 
   
   return (
@@ -357,7 +361,7 @@ export default function ViewInvoice (){
                 <div class="invoice-item invoice-item-two">
                   <div class="row">
                     <div class="col-md-6">
-                      <div class="invoice-info">
+                      <div class="invoice-info" style={billToAddrShow ? {display:"none"} : {display : "block"}}>
                         <strong class="customer-text-one">Billed to</strong>
                         <h6 class="invoice-name">Customer Name : {custName}</h6>
                         <p class="invoice-details invoice-details-two"/>

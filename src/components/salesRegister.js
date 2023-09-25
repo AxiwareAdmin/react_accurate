@@ -3,11 +3,29 @@ import React,{useState,useEffect} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 
 
 export default function SalesRegister () {
 
-
+    function toCurrency(value) {
+        try {
+          if( isNaN(Number(value)) ) return value;
+          return Number(value).toLocaleString("en-US",{style:"currency", currency:"USD"});    
+        }
+        catch(err) {
+          throw err;
+        }
+      }
+      function fromCurrency(value) {
+        try {
+          let num = Number(String(value).replace(/[\$,]/g,''));
+          return isNaN(num) ? 0 : num;
+        }
+        catch(err) {
+          throw err;
+        }
+      }
 
     useEffect(() =>{
 
@@ -94,8 +112,11 @@ export default function SalesRegister () {
       }, []);
 
       useEffect(() =>{
+        var totaInvoiceVal=0;
+        var totalAmt=0;
+        var closingBal=0;
 
-        axios.get("http://localhost:8081/erp/viewSalesReg").then((res) =>{
+        axios.get("http://localhost:8080/viewSalesReg").then((res) =>{
            
           res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -135,18 +156,28 @@ export default function SalesRegister () {
               aEle.href = "invoiceList";
             //   aEle.setAttribute(data-bs-toggle,"modal");
             //   aEle.setAttribute(data-bs-target,"#system-user");
-              textEle = document.createTextNode(obj.totalInv);
+            let tempTotInvoiceVal=toCurrency(fromCurrency(obj.totalInv)).replace(/[\$]/g,'');
+            totaInvoiceVal=totaInvoiceVal+fromCurrency(toCurrency(obj.totalInv));
+              textEle = document.createTextNode(tempTotInvoiceVal);
               aEle.appendChild(textEle);
               tdEle.appendChild(aEle);
               trEle.appendChild(tdEle);
 
+              let tempAmt=toCurrency(fromCurrency(obj.amount)).replace(/[\$]/g,'');
+
+              totalAmt=totalAmt+fromCurrency(toCurrency(obj.amount));
+
               tdEle = document.createElement("td");
-              textEle = document.createTextNode(obj.amount);
+              textEle = document.createTextNode(tempAmt);
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
 
+              let tempClosingBalance=toCurrency(fromCurrency(obj.closingBal)).replace(/[\$]/g,'');
+
+              closingBal=closingBal+fromCurrency(toCurrency(obj.closingBal));
+
               tdEle = document.createElement("td");
-              textEle = document.createTextNode(obj.closingBal);
+              textEle = document.createTextNode(tempClosingBalance);
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
 
@@ -159,14 +190,47 @@ export default function SalesRegister () {
 
         }).catch((e)=>{
             console.log(e)
-          })
+          }).finally(()=>{
 
-      });
+          
+
+          let trElem = document.createElement("tr");
+        let tdElem = document.createElement("td");
+
+        let textElem=document.createTextNode("Grand Total");
+        tdElem.appendChild(textElem);
+        trElem.appendChild(tdElem);
+
+        tdElem = document.createElement("td");
+         textElem=document.createTextNode("");
+         tdElem.appendChild(textElem);
+        trElem.appendChild(tdElem);
+
+        tdElem = document.createElement("td");
+         textElem=document.createTextNode(totaInvoiceVal);
+         tdElem.appendChild(textElem);
+        trElem.appendChild(tdElem);
+
+        tdElem = document.createElement("td");
+         textElem=document.createTextNode(totalAmt);
+         tdElem.appendChild(textElem);
+        trElem.appendChild(tdElem);
+
+        tdElem = document.createElement("td");
+         textElem=document.createTextNode(closingBal);
+         tdElem.appendChild(textElem);
+        trElem.appendChild(tdElem);
+
+        document.querySelector("#invoiceListTable").append(trElem);
+    })
+
+      },[]);
 
     return(
 
       
         <div>
+             <Navbar/>
             <Sidebar />
             
             <div class="page-wrapper">

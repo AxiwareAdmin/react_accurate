@@ -1,6 +1,7 @@
 import React,{useState,useEffect} from "react";
 import Sidebar from "./Sidebar";
 import { Link, useLocation ,useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 
 export default function InvoicesOverDue(){
@@ -272,6 +273,7 @@ export default function InvoicesOverDue(){
 
     return(
           <div>
+			 <Navbar/>
              <Sidebar />
 
              {/* <!-- Page Wrapper --> */}

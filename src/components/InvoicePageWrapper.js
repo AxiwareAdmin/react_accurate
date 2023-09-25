@@ -1,10 +1,15 @@
 //invoice wrapper
 
 import React, { useEffect, useState } from "react";
+import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import axios from "axios";
+import Alert from "./alert";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 export default function InvoicePageWrapper(props) {
+
+  const BACKEND_SERVER="http://localhost:8080";
+
   const [productUnits, setProductUnits] = useState([
     {
       id: 1,
@@ -43,7 +48,7 @@ export default function InvoicePageWrapper(props) {
   function prodSelectOnChange(event) {
     console.log(event.target.value);
     axios
-      .get("http://localhost:8081/erp/invoiceproduct/" + event.target.value)
+      .get(BACKEND_SERVER+"/invoiceproduct/" + event.target.value)
       .then((res) => {
         var td = event.target.parentElement;
         var productId = td.querySelector("#productId").value;
@@ -282,7 +287,7 @@ export default function InvoicePageWrapper(props) {
     var a = document.querySelector("#customer option:checked");
     var customerId = a.value;
  
-    axios.get("http://localhost:8081/erp/allInvoices").then((res) => {
+    axios.get(BACKEND_SERVER+"/allInvoices").then((res) => {
       let invoiceLen = res.data.length;
       let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
       console.log("invoice:" + invoiceNum);
@@ -292,7 +297,7 @@ export default function InvoicePageWrapper(props) {
     })
 
     axios
-      .get("http://localhost:8081/erp/customer/" + customerId)
+      .get(BACKEND_SERVER+"/customer/" + customerId)
       .then((res) => {
         debugger;
         var address1 = res.data.address1;
@@ -400,7 +405,7 @@ window.onTransportModeChange=(e)=>{
     // document.querySelectorAll("script").forEach(e => e.remove());
     // document.querySelectorAll("script[src]").forEach(a=>a.remove())
     // document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());
-    axios.get("http://localhost:8081/erp/customers").then((res) => {
+    axios.get(BACKEND_SERVER+"/customers").then((res) => {
       console.log(res.data);
       res.data.map((a) => {
         // var label = document.createElement("label");
@@ -430,7 +435,7 @@ window.onTransportModeChange=(e)=>{
       });
     });
 
-    axios.get("http://localhost:8081/erp/invoiceproducts").then((res) => {
+    axios.get(BACKEND_SERVER+"/invoiceproducts").then((res) => {
       res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
@@ -546,6 +551,8 @@ window.onTransportModeChange=(e)=>{
   const[totalTaxableAmt,setTotalTaxableAmt]=useState(0);
 
   const [finalAmt,setFinalAmt]=useState(0); 
+
+  const [alertMsg,setAlertMsg]=useState(null);
 
   const [gstPercentageArr,setGstPercentageArr]=useState([]);
 
@@ -786,7 +793,7 @@ const onDescriptionChange=(e)=>{
 
     console.log(invoiceData)
 
-    axios.post('http://localhost:8081/erp/saveInvoice', invoiceData,{
+    axios.post('http://localhost:8080/saveInvoice', invoiceData,{
       headers:{
         "Content-Type":"application/json"
       }
@@ -794,12 +801,12 @@ const onDescriptionChange=(e)=>{
     .then(function (response) {
       console.log(response)
       if(response!=null && response.data.res=='success'){
-      props.onAlertChange("Invoice created successfully!!")
+      setAlertMsg("Invoice created successfully!!")
 
       setIsSaved(1);
 
       setTimeout(()=>{
-        props.onAlertChange(null)
+        setAlertMsg(null)
       },2000)
 
       }
@@ -894,6 +901,9 @@ const onDescriptionChange=(e)=>{
     return day + '/' + month + '/' + year;
   }
   return (
+    <>
+    <Navbar/>
+    <Alert msg={alertMsg}/>
     <div>
       <Sidebar />
       <div className="page-wrapper">
@@ -2131,5 +2141,6 @@ const onDescriptionChange=(e)=>{
 
       <iframe id="ifmcontentstoprint" style={{height: '0px', width: '0px', position: 'absolute'}}></iframe>
     </div>
+    </>
   );
 }

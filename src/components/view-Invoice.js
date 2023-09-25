@@ -4,6 +4,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useLocation,useParams,useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 
 
 
@@ -181,7 +182,7 @@ export default function ViewInvoice (){
 
             initilized.current=true;
           axios
-          .get("http://localhost:8081/erp/viewInvoice?invNo="+id1)
+          .get("http://localhost:8080/viewInvoice?invNo="+id1)
           .then((res) => {
           
 
@@ -322,6 +323,7 @@ export default function ViewInvoice (){
   
   return (
     <div>
+       <Navbar/>
 		<Sidebar />
     <div class="page-wrapper" ref={invoicepdf}>
 			

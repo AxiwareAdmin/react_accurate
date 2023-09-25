@@ -8,6 +8,7 @@ import invoicesRecurring from "./invoicesRecurring";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Navbar from "./Navbar";
 
 
 export default function InvoiceList () {
@@ -21,6 +22,12 @@ export default function InvoiceList () {
 	const [paidInvVal , setPaidInvVal] = useState(0);
 	const [unpaidInvVal , setUnpaidInvVal] = useState(0);
 	const [canInvVal , setCanInvVal] = useState(0);
+
+	const [customerName,setCustomerName]=useState("");
+	const [fromDate,setFromDate]=useState("");
+	const [toDate,setToDate]=useState("");
+	const [status,setStatus]=useState("");
+	const [category,setCategory]=useState("");
 	//  "/viewInvoice?id="
 	const actionmap = [{name:"Edit",path:'#',classname:"far fa-edit me-2"},{name:"View",path:'#',classname:"far fa-eye me-2"},
 	{name:"Delete",path:"#",classname:"far fa-trash-alt me-2"},{name:"Mark as sent",path:"#",classname:"far fa-check-circle me-2"},
@@ -46,7 +53,26 @@ export default function InvoiceList () {
     }
 
     useEffect(() => {
+		window.onCustomerNameChange=(e)=>{
+			onCustomerNameChange(e);
+		}
 
+		window.onFromDateChange=(e)=>{
+			onFromDateChange(e)
+		}
+
+		window.onToDateChange=(e)=>{
+			onToDateChange(e);
+		}
+
+		window.onStatusChange=(e)=>{
+			onStatusChange(e);
+		}
+
+		window.onCategoryChange=(e)=>{
+			onCategoryChange(e);
+		}
+		
 		var url=new URL(window.location.href);
           let month1=url.searchParams.get("month");
           setMonth(month1);
@@ -59,7 +85,7 @@ export default function InvoiceList () {
 		  let unpaidinvvals = 0;
 		  let caninvvals = 0;
           let srNo = 0;
-        axios.get("http://localhost:8081/erp/invoices/"+month1).then((res) => {
+        axios.get("http://localhost:8080/invoices/"+month1).then((res) => {
 			setInvoicedo(res.data);
             res.data.map(elem=>{
 
@@ -228,9 +254,60 @@ export default function InvoiceList () {
 
           }).catch((e)=>{
 			console.log(e)
+		  }).finally(()=>{
+			let trElem = document.createElement("tr");
+			let tdElem = document.createElement("td");
+	
+			let textElem=document.createTextNode("Grand Total");
+			tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode(allinvvals);
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			
+	
+			document.querySelector(".datatable tbody").appendChild(trElem); 
 		  })
 
-		axios.get("http://localhost:8081/erp/customers").then((res) => {
+		axios.get("http://localhost:8080/customers").then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
         var option = document.createElement("option");
@@ -358,7 +435,7 @@ export default function InvoiceList () {
 		 }else if(name == "View" || name == "Print Invoice"){
 			navigate("/viewInvoice?id="+invt);
 		 }else if(name == "Delete"){
-			axios.get("http://localhost:8081/erp/deleteInv?invNo="+invt).then((res) => {
+			axios.get("http://localhost:8080/deleteInv?invNo="+invt).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				alert("Invoice deleted successfully!!")
@@ -378,7 +455,7 @@ export default function InvoiceList () {
 		 }else if(name == "Send Invoice"){
 			navigate("/InvoicesCancelled");
 		 } else if(name == "Clone Invoice"){
-			axios.get("http://localhost:8081/erp/cloneInv?invNo="+invt).then((res) => {
+			axios.get("http://localhost:8080/cloneInv?invNo="+invt).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				alert("Invoice Cloned successfully!!");		  
@@ -409,9 +486,55 @@ export default function InvoiceList () {
 			
 		 }
 	  };
+
+	  function onCustomerNameChange(e){
+		console.log(e.target)
+		setCustomerName(e.target.querySelector("option:checked").text);
+	  }
+
+	  function onFromDateChange(e){
+		setFromDate(e.target.value)
+	  }
+
+	  function onToDateChange(e){
+		setToDate(e.target.value)
+	  }
+
+	  function onStatusChange(e){
+		setStatus(e.target.querySelector("option:checked").text);
+	  }
+
+	  function onCategoryChange(e){
+		setCategory(e.target.querySelector("option:checked").text)
+	  }
   
+
+	  function onReportButtonClicked(e){
+		e.preventDefault();
+		var data={
+			customerName,
+			fromDate,
+			toDate,
+			status,
+			category
+		}
+		axios.post('http://localhost:8080/excel/invoices', data,{
+			method: 'GET',
+			responseType: 'blob', // important
+		}).then((response) => {
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', `${Date.now()}.xlsx`);
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+		});
+	  }
+
   return (
     <div>
+		 <Navbar/>
 		<Sidebar />
         {/* <div style={{color:'white',backgroundColor:'red',textAlign:'center'}}>
             Hello Axiware <h1> I am here </h1>
@@ -461,9 +584,9 @@ export default function InvoiceList () {
 												</div>	 */}
 												 <span>
 												{/*<i style={{position: "absolute",zIndex: "1",marginTop: "7%",marginLeft:"4%",color: "#9a55ff"}}data-feather="user-plus" class="me-1 select-icon"></i> */}
-												<select class="form-control select2"
+												<select class="form-control select2 invoiceListCustomerOption"
 					                              name="product"	id="customer">
-												  <option  value="-1" > &emsp; &nbsp; Select User</option>
+												  <option  value="-1" >--Select User--</option>
 												  </select>	</span>  
 												{/* <div id="checkBoxes">
 													<form action="#">
@@ -508,7 +631,17 @@ export default function InvoiceList () {
 											</div>
 										</li>
 										<li>
-											<div class="multipleSelection">
+                                <input
+                                  className="form-control datetimepicker"
+                                  type="text"
+                                  placeholder="Select From Date"
+								  id="fromDate"
+                                //   value={invoiceDate}
+                                //   id="invoiceDate"
+                                  style={{ border: "1px solid #9a55ff", width: 120,color: "#9a55ff"}}
+                                />
+
+											{/* <div class="multipleSelection">
 												<div class="selectBox">
 													<p class="mb-0"><i data-feather="calendar" class="me-1 select-icon"></i> Select Date</p>
 													<span class="down-icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
@@ -539,10 +672,28 @@ export default function InvoiceList () {
 														</div>
 													</form>
 												</div>
-											</div>
+											</div> */}
 										</li>
+
 										<li>
-											<div class="multipleSelection">
+                                <input
+                                  className="form-control datetimepicker"
+                                  type="text"
+                                  placeholder="Select To Date"
+                                //   value={invoiceDate}
+                                  id="toDate"
+                                  style={{ border: "1px solid #9a55ff", width: 120,color: "#9a55ff"}}/>
+								  </li>
+
+										<li>
+
+										<select id="invoiceStatusOption"  style={{ border: "1px solid #9a55ff", width: 120,color: "#9a55ff"}}>
+											<option>--Select--</option>
+											<option>Paid</option>
+											<option>UnPaid</option>
+
+										</select>
+											{/* <div class="multipleSelection">
 												<div class="selectBox">
 													<p class="mb-0"><i data-feather="book-open" class="me-1 select-icon"></i> Select Status</p>
 													<span class="down-icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
@@ -580,10 +731,22 @@ export default function InvoiceList () {
 														<button type="reset" class="btn w-100 btn-grey">Reset</button>
 													</form>
 												</div>
-											</div>
+											</div> */}
 										</li>
 										<li>
-											<div class="multipleSelection">
+
+										<select id="invoiceCategoryOption">
+											<option>--Select--</option>
+											<option>Advertising</option>
+											<option>Marketing</option>
+											<option>Repairs</option>
+											<option>Software</option>
+											<option>Stationary</option>
+											<option>Travel</option>
+
+										</select>
+
+											{/* <div class="multipleSelection">
 												<div class="selectBox">
 													<p class="mb-0"><i data-feather="bookmark" class="me-1 select-icon"></i> By Category</p>
 													<span class="down-icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
@@ -628,10 +791,10 @@ export default function InvoiceList () {
 														<button type="reset" class="btn w-100 btn-grey">Reset</button>
 													</form>
 												</div>
-											</div>
+											</div> */}
 										</li>
 										<li>
-											<div class="report-btn">
+											<div class="report-btn" onClick={onReportButtonClicked}>
 												<a href="#" class="btn">
 													<img src="assets/img/invoices-icon5.svg" alt="" class="me-2"/>
 													Generate report
@@ -744,16 +907,16 @@ export default function InvoiceList () {
 							<div class="card card-table"> 
 								<div class="card-body p-4">
 									<div class="table-responsive">
-										<table class="table table-striped table-nowrap custom-table mb-0 datatable">
+										<table class="table table-striped invoicelisttable table-nowrap custom-table mb-0 datatable">
 											<thead class="thead-light">
 												<tr>
 													<th>Sr No</th>
 												   <th>Invoice ID</th>
 												   <th>Category</th>
 												   <th>Created on</th>
-												   <th>Invoice to</th>
+												   <th>Customer Name</th>
 												   <th>Amount</th>
-												   <th>Due date</th>
+												   <th>Invoice date</th>
 												   <th>Status</th>
 												   <th class="text-end">Action</th>
 												</tr>

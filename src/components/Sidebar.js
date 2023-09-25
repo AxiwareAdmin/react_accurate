@@ -78,7 +78,7 @@ export default function Sidebar() {
 							<li className="submenu">
 								<a href="#"><i className="feather-home"></i> <span> Dashboard</span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
-									<li><Link to="/" className="active">Deals Dashboard</Link></li>
+									<li><Link to="/dashboard" className="active">Deals Dashboard</Link></li>
 									<li><a href="projects-dashboard.html">Projects Dashboard</a></li>
 									<li><a href="leads-dashboard.html">Leads Dashboard</a></li>
 								</ul>

@@ -174,6 +174,9 @@ $(document).ready(function() {
     
     // Datatable
 
+    setTimeout(()=>{
+
+   
     if ($('.datatable').length > 0) {
         $('.datatable').DataTable({
             "bFilter": false,
@@ -184,6 +187,7 @@ $(document).ready(function() {
             "bFilter": true,
         });
     }
+},1)
     
 
     // Tooltip
@@ -666,7 +670,7 @@ $(document).on("click",".add-btns",function (e) {
     e.stopImmediatePropagation();
 var optionList='';
     $.ajax({
-        url:'http://localhost:8081/erp/invoiceproducts',
+        url:'http://localhost:8080/invoiceproducts',
         method:'GET',
         async:false,
         success:(data)=>{
@@ -750,7 +754,7 @@ console.log("error")
             var unit=td.querySelector("#unit");
             unit.readOnly=true;
             $.ajax({
-                url:'http://localhost:8081/erp/invoiceproduct/'+event.target.value,
+                url:'http://localhost:8080/invoiceproduct/'+event.target.value,
                 method:'GET',
                 async:false,
                 success:(data)=>{
@@ -1032,7 +1036,7 @@ elem.appendChild(node);
     var discount=td.querySelector("#discount");
     var unit=td.querySelector("#unit");
     $.ajax({
-        url:'http://localhost:8081/erp/invoiceproduct/'+event.target.value,
+        url:'http://localhost:8080/invoiceproduct/'+event.target.value,
         method:'GET',
         async:false,
         success:(data)=>{
@@ -1225,7 +1229,7 @@ $("#description").on("change",(e)=>{
 })
 
 
-$(".select2-selection--single").css({ 'border':"1px solid #9a55ff"})
+
 
 
 $(".printBtn").click((e)=>{
@@ -1293,3 +1297,41 @@ document.getElementById("discountInPercentage")&&document.getElementById("discou
     e.stopImmediatePropagation();
     document.getElementById("discountInPercentage").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
   })
+
+  $("#invoiceStatusOption").length>0 && $("#invoiceStatusOption").select2();
+
+  $("#invoiceCategoryOption").length>0 && $("#invoiceCategoryOption").select2();
+
+  $(".select2-selection--single").css({ 'border':"1px solid #9a55ff"})
+
+
+  $(".invoiceListCustomerOption").on('change',(e)=>{
+    window.onCustomerNameChange(e);
+  })
+
+
+  
+  $("#fromDate").on('dp.change',(e)=>{
+    window.onFromDateChange(e);
+  })
+
+
+  
+  $("#toDate").on('dp.change',(e)=>{
+    window.onToDateChange(e);
+  })
+
+
+  $("#invoiceStatusOption").on('change',(e)=>{
+    window.onStatusChange(e);
+  })
+
+  $("#invoiceCategoryOption").on('change',(e)=>{
+    window.onCategoryChange(e);
+  })
+
+
+//   document.getElementsByClassName("report-btn")[0].addEventListener('click',function(e){
+//     e.preventDefault();
+//     console.log(customerName+" "+fromDate+" "+toDate+" "+status+" "+category)
+//   })

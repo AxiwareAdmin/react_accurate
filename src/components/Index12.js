@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 export default function Index1() {
 
   useEffect(() => {
@@ -89,6 +90,7 @@ export default function Index1() {
   
   return (
     <div>
+       <Navbar/>
 		<Sidebar />
       <div className="page-wrapper">
         <div className="content container-fluid">

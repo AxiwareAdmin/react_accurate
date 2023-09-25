@@ -2,7 +2,7 @@ import "./App.css";
 import Navbar from "./components/Navbar";
 import Index1 from "./components/Index12";
 import {React,useState} from "react";
-import {Routes, Route } from "react-router-dom";
+import {Routes, Route, useLocation } from "react-router-dom";
 import InvoicePageWrapper from "./components/InvoicePageWrapper";
 import InvoiceList from "./components/invoiceList";
 import Alert from "./components/alert";
@@ -14,19 +14,17 @@ import InvoicesOverDue from "./components/InvoicesOverDue";
 import InvoicesDraft from "./components/InvoicesDraft";
 import InvoicesRecurring from "./components/invoicesRecurring";
 import InvoicesCancelled from "./components/InvoicesCancelled";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
-  const [alertMsg,setAlertMsg]=useState("");
-  const onAlertChange=(msg)=>{
-    setAlertMsg(msg);
-  }
   return (
     <>
+    
     <BrowserRouter>
-        <Navbar />
-        <Alert msg={alertMsg}/>
+       
         <Routes>
-          <Route  path="/add-invoice" element={<InvoicePageWrapper onAlertChange={onAlertChange}/>} />
+          <Route  path="/add-invoice" element={<InvoicePageWrapper/>} />
           <Route path="/invoiceList" element={<InvoiceList/>}/>
           <Route path="/viewInvoice" element={<ViewInvoice/>}/>
           <Route path="/salesRegister" element={<SalesRegister/>} />
@@ -35,7 +33,9 @@ function App() {
           <Route path="/InvoicesDraft" element={<InvoicesDraft/>} />
           <Route path="/invoicesRecurring" element={<InvoicesRecurring/>} />
           <Route path="/InvoicesCancelled" element={<InvoicesCancelled/>} />
-          <Route  path="/" element={<Index1 />} />
+          <Route  path="/dashboard" element={<Index1 />} />
+          <Route  path="/register" element={<Register/>} />
+          <Route  path="/" element={<Login/>} />
         </Routes>
         </BrowserRouter>
     </>

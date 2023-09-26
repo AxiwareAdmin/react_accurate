@@ -178,7 +178,6 @@ export default function ViewInvoice (){
           let action=url.searchParams.get("action");
           let serviceChkT = url.searchParams.get("serviceChk");
           setBillToAddrShow(serviceChkT);
-          setinvNo(id1);
           
 
           if(!initilized.current){  
@@ -188,7 +187,9 @@ export default function ViewInvoice (){
           .get("http://localhost:8081/erp/viewInvoice?invNo="+id1)
           .then((res) => {
           
-
+            if( res.data.invoiceNo !=null &&  res.data.invoiceNo != undefined &&  res.data.invoiceNo != "")
+            setinvNo(res.data.invoiceNo);
+             
           let billingaddr = res.data.billingAddress;
           if(billingaddr !=null && billingaddr != undefined && billingaddr != "")
           setToAddr(billingaddr);

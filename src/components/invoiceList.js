@@ -203,7 +203,7 @@ export default function InvoiceList () {
 				iEle = document.createElement("i");
 				aEle.className = "dropdown-item"
 				aEle.href=ele.path;
-				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.invoiceNo+"')");
+				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.invoiceId+"')");
 				iEle.className = ele.classname;
 				textElem = document.createTextNode(ele.name);
 				aEle.appendChild(iEle);
@@ -250,7 +250,7 @@ export default function InvoiceList () {
 			trEle.appendChild(tdEle);
 			document.querySelector(".datatable tbody").appendChild(trEle);
 			
-		  },500)
+		  },1000)
 
 		axios.get("http://localhost:8081/erp/customers").then((res) => {
 		console.log(res.data);
@@ -778,7 +778,7 @@ export default function InvoiceList () {
 												   <th>Created on</th>
 												   <th>Invoice to</th>
 												   <th>Amount</th>
-												   <th class="sorting_asc">Due date</th>
+												   <th>Due date</th>
 												   <th>Status</th>
 												   <th class="text-end">Action</th>
 												</tr>

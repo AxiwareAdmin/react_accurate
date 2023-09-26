@@ -991,7 +991,7 @@ const onDescriptionChange=(e)=>{
                 $select.value = optionToSelect.value;
               }
                
-              // setdesc(elem.productDescription);
+             
                 document.querySelector("#description").value=elem.productDescription;
                 document.querySelector("#hsnSac").value=elem.hsnSac;
                 document.querySelector("#quantity").value=elem.quantity;
@@ -1001,71 +1001,52 @@ const onDescriptionChange=(e)=>{
                 document.querySelector("#amount").value=elem.amount;
                 document.querySelector("#tax").value=elem.tax;
 
-                // var description = document.querySelector("#description").value;
-                // var hsnSac=document.querySelector("#hsnSac").value;
-                // var tax=fromCurrency(document.querySelector("#tax").value);
-                // var quantity = fromCurrency(document.querySelector("#quantity").value);
-                // var price = fromCurrency(document.querySelector("#price").value);
-                // var discount = fromCurrency(document.querySelector("#discount").value);
-                // var amount = fromCurrency(document.querySelector("#amount").value);
-                // var unit=document.querySelector("#unit").value;
-                //var productName = event.target.querySelector("option:checked").text;
-                //let productId = document.querySelector("#productId").value;
+                let tempProdUnits = [...productUnits];
 
-                 }
+                tempProdUnits.map((prodUnit) => {
+                  if (prodUnit.id == index+1) {
+                    prodUnit.id = elem.invoiceProductId;
+                    prodUnit.description=elem.productDescription;
+                    prodUnit.hsnSac="11111"//elem.hsnSac;
+                    prodUnit.tax=elem.tax;
+                    prodUnit.quantity = elem.quantity;
+                    prodUnit.price = elem.rate;
+                    prodUnit.discount = elem.discount;
+                    prodUnit.amount = elem.amount;
+                    prodUnit.productName = elem.productName;
+                    prodUnit.unit=elem.unit;
+                  }
+                });
+        
+                setProductUnits(tempProdUnits);
+                // document.querySelector('.quantity1').on('change',(e)=>{onQuantityUnitChange(e)})
+                // document.querySelector('.price1').on('change',(e)=>{onPriceUnitChange(e)})
+                // document.querySelector('.discount1').on('change',(e)=>{onDiscountUnitChange(e)})
+              
+              }
                
                 if(index > 0){
                   window.addRowOnEdit(elem , index);
-              }
-              
-              // var temp = {
-              //   id: elem.invoiceProductId,
-              //   productName: elem.productName,
-              //   description: elem.productDescription,
-              //   hsnSac:elem.hsnSac,
-              //   tax:elem.tax,
-              //   quantity: elem.quantity,
-              //   price: elem.price,
-              //   amount: elem.amount,
-              //   discount: elem.discount,
-              //   unit:elem.unit
-              // };
-             
-              setProductUnits([...productUnits,{
-                id: elem.invoiceProductId,
-                productName: elem.productName,
-                description: elem.productDescription,
-                hsnSac:elem.hsnSac,
-                tax:elem.tax,
-                quantity: elem.quantity,
-                price: elem.price,
-                amount: elem.amount,
-                discount: elem.discount,
-                unit:elem.unit
-              }]);
-            
-              setProductCount(index+1);
-              //setProductUnits(newList);
-              console.log('product length ::::'+productUnits);
 
-              // let tempProdUnits = [...productUnits];
-
-              // tempProdUnits.map((prodUnit) => {
-              //   // if (prodUnit.id == productId) {
-              //     prodUnit.description=elem.productDescription;
-              //     prodUnit.hsnSac=elem.hsnSac;
-              //     prodUnit.tax=elem.tax;
-              //     prodUnit.quantity = elem.quantity;
-              //     prodUnit.price = elem.price;
-              //     prodUnit.discount = elem.discount;
-              //     prodUnit.amount = elem.amount;
-              //     prodUnit.productName = elem.productName;
-              //     prodUnit.unit=elem.unit;
-              //  // }
-             // });
-
-             // setProductUnits(tempProdUnits);
-
+                  let tempProdUnits = [...productUnits];
+                 
+                      let prod = {
+                      id : elem.invoiceProductId,
+                      description : "good prod",//elem.productDescription,
+                      hsnSac:elem.hsnSac,
+                      tax : elem.tax,
+                      quantity : elem.quantity,
+                      price : elem.rate,
+                      discount : elem.discount,
+                      amount : elem.amount,
+                      productName : elem.productName,
+                      unit : elem.unit
+                      }
+                  
+                  tempProdUnits.push(prod);
+                  setProductUnits(tempProdUnits);
+                 // setTotalAmt(calculateTotalAmt());
+               }
               });
               //end prod set code             
              

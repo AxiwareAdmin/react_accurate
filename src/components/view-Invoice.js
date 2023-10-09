@@ -11,6 +11,14 @@ import Navbar from "./Navbar";
 
 export default function ViewInvoice (){
 
+  var token=localStorage.getItem("token")
+	var header={
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
+        }
+      }
+
   const initilized = useRef(false);
 
 
@@ -176,15 +184,20 @@ export default function ViewInvoice (){
 
           var url=new URL(window.location.href);
           let id1=url.searchParams.get("id");
+          let action=url.searchParams.get("action");
+          let serviceChkT = url.searchParams.get("serviceChk");
+          setBillToAddrShow(serviceChkT);
           setinvNo(id1);
 
           if(!initilized.current){  
 
             initilized.current=true;
           axios
-          .get("http://localhost:8080/viewInvoice?invNo="+id1)
+          .get("http://localhost:8080/viewInvoice?invNo="+id1,header)
           .then((res) => {
           
+
+            setServiceCheck(res.data.serviceCheck);
 
           let billingaddr = res.data.billingAddress;
           if(billingaddr !=null && billingaddr != undefined && billingaddr != "")
@@ -279,9 +292,12 @@ export default function ViewInvoice (){
           console.log(e)
         })
 
+     if(action == "download" && action != null && action != "" && action != undefined){
+        
         setTimeout(function () {
           downloadpdf();
       }, 500);
+    }
       }
 
       });
@@ -319,7 +335,9 @@ export default function ViewInvoice (){
   const [total , settotal] = useState("");
   const [subTotal , setsubTotal] = useState("");
   const [payTerm , setpayTerm] = useState("");
+  const [billToAddrShow , setBillToAddrShow] = useState(false);
 
+  const [serviceCheck,setServiceCheck]=useState("false")
   
   return (
     <div>
@@ -360,16 +378,16 @@ export default function ViewInvoice (){
                
                 <div class="invoice-item invoice-item-two">
                   <div class="row">
-                    <div class="col-md-6">
-                      <div class="invoice-info">
+                   {serviceCheck=='false' &&<div class="col-md-6">
+                      <div class="invoice-info" style={billToAddrShow ? {display:"none"} : {display : "block"}}>
                         <strong class="customer-text-one">Billed to</strong>
                         <h6 class="invoice-name">Customer Name : {custName}</h6>
                         <p class="invoice-details invoice-details-two"/>
                          {toAddr}
                         <p/>
                       </div>
-                    </div>
-                    <div class="col-md-6">
+                    </div>}
+                    <div class={`col-md-${serviceCheck=='false'?6:12}`}>
                       <div class="invoice-info invoice-info2">
                         <strong class="customer-text-one">Payment Details</strong>
                         <p class="invoice-details"/>

@@ -259,6 +259,23 @@ export default function Sidebar() {
 									</li>
 								</ul>
 							</li>
+							{/* added manage menu code start */}
+
+							<li class="submenu">
+							<a href="#"><i class="feather-settings"></i> <span>Manage</span>
+								<span class="menu-arrow"></span>
+							</a>
+							<ul class="sub-menus">
+								<li><a href="customer.php">Customer</a></li>
+								<li><a href="supplier.php">Supplier</a></li>
+								<li><a href="ledger.php">Ledger</a></li>
+								<li><a href="product.php">Products &amp; Services</a></li>
+								<li><a href="/DocumentSequence">Document Sequence</a></li>
+								<li><a href="blog-Categories.html">Import From Excel</a></li>
+							</ul>
+						</li>
+
+							{/* manange menu code end */}
 						</ul>
 					</div>
                 </div>

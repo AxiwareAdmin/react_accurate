@@ -669,9 +669,14 @@ $(".add-table-items").on('click','.remove-btn', function (e) {
 $(document).on("click",".add-btns",function (e) {
     e.stopImmediatePropagation();
 var optionList='';
+var token=localStorage.getItem("token")
     $.ajax({
         url:'http://localhost:8080/invoiceproducts',
         method:'GET',
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":'Bearer '+token
+          },
         async:false,
         success:(data)=>{
             data.map((product)=>{
@@ -753,9 +758,14 @@ console.log("error")
             td.querySelector("#tax").readOnly=true;
             var unit=td.querySelector("#unit");
             unit.readOnly=true;
+            var token=localStorage.getItem("token")
             $.ajax({
                 url:'http://localhost:8080/invoiceproduct/'+event.target.value,
                 method:'GET',
+                headers:{
+                    "Content-Type":"application/json",
+                    "Authorization":'Bearer '+token
+                  },
                 async:false,
                 success:(data)=>{
                     debugger;
@@ -797,7 +807,7 @@ function toCurrency(value) {
   }
   function fromCurrency(value) {
     try {
-      let num = Number(value.replace(/[\$,]/g,''));
+      let num = Number((value+"").replace(/[\$,]/g,''));
       return isNaN(num) ? 0 : num;
     }
     catch(err) {
@@ -1035,9 +1045,14 @@ elem.appendChild(node);
     var amount=td.querySelector("#amount");
     var discount=td.querySelector("#discount");
     var unit=td.querySelector("#unit");
+    var token=localStorage.getItem("token")
     $.ajax({
         url:'http://localhost:8080/invoiceproduct/'+event.target.value,
         method:'GET',
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":'Bearer '+token
+          },
         async:false,
         success:(data)=>{
             debugger;
@@ -1274,6 +1289,7 @@ function printPage() {
   document.getElementById("otherCharge")&&document.getElementById("otherCharge").addEventListener("blur",function(e){
     e.stopImmediatePropagation();
     document.getElementById("otherCharge").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
+    // document.getElementById("otherCharge").value=fromCurrency(toCurrency(e.target.value))
   })
 
 //   transportCharge
@@ -1281,6 +1297,7 @@ function printPage() {
 document.getElementById("transportCharge")&&document.getElementById("transportCharge").addEventListener("blur",function(e){
     e.stopImmediatePropagation();
     document.getElementById("transportCharge").value=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'');
+    // document.getElementById("transportCharge").value=fromCurrency(toCurrency(e.target.value))
   })
 
 // otherDiscount

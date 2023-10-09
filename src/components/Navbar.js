@@ -1,6 +1,17 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
+
+
 
 export default function Navbar() {
+
+	const navigate = useNavigate();
+
+	function onLogoutButtonClick(e){
+		localStorage.removeItem("token")
+		navigate("/")
+	}
+
   return (
     <div>
       
@@ -259,7 +270,7 @@ export default function Navbar() {
 						<div className="dropdown-menu">
 							<a className="dropdown-item" href="profile.html">My Profile</a>
 							<a className="dropdown-item" href="settings.html">Settings</a>
-							<a className="dropdown-item" href="login.html">Logout</a>
+							<a className="dropdown-item" onClick={onLogoutButtonClick}>Logout</a>
 						</div>
 					</li>
 				</ul>

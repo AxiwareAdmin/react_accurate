@@ -6,9 +6,11 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 import Alert from "./alert";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
+import { useRef } from "react";
 export default function InvoicePageWrapper(props) {
 
   const BACKEND_SERVER="http://localhost:8080";
+  const editref = useRef(true);
 
   const [productUnits, setProductUnits] = useState([
     {
@@ -36,7 +38,7 @@ export default function InvoicePageWrapper(props) {
   }
   function fromCurrency(value) {
     try {
-      let num = Number(value.replace(/[\$,]/g,''));
+      let num = Number((value+"").replace(/[\$,]/g,''));
       return isNaN(num) ? 0 : num;
     }
     catch(err) {
@@ -44,11 +46,24 @@ export default function InvoicePageWrapper(props) {
     }
   }
 
+  function convertToAccountingStandard(num){
+    num=toCurrency(fromCurrency(num)).replace(/[\$]/g,'')
+
+    return num;
+  }
   const [productCount, setProductCount] = useState(1);
   function prodSelectOnChange(event) {
     console.log(event.target.value);
+
+    var token=localStorage.getItem("token")
+    //it was GET method earlier
     axios
-      .get(BACKEND_SERVER+"/invoiceproduct/" + event.target.value)
+      .get(BACKEND_SERVER+"/invoiceproduct/" + event.target.value,{
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
+        }
+      })
       .then((res) => {
         var td = event.target.parentElement;
         var productId = td.querySelector("#productId").value;
@@ -117,10 +132,8 @@ export default function InvoicePageWrapper(props) {
   }
 
   const roundNum = (num) => {
-    num = num * 100;
-    num = Math.round(num);
-    num = num / 100;
-
+    num=fromCurrency(toCurrency(num));
+    // num=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'')
     return num;
   };
 
@@ -286,8 +299,17 @@ export default function InvoicePageWrapper(props) {
     e.preventDefault();
     var a = document.querySelector("#customer option:checked");
     var customerId = a.value;
+
+    var token=localStorage.getItem("token")
+    //it was GET method earlier
+
  
-    axios.get(BACKEND_SERVER+"/allInvoices").then((res) => {
+    axios.get(BACKEND_SERVER+"/allInvoices",{
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
+      }
+    }).then((res) => {
       let invoiceLen = res.data.length;
       let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
       console.log("invoice:" + invoiceNum);
@@ -296,8 +318,17 @@ export default function InvoicePageWrapper(props) {
       console.log(e)
     })
 
+    
+    var token=localStorage.getItem("token")
+
+
     axios
-      .get(BACKEND_SERVER+"/customer/" + customerId)
+      .get(BACKEND_SERVER+"/customer/" + customerId,{
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
+        }
+      })
       .then((res) => {
         debugger;
         var address1 = res.data.address1;
@@ -321,6 +352,22 @@ export default function InvoicePageWrapper(props) {
         var shippingAddr1 = res.data.shippingAddress1;
 
         var shippingAddr2 = res.data.shippingAddress2;
+
+        var gstNo=res.data.gstNo;
+
+        var shippingGstNo=res.data.shippingGstNo;
+
+        var state=res.data.state;
+
+        var shippingState=res.data.shippingState;
+
+        setGstNo(gstNo);
+
+        setShippingGstNo(shippingGstNo);
+
+        setState(state);
+
+        setShippingState(shippingState)
 
         setShippingAddress1(shippingAddr1);
         setShippingAddress2(shippingAddr2);
@@ -405,7 +452,30 @@ window.onTransportModeChange=(e)=>{
     // document.querySelectorAll("script").forEach(e => e.remove());
     // document.querySelectorAll("script[src]").forEach(a=>a.remove())
     // document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());
-    axios.get(BACKEND_SERVER+"/customers").then((res) => {
+var token=localStorage.getItem("token")
+
+
+    axios.get(BACKEND_SERVER+"/gstRates",{
+      headers:{
+        "Authorization":'Bearer '+token
+      }
+    }).then((res)=>{
+      console.log(res.data);
+      if(res.data!=null && res.data!=undefined){
+        setTransportGstRate(res.data[0])
+        setOtherChargesGstRate(res.data[0])
+    }
+      setGstRates(res.data)
+    })
+    
+
+
+    axios.get(BACKEND_SERVER+"/customers",{
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
+      }
+    }).then((res) => {
       console.log(res.data);
       res.data.map((a) => {
         // var label = document.createElement("label");
@@ -435,7 +505,13 @@ window.onTransportModeChange=(e)=>{
       });
     });
 
-    axios.get(BACKEND_SERVER+"/invoiceproducts").then((res) => {
+    var token=localStorage.getItem("token")
+    axios.get(BACKEND_SERVER+"/invoiceproducts",{
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
+      }
+    }).then((res) => {
       res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
@@ -532,11 +608,20 @@ window.onTransportModeChange=(e)=>{
 
   const [shippingAddress1, setShippingAddress1] = useState("");
 
+  const [gstNo,setGstNo]=useState("");
+
+  const [shippingGstNo,setShippingGstNo]=useState("");
+
+  const [state,setState]=useState("");
+
+  const [shippingState,setShippingState]=useState("");
+
   const [shippingAddress2, setShippingAddress2] = useState("");
 
   const [poNumber, setPoNumber] = useState("");
 
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [invoiceId , setInvoiceId] = useState("");
 
   const [transportCharge, setTransportCharge]=useState(0);
 
@@ -558,6 +643,8 @@ window.onTransportModeChange=(e)=>{
 
   const [gstPercentageVal,setGstPercentageVal]=useState([]);
 
+  const [gstCalculationVal,setGstCalculationVal]=useState({})
+
   const [invoiceDate,setInvoiceDate]=useState("");
 
   const [poDate,setPoDate]=useState("");
@@ -572,7 +659,7 @@ window.onTransportModeChange=(e)=>{
 
   const [transportModes,setTransportModes]=useState(["By Air","By Road"])
 
-  const [paymentTermVal,setPaymentTermVal]=useState("15 days");
+  const [paymentTermVal,setPaymentTermVal]=useState("15 Days");
 
   const [transportModeVal,setTransportModeVal]=useState("By Air");
 
@@ -580,11 +667,20 @@ window.onTransportModeChange=(e)=>{
 
   const [isSaved,setIsSaved]=useState(0)
 
+  const [serviceCheck , setServiceCheck] = useState(false)
+
+  const [gstRates,setGstRates]=useState([])
+
+  const [transportGstRate,setTransportGstRate]=useState(0);
+
+  const [otherChargesGstRate,setOtherChargesGstRate]=useState(0);
+
   const navigate=useNavigate();
 useEffect(()=>{
     document.querySelector(".gstContainer").innerHTML='';
     let tempGstPercentageArr=[];
     let tempGstPercentageVal=[];
+    let tempGstCalculationVal={};
     productUnits.map((prodUnit)=>{
       if(prodUnit.productName==undefined || prodUnit.productName==null) return;
 
@@ -592,15 +688,54 @@ useEffect(()=>{
       if(index<0){
         tempGstPercentageArr=[...tempGstPercentageArr,prodUnit.tax];
         tempGstPercentageVal=[...tempGstPercentageVal,roundNum(prodUnit.amount*prodUnit.tax/100)]
+        var tempTax=prodUnit.tax;
+        tempGstCalculationVal[tempTax]=prodUnit.amount;
       }
       else{
         tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(prodUnit.amount*prodUnit.tax/100);
+        tempGstCalculationVal[prodUnit.tax]=tempGstCalculationVal[prodUnit.tax]+prodUnit.amount;
       }
   })
 
+  console.log("before")
+  console.log(tempGstPercentageArr)
+
+   //adding transport charge to gst calsulation
+   var tempTransportGstRate=roundNum(transportGstRate)
+   let index=tempGstPercentageArr.indexOf(tempTransportGstRate);
+   if(roundNum(transportCharge)>0){
+   if(index>=0){
+     tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100);
+     tempGstCalculationVal[tempTransportGstRate]=tempGstCalculationVal[tempTransportGstRate]+roundNum(transportCharge);
+   }else{
+     tempGstPercentageArr=[...tempGstPercentageArr,tempTransportGstRate];
+     tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100)]
+     tempGstCalculationVal[tempTransportGstRate]=roundNum(transportCharge);
+   }
+   }
+ 
+   //adding other charge to gst
+   var tempOtherChargesGstRate=roundNum(otherChargesGstRate)
+   index=tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
+   if(roundNum(otherCharge)>0){
+     if(index>=0){
+       tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100);
+       tempGstCalculationVal[tempOtherChargesGstRate]=tempGstCalculationVal[tempOtherChargesGstRate]+roundNum(otherCharge);
+     }else{
+       tempGstPercentageArr=[...tempGstPercentageArr,tempOtherChargesGstRate];
+       tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100)]
+       tempGstCalculationVal[tempOtherChargesGstRate]=roundNum(otherCharge);
+     }
+   }
+  console.log("after")
+  console.log(tempGstPercentageArr)
+
   setGstPercentageArr(tempGstPercentageArr);
   setGstPercentageVal(tempGstPercentageVal);
-debugger;
+  setGstCalculationVal(tempGstCalculationVal);
+
+  console.log(tempGstCalculationVal)
+
 
    setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
@@ -617,18 +752,27 @@ debugger;
         let h4Elem=document.createElement("h4");
         let aElem=document.createElement("a");
         
-        h4Elem.style="font-family:Times New Roman, Times, serif"
+        h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
   
-        aElem.style="color:grey";
+        aElem.style="color:grey;display:flex;flex-direction:column";
   
         let textElem=document.createTextNode("SGST "+(parseFloat(elem)/2)+" %");
-  
-        aElem.appendChild(textElem);
+        let spanElem=document.createElement("span")
 
-        let spanElem=document.createElement("span");
+        spanElem.appendChild(textElem)
+        aElem.appendChild(spanElem);
+
+
+        textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
+        spanElem=document.createElement("span")
+
+        spanElem.style='text-transform:capitaize;font-size:18px'
+        spanElem.appendChild(textElem)
+        aElem.appendChild(spanElem);
 
         textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
 
+        spanElem=document.createElement("span");
         spanElem.appendChild(textElem);
 
         spanElem.style='color:grey'
@@ -646,15 +790,24 @@ debugger;
          h4Elem=document.createElement("h4");
          aElem=document.createElement("a");
         
-        h4Elem.style="font-family:Times New Roman, Times, serif"
+        h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
   
-        aElem.style="color:grey";
+        aElem.style="color:grey;display:flex;flex-direction:column";
   
          textElem=document.createTextNode("CGST "+(parseFloat(elem)/2)+" %");
+          spanElem=document.createElement("span")
 
+          spanElem.appendChild(textElem)
          
          
-         aElem.appendChild(textElem);
+         aElem.appendChild(spanElem);
+
+         textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
+         spanElem=document.createElement("span")
+ 
+         spanElem.style='text-transform:capitaize;font-size:18px'
+         spanElem.appendChild(textElem)
+         aElem.appendChild(spanElem);
          
         spanElem=document.createElement("span");
 
@@ -694,7 +847,67 @@ debugger;
 
 
   useEffect(()=>{
+    debugger;
+    document.querySelector(".gstContainer").innerHTML='';
+    let tempGstPercentageArr=[];
+    let tempGstPercentageVal=[];
+    let tempGstCalculationVal={};
+    productUnits.map((prodUnit)=>{
+      if(prodUnit.productName==undefined || prodUnit.productName==null) return;
+
+      let index=tempGstPercentageArr.indexOf(prodUnit.tax);
+      if(index<0){
+        tempGstPercentageArr=[...tempGstPercentageArr,prodUnit.tax];
+        tempGstPercentageVal=[...tempGstPercentageVal,roundNum(prodUnit.amount*prodUnit.tax/100)]
+        var tempTax=prodUnit.tax;
+        tempGstCalculationVal[tempTax]=prodUnit.amount;
+      }
+      else{
+        tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(prodUnit.amount*prodUnit.tax/100);
+        tempGstCalculationVal[prodUnit.tax]=tempGstCalculationVal[prodUnit.tax]+prodUnit.amount;
+      }
+  })
+  console.log("before")
+  console.log(tempGstPercentageArr)
+  //adding transport charge to gst calsulation
+  var tempTransportGstRate=roundNum(transportGstRate)
+  let index=tempGstPercentageArr.indexOf(tempTransportGstRate);
+  if(roundNum(transportCharge)>0){
+  if(index>=0){
+    tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100);
+    tempGstCalculationVal[tempTransportGstRate]=tempGstCalculationVal[tempTransportGstRate]+roundNum(transportCharge);
+  }else{
+    tempGstPercentageArr=[...tempGstPercentageArr,tempTransportGstRate];
+    tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100)]
+    tempGstCalculationVal[tempTransportGstRate]=roundNum(transportCharge);
+  }
+  }
+
+  //adding other charge to gst
+  var tempOtherChargesGstRate=roundNum(otherChargesGstRate)
+  index=tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
+  if(roundNum(otherCharge)>0){
+    if(index>=0){
+      tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100);
+      tempGstCalculationVal[tempOtherChargesGstRate]=tempGstCalculationVal[tempOtherChargesGstRate]+roundNum(otherCharge);
+    }else{
+      tempGstPercentageArr=[...tempGstPercentageArr,tempOtherChargesGstRate];
+      tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100)]
+      tempGstCalculationVal[tempOtherChargesGstRate]=roundNum(otherCharge);
+    }
+  }
+
+  console.log("after")
+  console.log(tempGstPercentageArr)
+  setGstPercentageArr(tempGstPercentageArr);
+  setGstPercentageVal(tempGstPercentageVal);
+  setGstCalculationVal(tempGstCalculationVal);
+    
+    
+    
     let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
+    
+    
     setTotalTaxableAmt(tempTotalTaxableAmt)
 
   },[transportCharge,otherCharge,totalDiscount])
@@ -768,6 +981,7 @@ const onDescriptionChange=(e)=>{
     let invoiceData={
       invoiceProducts:productUnits,
       invoiceNo:invoiceNumber,
+      invoiceId : invoiceId,
       sgstValue:totalSgst,
       cgstValue:totalCgst,
       taxableValue:totalTaxableAmt,
@@ -788,14 +1002,22 @@ const onDescriptionChange=(e)=>{
       dueDate:dueDate,
       transportMode:transportModeVal,
       vehicleNumber:vehicleNumber,
-      remarks:remarks
+      remarks:remarks,
+      state:state,
+      gstNo:gstNo,
+      shippingGstNo:shippingGstNo,
+      serviceCheck:serviceCheck,
+      shippingState:shippingState
     }
 
     console.log(invoiceData)
 
+    var token=localStorage.getItem("token");
+
     axios.post('http://localhost:8080/saveInvoice', invoiceData,{
       headers:{
-        "Content-Type":"application/json"
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
       }
     })
     .then(function (response) {
@@ -848,7 +1070,13 @@ const onDescriptionChange=(e)=>{
 
   const onChallanNumberChange=(e)=>{
     setChallanNumber(e.target.value);
-  } 
+  }
+  
+  const onServiceCheckChange=(e)=>{
+    console.log("printing")
+    console.log(document.getElementById("chkYes").checked)
+    setServiceCheck(document.getElementById("chkYes").checked==true?false:true)
+  }
 
   const onPaymentTermsChange=(e)=>{
     if(invoiceDate!=null && invoiceDate!=undefined && invoiceDate!='' && invoiceDate.length>0){
@@ -875,11 +1103,19 @@ const onDescriptionChange=(e)=>{
     setVehicleNumber(e.target.value)
   }
 
+  const onTransportGstChange=(e)=>{
+    setTransportGstRate(e.target.value)
+  }
+
+  const onOtherChargeGstChange=(e)=>{
+    setOtherChargesGstRate(e.target.value);
+  }
+
   const printButtonClicked=(e)=>{
     if(isSaved==0)
       alert("please save the invoice first!!.");
     else
-     navigate("/viewInvoice?id="+invoiceNumber)
+     navigate("/viewInvoice?id="+invoiceNumber);
   }
 
 
@@ -900,6 +1136,204 @@ const onDescriptionChange=(e)=>{
     
     return day + '/' + month + '/' + year;
   }
+
+  // start code for edit invoice
+  
+  useEffect (() => {
+ 
+   if(editref.current){
+    
+           
+          var url=new URL(window.location.href);
+          let invNoEdit=url.searchParams.get("InvNo");
+          let actionedit = url.searchParams.get("action");
+
+          var token=localStorage.getItem('token')
+          if(actionedit == "Edit" || actionedit == "Clone"){
+
+            axios.get("http://localhost:8081/erp/viewInvoice?invNo="+invNoEdit,{
+              headers:{
+                "Content-Type":"application/json",
+                "Authorization":'Bearer '+token
+              }
+            }).then((res) => {
+              console.log("after got data"+res.data.invoiceNo);
+
+
+              if(res.data.invoiceId != null)
+               setInvoiceId(res.data.invoiceId);
+              
+              if(res.data.customerName != null){
+                const text = res.data.customerName;
+                const $select = document.querySelector('#customer');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+              
+              if(res.data.invoiceNo != null)
+              setInvoiceNumber(res.data.invoiceNo);
+
+              if(res.data.poNumber != null)
+              setPoNumber(res.data.poNumber);
+
+              if(res.data.invoiceDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.invoiceDate));
+              setInvoiceDate(finvdate);
+              }
+
+              if(res.data.poDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.poDate));
+              setPoDate(finvdate);
+              }
+
+              if(res.data.billingAddress != null)
+              setFromAddr1(res.data.billingAddress);
+
+              if(res.data.shippingAddress != null)
+              setShippingAddress1(res.data.shippingAddress);
+
+              if(res.data.challanNo != null)
+              setChallanNumber(res.data.challanNo);
+
+              if(res.data.challanDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.challanDate));
+              setChallanDate(finvdate);
+              }
+
+              if(res.data.transportMode != null){
+                const text = res.data.transportMode;
+                const $select = document.querySelector('#transportModes');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+
+              if(res.data.paymentTerms != null)
+              {
+               // let payterm = (res.data.paymentTerms).replace('-'," ");
+                const text = res.data.paymentTerms;
+                const $select = document.querySelector('#paymentTerm');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+              
+               if(res.data.dueDate != null){
+                let finvdate = getFormattedDate(new Date(res.data.dueDate));
+               setDueDate(finvdate);
+               }
+              
+
+              if(res.data.vehicleNo != null)
+              setVehicleNumber(res.data.vehicleNo);
+             
+              //start prod set code
+              window.fetchProdList();
+              
+              res.data.invoiceProductDO.map((elem,index)=>{
+                
+                console.log('product data '+ elem.productName+':index id :'+index);
+               
+              if(index == 0){
+                if(elem.productName != null)
+              {
+                const text = elem.productName;
+                const $select = document.querySelector('.prodListSelect1');
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(item => item.text ===text);
+                $select.value = optionToSelect.value;
+              }
+               
+              // setdesc(elem.productDescription);
+                document.querySelector("#description").value=elem.productDescription;
+                document.querySelector("#hsnSac").value=elem.hsnSac;
+                document.querySelector("#quantity").value=elem.quantity;
+                document.querySelector("#unit").value=elem.unit;
+                document.querySelector("#price").value=elem.rate;
+                document.querySelector("#discount").value=elem.discount;
+                document.querySelector("#amount").value=elem.amount;
+                document.querySelector("#tax").value=elem.tax;
+
+                // var description = document.querySelector("#description").value;
+                // var hsnSac=document.querySelector("#hsnSac").value;
+                // var tax=fromCurrency(document.querySelector("#tax").value);
+                // var quantity = fromCurrency(document.querySelector("#quantity").value);
+                // var price = fromCurrency(document.querySelector("#price").value);
+                // var discount = fromCurrency(document.querySelector("#discount").value);
+                // var amount = fromCurrency(document.querySelector("#amount").value);
+                // var unit=document.querySelector("#unit").value;
+                //var productName = event.target.querySelector("option:checked").text;
+                //let productId = document.querySelector("#productId").value;
+
+                 }
+               
+                if(index > 0){
+                  window.addRowOnEdit(elem , index);
+              }
+              
+              // var temp = {
+              //   id: elem.invoiceProductId,
+              //   productName: elem.productName,
+              //   description: elem.productDescription,
+              //   hsnSac:elem.hsnSac,
+              //   tax:elem.tax,
+              //   quantity: elem.quantity,
+              //   price: elem.price,
+              //   amount: elem.amount,
+              //   discount: elem.discount,
+              //   unit:elem.unit
+              // };
+             
+              setProductUnits([...productUnits,{
+                id: elem.invoiceProductId,
+                productName: elem.productName,
+                description: elem.productDescription,
+                hsnSac:elem.hsnSac,
+                tax:elem.tax,
+                quantity: elem.quantity,
+                price: elem.price,
+                amount: elem.amount,
+                discount: elem.discount,
+                unit:elem.unit
+              }]);
+            
+              setProductCount(index+1);
+              //setProductUnits(newList);
+              console.log('product length ::::'+productUnits);
+
+              // let tempProdUnits = [...productUnits];
+
+              // tempProdUnits.map((prodUnit) => {
+              //   // if (prodUnit.id == productId) {
+              //     prodUnit.description=elem.productDescription;
+              //     prodUnit.hsnSac=elem.hsnSac;
+              //     prodUnit.tax=elem.tax;
+              //     prodUnit.quantity = elem.quantity;
+              //     prodUnit.price = elem.price;
+              //     prodUnit.discount = elem.discount;
+              //     prodUnit.amount = elem.amount;
+              //     prodUnit.productName = elem.productName;
+              //     prodUnit.unit=elem.unit;
+              //  // }
+             // });
+
+             // setProductUnits(tempProdUnits);
+
+              });
+              //end prod set code             
+             
+            }).catch(function (error) {
+              console.log(error);
+            });
+
+          }
+          editref.current = false;
+        }
+   });
+   
+  // End code of edit invoice
+
   return (
     <>
     <Navbar/>
@@ -1021,8 +1455,9 @@ const onDescriptionChange=(e)=>{
                                 type="checkbox"
                                 id="chkYes"
                                 name="invoice"
+                                checked = {serviceCheck}
                               />
-                              <span className="checkmark"></span> Recurring
+                              <span onClick={onServiceCheckChange} className="checkmark"></span> Service
                               Invoice
                             </label>
                           </div>
@@ -1143,10 +1578,11 @@ const onDescriptionChange=(e)=>{
                         </div>
                       </div>
                     </div>
-                    <div className="invoice-item">
+    
+                    <div className="invoice-item" style={{border: "1px solid #E5E5E5",borderRadius: "10px", width: "100%",marginBottom:"15px", background: "#FFFFFF"}}>
                       <div className="row">
-                        <div className="col-xl-4 col-lg-6 col-md-6">
-                          <div className="invoice-info">
+                        <div className="col-xl-6 col-lg-6 col-md-6 h-100 " style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px 0px 0px 20px"}}>
+                          <div className="invoice-info w-100" >
                             <strong className="customer-text">
                               Billing Address{" "}
                               <a className="small" href="edit-invoice.html">
@@ -1162,9 +1598,25 @@ const onDescriptionChange=(e)=>{
                               <br />
                             </p>
                           </div>
+                                      {/* address footer start */}
+                          <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      GST No.&nbsp;
+                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div> */}
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      </div>
+                            {/* address footer end */}
                         </div>
-                        <div className="col-xl-4 col-lg-6 col-md-6">
-                          <div className="invoice-info">
+                        <div className="col-xl-6 col-lg-6 col-md-6 h-100" style={{paddingLeft:"0px"}}>
+                          <div className="invoice-info w-100" style={{marginBottom:"0px",padding:"20px"}} >
                             <strong className="customer-text">
                               Shipping Address
                             </strong>
@@ -1176,8 +1628,40 @@ const onDescriptionChange=(e)=>{
                               {shippingAddress2} <br />
                             </p>
                           </div>
+
+                                         {/* address footer start */}
+                                         <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      GST No.&nbsp;
+                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div> */}
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value={shippingState} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      </div>
+                            {/* address footer end */}
                         </div>
                       </div>
+                      {/* <div className="row">
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      GST No.&nbsp;
+                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      </div> */}
+
                     </div>
 
 
@@ -1197,7 +1681,7 @@ const onDescriptionChange=(e)=>{
 <div class="invoice-inner-date invoice-inner-datepic">
 <div class="form-group">
 <label for="">Challan Date</label>
-<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="challanDate" type="text"  placeholder="Select"/>
+<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="challanDate" type="text" value={challanDate}  placeholder="Select"/>
 </div>
 </div>
 </div>
@@ -1274,7 +1758,7 @@ const onDescriptionChange=(e)=>{
                               <th>Actions</th>
                             </tr>
                           </thead>
-                          <tbody>
+                          <tbody id ="prodtable">
                             <tr className="add-row">
                               <td>
                                 {/* <select class="form-select selectpicker form-select-lg mb-1" aria-label=".form-select-lg example">
@@ -1490,7 +1974,7 @@ const onDescriptionChange=(e)=>{
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
                               <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                                 <p style={{marginBottom:"5px"}}>Transport charge</p>
-                                <span>
+                                <span style={{display:"flex"}}>
                                   <input
                                     style={{
                                       width: "50px",
@@ -1503,8 +1987,32 @@ const onDescriptionChange=(e)=>{
                                     // value={toCurrency(transportCharge).replace(/[\$]/g,'')}
                                     onChange={onTransportChargeChange}
                                   />
+                                 
                                 </span>
                               </p>
+
+
+                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                              <p style={{marginBottom:"5px"}}>Transport charge GST</p>
+                                <span>
+                                  <select  style={{
+                                      width: "50px",
+                                      textAlign:"end",
+                                      border:'2px solid rgb(133,133,133)'
+                                    }}
+                                    onChange={onTransportGstChange}
+                                    >
+                                    {
+                                      gstRates.map((elem)=>{
+                                       return <option value={elem}>{elem}%</option>
+                                      })
+                                    }
+
+                                  </select>
+                                </span>
+                              </p>
+
+
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
                               <p>
                                 Other charge
@@ -1524,6 +2032,27 @@ const onDescriptionChange=(e)=>{
                                   />
                                 </span>
                               </p>{" "}
+
+                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                              <p style={{marginBottom:"5px"}}>Other charge GST</p>
+                                <span>
+                                  <select  style={{
+                                      width: "50px",
+                                      textAlign:"end",
+                                      border:'2px solid rgb(133,133,133)'
+                                    }}
+                                    onChange={onOtherChargeGstChange}
+                                    >
+                                    {
+                                      gstRates.map((elem)=>{
+                                       return <option value={elem}>{elem}%</option>
+                                      })
+                                    }
+
+                                  </select>
+                                </span>
+                              </p>
+
                               <hr />
                               {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),"> */}
                               <p>

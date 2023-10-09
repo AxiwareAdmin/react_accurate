@@ -1,7 +1,26 @@
-import React from 'react'
+import { useScript } from '@uidotdev/usehooks';
+import React,{useState} from 'react'
 import { useEffect } from 'react';
+import Alert from "./alert";
+
+import { useNavigate } from 'react-router-dom';
+
+import axios from 'axios';
+import { Navigate } from 'react-router-dom';
 
 function Login() {
+
+  var token=localStorage.getItem("token")
+	var header={
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
+        }
+      }
+
+  const BACKEND_SERVER="http://localhost:8080";
+
+  const [alertMsg,setAlertMsg]=useState("");
 
     useEffect(() => {
     
@@ -86,8 +105,42 @@ function Login() {
         };
       }, []);
 
+      const [userName,setUserName]=useState("");
+
+      const [password,setPassword]=useState("");
+
+      const navigate = useNavigate();
+      const onLoginClick=(e)=>{
+        e.preventDefault();
+        debugger;
+        console.log("clicked")
+        axios.post(BACKEND_SERVER+"/login",{username:userName,password},header).then((res)=>{
+          console.log(res.data)
+          if(res.data!=null){
+            localStorage.setItem("token",res.data.token)
+           window.location.href="/dashboard"
+          }
+        }).catch((error)=>{
+          // console.log(error.response.data)
+          setAlertMsg("Username/Password is invalid!!")
+    
+          setTimeout(()=>{
+            setAlertMsg(null)
+          },4000);
+          
+        })
+      }
+      const onUserNameChange=(e)=>{
+        setUserName(e.target.value)
+      }
+
+      const onPasswordChange=(e)=>{
+        setPassword(e.target.value)
+      }
+
   return (
     <div>
+      <Alert msg={alertMsg} type='danger'/>
        <div class="main-wrapper">
 			<div class="account-content">
 				
@@ -105,7 +158,7 @@ function Login() {
 							<form action="index.html">
 								<div class="form-group">
 									<label>Email Address</label>
-									<input class="form-control" type="text"/>
+									<input onChange={onUserNameChange} value={userName} class="form-control" type="text"/>
 								</div>
 								<div class="form-group">
 									<div class="row">
@@ -118,10 +171,10 @@ function Login() {
 											</a>
 										</div>
 									</div>
-									<input class="form-control" type="password"/>
+									<input onChange={onPasswordChange} value={password} class="form-control" type="password"/>
 								</div>
 								<div class="form-group text-center">
-									<button class="btn btn-primary account-btn" type="submit">Login</button>
+									<button onClick={onLoginClick} class="btn btn-primary account-btn" type="submit">Login</button>
 								</div>
 								<div class="account-footer">
 									<p>Don't have an account yet? <a href="/register">Register</a></p>

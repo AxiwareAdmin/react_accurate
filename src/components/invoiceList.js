@@ -13,6 +13,14 @@ import Navbar from "./Navbar";
 
 export default function InvoiceList () {
 
+	var token=localStorage.getItem("token")
+	var header={
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
+        }
+      }
+
 	const [month , setMonth] = useState("");
 	const [allInv , setAllInv] = useState(0);
 	const [paidInv , setPaidInv] = useState(0);
@@ -31,7 +39,7 @@ export default function InvoiceList () {
 	//  "/viewInvoice?id="
 	const actionmap = [{name:"Edit",path:'#',classname:"far fa-edit me-2"},{name:"View",path:'#',classname:"far fa-eye me-2"},
 	{name:"Delete",path:"#",classname:"far fa-trash-alt me-2"},{name:"Mark as sent",path:"#",classname:"far fa-check-circle me-2"},
-	{name:"Send Invoice",path:"#",classname:"far fa-paper-plane me-2"},{name:"Clone Invoice",path:"#",classname:"far fa-copy me-2"},
+	{name:"Send Invoice",path:"#",classname:"far fa-paper-plane me-2"},{name:"Copy Invoice",path:"#",classname:"far fa-copy me-2"},
 	{name:"Print Invoice",path:"#",classname:"far fa-copy me-2"},{name:"Download Invoice",path:"#",classname:"far fa-copy me-2"}];
     const otionsDate = ["Today","Tomarrow","Lastweek"];
 	const [invoicedo , setInvoicedo] = useState("");
@@ -85,7 +93,7 @@ export default function InvoiceList () {
 		  let unpaidinvvals = 0;
 		  let caninvvals = 0;
           let srNo = 0;
-        axios.get("http://localhost:8080/invoices/"+month1).then((res) => {
+        axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
 			setInvoicedo(res.data);
             res.data.map(elem=>{
 
@@ -256,9 +264,11 @@ export default function InvoiceList () {
 			console.log(e)
 		  }).finally(()=>{
 			let trElem = document.createElement("tr");
+			trElem.style='background-color: #9a55ff;'
 			let tdElem = document.createElement("td");
-	
+			tdElem.style='color: #ffffff;font-weight:bold'
 			let textElem=document.createTextNode("Grand Total");
+			
 			tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 	
@@ -283,6 +293,7 @@ export default function InvoiceList () {
 			trElem.appendChild(tdElem);
 
 			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
 			 textElem=document.createTextNode(allinvvals);
 			 tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
@@ -307,7 +318,7 @@ export default function InvoiceList () {
 			document.querySelector(".datatable tbody").appendChild(trElem); 
 		  })
 
-		axios.get("http://localhost:8080/customers").then((res) => {
+		axios.get("http://localhost:8080/customers",header).then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
         var option = document.createElement("option");
@@ -431,43 +442,46 @@ export default function InvoiceList () {
 	  function rendercommon(name , invt) {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
-			navigate("/InvoicesCancelled");
+			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print Invoice"){
 			navigate("/viewInvoice?id="+invt);
 		 }else if(name == "Delete"){
-			axios.get("http://localhost:8080/deleteInv?invNo="+invt).then((res) => {
+			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
-				alert("Invoice deleted successfully!!")
-		  
-				// setTimeout(()=>{
-				//   alert(null)
-				// },2000)
-		  
+				alert("Invoice deleted successfully!!");		  
 				}
 				else
-				  alert("There is some issue delete invoice. kindly check wherether all the data is entered or not.");		   
-		}).catch((e)=>{
-			console.log(e)
-		  })
+				  alert("There is some issue delete invoice.");		   
+		    });
 		 } else if(name == "Mark as sent"){
 			navigate("/InvoicesCancelled");
 		 }else if(name == "Send Invoice"){
-			navigate("/InvoicesCancelled");
-		 } else if(name == "Clone Invoice"){
-			axios.get("http://localhost:8080/cloneInv?invNo="+invt).then((res) => {
-		    console.log(res.data);
-			if(res!=null && res.data.res=='sucess'){
-				alert("Invoice Cloned successfully!!");		  
-				}
-				else
-				  alert("There is some issue delete invoice. kindly check wherether all the data is entered or not.");		   
-		}).catch((e)=>{
-			console.log(e)
-		  })
+					axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
+					console.log(res.data);
+					if(res!=null && res.data.res=='sucess'){
+						alert("Invoice mail send successfully!!");		  
+						}
+						else
+						alert("There is some issue to send invoice amil.");		   
+				}).catch(function(error) {
+					console.log(error);
+				});
+		 } else if(name == "Copy Invoice"){
+					axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
+					console.log(res.data);
+					if(res!=null && res.data.res=='sucess'){
+						alert("Invoice Copied successfully!!");	
+						navigate("/add-invoice?InvNo="+invt+"&action=Clone");	  
+						}
+						else
+						alert("There is some issue Copy invoice.");		   
+				}).catch(function(error) {
+					console.log(error);
+				});
 		 }else if(name == "Download Invoice"){
 			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt);
+			navigate("/viewInvoice?id="+invt+"&action=download");
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
 			// 	document.body.appendChild(canvas);  
@@ -521,6 +535,7 @@ export default function InvoiceList () {
 		axios.post('http://localhost:8080/excel/invoices', data,{
 			method: 'GET',
 			responseType: 'blob', // important
+			...header
 		}).then((response) => {
 			const url = window.URL.createObjectURL(new Blob([response.data]));
 			const link = document.createElement('a');
@@ -817,11 +832,11 @@ export default function InvoiceList () {
 											<ul>
 												
 												<li><a href="#" class="active">All Invoice</a></li>
-												<li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
+												{/* <li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
 												<li><a href="#" onClick={rendertoInvOverDue}>Overdue</a></li>		
 												<li><a href="#" onClick={rendertoInvDraft}>Draft</a></li>	
 												<li><a href="#" onClick={rendertoInvRecur}>Recurring</a></li>
-												<li><a href="#" onClick={rendertoInvCancl}>Cancelled</a></li>
+												<li><a href="#" onClick={rendertoInvCancl}>Cancelled</a></li> */}
 											</ul>
 										</div>
 									</div>

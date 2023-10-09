@@ -8,6 +8,14 @@ import Navbar from "./Navbar";
 
 export default function SalesRegister () {
 
+    var token=localStorage.getItem("token")
+	var header={
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
+        }
+      }
+
     function toCurrency(value) {
         try {
           if( isNaN(Number(value)) ) return value;
@@ -116,7 +124,7 @@ export default function SalesRegister () {
         var totalAmt=0;
         var closingBal=0;
 
-        axios.get("http://localhost:8080/viewSalesReg").then((res) =>{
+        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
            
           res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -196,6 +204,8 @@ export default function SalesRegister () {
 
           let trElem = document.createElement("tr");
         let tdElem = document.createElement("td");
+        trElem.style='background-color: #9a55ff'
+        tdElem.style='color: #ffffff;font-weight:bold'
 
         let textElem=document.createTextNode("Grand Total");
         tdElem.appendChild(textElem);
@@ -207,16 +217,19 @@ export default function SalesRegister () {
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.style='color: #ffffff;font-weight:bold'
          textElem=document.createTextNode(totaInvoiceVal);
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
-         textElem=document.createTextNode(totalAmt);
+        tdElem.style='color: #ffffff;font-weight:bold'
+        textElem=document.createTextNode(totalAmt);
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.style='color: #ffffff;font-weight:bold'
          textElem=document.createTextNode(closingBal);
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);

@@ -7,6 +7,7 @@ import axios from "axios";
 import Alert from "./alert";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import Swal from "sweetalert2";
 export default function InvoicePageWrapper(props) {
 
   const BACKEND_SERVER="http://localhost:8080";
@@ -334,6 +335,13 @@ export default function InvoicePageWrapper(props) {
         var address1 = res.data.address1;
         var address2 = res.data.address2;
 
+        var tempTermsAndCondition=res.data.termsAndCondition;
+
+        setTermsAndCondition(tempTermsAndCondition)
+
+        if(tempTermsAndCondition!=null && tempTermsAndCondition!=undefined && tempTermsAndCondition!="NULL")
+        document.getElementById("termsAndCondition").value=tempTermsAndCondition
+
         var remark=res.data.remarks;
         console.log("remark:"+remark)
         setRemarks(remark);
@@ -392,6 +400,8 @@ export default function InvoicePageWrapper(props) {
 
 
   useEffect(() => {
+
+
 window.onPaymentTermsChange=(e)=>{
   onPaymentTermsChange(e);
 }
@@ -675,6 +685,8 @@ var token=localStorage.getItem("token")
 
   const [otherChargesGstRate,setOtherChargesGstRate]=useState(0);
 
+  const [termsAndCondition, setTermsAndCondition]=useState("");
+
   const navigate=useNavigate();
 useEffect(()=>{
     document.querySelector(".gstContainer").innerHTML='';
@@ -738,7 +750,7 @@ useEffect(()=>{
 
 
    setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
-   let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
+   let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))
     setTotalTaxableAmt(tempTotalTaxableAmt)
 },[totalAmt])
 
@@ -840,7 +852,7 @@ useEffect(()=>{
         totalGstVal=roundNum(roundNum(parseFloat(totalGstVal))+roundNum(parseFloat(elem)))
       })
      
-      setFinalAmt(roundNum(parseFloat(totalTaxableAmt)+totalGstVal))
+      setFinalAmt(roundNum(parseFloat(totalTaxableAmt)+totalGstVal-fromCurrency(totalDiscount)))
 
     },[totalTaxableAmt])
 
@@ -905,7 +917,7 @@ useEffect(()=>{
     
     
     
-    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
+    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))
     
     
     setTotalTaxableAmt(tempTotalTaxableAmt)
@@ -936,6 +948,10 @@ useEffect(()=>{
   const onDiscountInRuppesChange=(e)=>{
     setDiscountInRupees(e.target.value);
    
+  }
+
+  const onTermsAndConditionChange=(e)=>{
+    setTermsAndCondition(e.target.value);
   }
 
 const onDescriptionChange=(e)=>{
@@ -1007,7 +1023,8 @@ const onDescriptionChange=(e)=>{
       gstNo:gstNo,
       shippingGstNo:shippingGstNo,
       serviceCheck:serviceCheck,
-      shippingState:shippingState
+      shippingState:shippingState,
+      termsAndCondition:termsAndCondition
     }
 
     console.log(invoiceData)
@@ -1023,7 +1040,13 @@ const onDescriptionChange=(e)=>{
     .then(function (response) {
       console.log(response)
       if(response!=null && response.data.res=='success'){
-      setAlertMsg("Invoice created successfully!!")
+      // setAlertMsg("Invoice created successfully!!")
+
+      Swal.fire(
+        '',
+        'Invoice created successfully!',
+        'success'
+      )
 
       setIsSaved(1);
 
@@ -1911,7 +1934,7 @@ const onDescriptionChange=(e)=>{
                                   data-bs-parent="#accordion"
                                 >
                                   <div className="panel-body">
-                                    <textarea className="form-control"></textarea>
+                                    <textarea onChange={onTermsAndConditionChange} id="termsAndCondition" className="form-control"></textarea>
                                   </div>
                                 </div>
                               </div>

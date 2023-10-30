@@ -1348,6 +1348,7 @@ document.getElementById("discountInPercentage")&&document.getElementById("discou
   })
 
 
+
 //   document.getElementsByClassName("report-btn")[0].addEventListener('click',function(e){
 //     e.preventDefault();
 //     console.log(customerName+" "+fromDate+" "+toDate+" "+status+" "+category)

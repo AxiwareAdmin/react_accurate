@@ -187,15 +187,15 @@ export default function ViewInvoice (){
           let action=url.searchParams.get("action");
           let serviceChkT = url.searchParams.get("serviceChk");
           setBillToAddrShow(serviceChkT);
-          setinvNo(id1);
-
-          if(!initilized.current){  
-
-            initilized.current=true;
-          axios
-          .get("http://localhost:8080/viewInvoice?invNo="+id1,header)
-          .then((res) => {
           
+          if(!initilized.current){  
+            
+            initilized.current=true;
+            axios
+            .get("http://localhost:8080/viewInvoice?invId="+id1,header)
+            .then((res) => {
+              
+              setinvNo(res.data.invoiceNo);
 
             setServiceCheck(res.data.serviceCheck);
 

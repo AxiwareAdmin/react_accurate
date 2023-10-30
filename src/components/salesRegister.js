@@ -124,8 +124,20 @@ export default function SalesRegister () {
         var totalAmt=0;
         var closingBal=0;
 
+        var tempTotal=0;
         axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
-           
+            res.data.map(ele => {
+                if(ele != null && ele != "" && ele != undefined){
+                let obj = JSON.parse(ele);
+                tempTotal=tempTotal+fromCurrency(toCurrency(obj.amount));
+                
+                }
+            }
+            )
+
+        }).finally(()=>{
+        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
+            
           res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
             let obj = JSON.parse(ele);
@@ -151,7 +163,12 @@ export default function SalesRegister () {
               let progBarDiv = document.createElement("div");
               progBarDiv.className = "progress-bar bg-gradient-danger";
               progBarDiv.role = "progressbar";
-              progBarDiv.style="width: "+obj.progress+"%";
+
+              console.log("invoice val:"+(fromCurrency(toCurrency(obj.amount))));
+
+              console.log("total amt:"+tempTotal);
+              console.log((fromCurrency(toCurrency(obj.amount))/tempTotal)*100)
+              progBarDiv.style="width: "+Math.ceil((fromCurrency(toCurrency(obj.amount))/tempTotal)*100)+"%";
             //   progBarDiv.ariaValueNow = "30";
               progBarDiv.ariaValueMin = "0";
               progBarDiv.ariaValueMax = "100";
@@ -236,6 +253,7 @@ export default function SalesRegister () {
 
         document.querySelector("#invoiceListTable").append(trElem);
     })
+})
 
       },[]);
 

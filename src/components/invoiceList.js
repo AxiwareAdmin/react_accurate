@@ -5,10 +5,11 @@ import InvoicesPaid from "./InvoicesPaid";
 import InvoicesOverDue from "./InvoicesOverDue";
 import InvoicesDraft from "./InvoicesDraft";
 import invoicesRecurring from "./invoicesRecurring";
-import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import Swal from "sweetalert2";
 
 
 export default function InvoiceList () {
@@ -30,6 +31,10 @@ export default function InvoiceList () {
 	const [paidInvVal , setPaidInvVal] = useState(0);
 	const [unpaidInvVal , setUnpaidInvVal] = useState(0);
 	const [canInvVal , setCanInvVal] = useState(0);
+	const [subTotal , setSubTotal] = useState(0);
+	const [igst , setIgst] = useState(0);
+	const [cgst , setCgst] = useState(0);
+	const [sgst , setSgst] = useState(0);
 
 	const [customerName,setCustomerName]=useState("");
 	const [fromDate,setFromDate]=useState("");
@@ -93,11 +98,32 @@ export default function InvoiceList () {
 		  let unpaidinvvals = 0;
 		  let caninvvals = 0;
           let srNo = 0;
+		  let subTotal = 0;
+		  let igst = 0;
+		  let cgst = 0;
+		  let sgst = 0;
         axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
 			setInvoicedo(res.data);
+			debugger;
             res.data.map(elem=>{
 
 				srNo = srNo + 1;
+
+				//totat of sub total
+				subTotal = subTotal + parseInt(elem.taxableValue);
+				setSubTotal(subTotal);
+
+				//totat of sub total
+				igst = igst + parseInt(elem.igstValue);
+				setIgst(igst);
+
+				//totat of sub total
+				cgst = cgst + parseInt(elem.cgstValue);
+				setCgst(cgst);
+
+				//totat of sub total
+				sgst = sgst + parseInt(elem.sgstValue);
+				setSgst(sgst);
 
            allinvs = allinvs + 1;
 		   setAllInv(allinvs);
@@ -135,6 +161,16 @@ export default function InvoiceList () {
 			tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(formatDate(elem.createdDate));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(elem.customerName);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem)
+
             tdElem=document.createElement("td");
             textElem=document.createTextNode(elem.invoiceNo );//set data
             //let inputElem=document.createElement("input");
@@ -149,81 +185,72 @@ export default function InvoiceList () {
           //  tdElem.appendChild(labelElem);
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
-		    aElem.href="/viewInvoice?id="+elem.invoiceNo;
+		    aElem.href="/viewInvoice?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
             trElem.appendChild(tdElem);
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(elem.invoiceValue);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
 
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(elem.taxableValue);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(elem.cgstValue);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(elem.sgstValue);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(elem.igstValue);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
 
             //invoice category
-            tdElem=document.createElement("td");
+		// 	tdElem=document.createElement("td");
+        //     textElem=document.createTextNode("Advertising")
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem);
 
-            textElem=document.createTextNode("Advertising")
-
-            tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem);
-
-
-
-            tdElem=document.createElement("td");
-
-            textElem=document.createTextNode(formatDate(elem.createdDate));
-
-            tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem)
-
-
-            tdElem=document.createElement("td");
-
-            textElem=document.createTextNode(elem.customerName);
-
-            tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem)
-
-
-            tdElem=document.createElement("td");
-
-            tdElem.className="text-primary";
-
-            textElem=document.createTextNode(elem.invoiceValue);
-
-            tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem)  
-
-
-            tdElem=document.createElement("td");
-
-            textElem=document.createTextNode(formatDate(elem.dueDate));
-
-            tdElem.appendChild(textElem);
-
-            trElem.appendChild(tdElem) 
+        //     tdElem=document.createElement("td");
+        //     textElem=document.createTextNode(formatDate(elem.dueDate));
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem)             
             
+        //     tdElem=document.createElement("td");
+        //    let spanElem=document.createElement("span")
             
-            tdElem=document.createElement("td");
-           let spanElem=document.createElement("span")
-            
-			if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
-            spanElem.className="badge bg-success-light" 
-			if(elem.invoiceStatus == "Overdue")
-			spanElem.className="badge bg-danger-light";
-			if(elem.invoiceStatus == "Cancelled")
-			spanElem.className="badge bg-primary-light";
-		    if(elem.invoiceStatus == "Draft")
-			spanElem.className="badge bg-warning";
+		// 	if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
+        //     spanElem.className="badge bg-success-light" 
+		// 	if(elem.invoiceStatus == "Overdue")
+		// 	spanElem.className="badge bg-danger-light";
+		// 	if(elem.invoiceStatus == "Cancelled")
+		// 	spanElem.className="badge bg-primary-light";
+		//     if(elem.invoiceStatus == "Draft")
+		// 	spanElem.className="badge bg-warning";
 
 
-            textElem=document.createTextNode(elem.invoiceStatus);
+        //     textElem=document.createTextNode(elem.invoiceStatus);
 
-            spanElem.appendChild(textElem)
+        //     spanElem.appendChild(textElem)
 
-            tdElem.appendChild(spanElem);
+        //     tdElem.appendChild(spanElem);
 
-            trElem.appendChild(tdElem)  
+        //     trElem.appendChild(tdElem)  
 
             tdElem=document.createElement("td");
             tdElem.className="text-end";
@@ -246,7 +273,7 @@ export default function InvoiceList () {
 				iEle = document.createElement("i");
 				aEle.className = "dropdown-item"
 				aEle.href=ele.path;
-				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.invoiceNo+"')");
+				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.invoiceId+"')");
 				iEle.className = ele.classname;
 				textElem = document.createTextNode(ele.name);
 				aEle.appendChild(iEle);
@@ -263,6 +290,7 @@ export default function InvoiceList () {
           }).catch((e)=>{
 			console.log(e)
 		  }).finally(()=>{
+			debugger;
 			let trElem = document.createElement("tr");
 			trElem.style='background-color: #9a55ff;'
 			let tdElem = document.createElement("td");
@@ -287,10 +315,10 @@ export default function InvoiceList () {
 			 tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 
-			tdElem = document.createElement("td");
-			 textElem=document.createTextNode("");
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
+			// tdElem = document.createElement("td");
+			//  textElem=document.createTextNode("");
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
 
 			tdElem = document.createElement("td");
 			tdElem.style='color: #ffffff;font-weight:bold'
@@ -299,12 +327,26 @@ export default function InvoiceList () {
 			trElem.appendChild(tdElem);
 
 			tdElem = document.createElement("td");
-			 textElem=document.createTextNode("");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(subTotal);
 			 tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 
 			tdElem = document.createElement("td");
-			 textElem=document.createTextNode("");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(cgst);
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(sgst);
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(igst);
 			 tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 
@@ -315,7 +357,7 @@ export default function InvoiceList () {
 	
 			
 	
-			document.querySelector(".datatable tbody").appendChild(trElem); 
+			document.querySelector("#tableFooter").appendChild(trElem); 
 		  })
 
 		axios.get("http://localhost:8080/customers",header).then((res) => {
@@ -449,10 +491,21 @@ export default function InvoiceList () {
 			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
-				alert("Invoice deleted successfully!!");		  
+				// alert("Invoice deleted successfully!!");	
+				Swal.fire(
+					'',
+					'Invoice deleted successfully!!',
+					'success'
+				  )	  
 				}
 				else
-				  alert("There is some issue delete invoice.");		   
+				//   alert("There is some issue delete invoice.");	
+				  Swal.fire({
+					icon: 'error',
+					title: 'Oops...',
+					text: 'There is some issue delete invoice.',
+					footer: ''
+				  })	   
 		    });
 		 } else if(name == "Mark as sent"){
 			navigate("/InvoicesCancelled");
@@ -460,10 +513,23 @@ export default function InvoiceList () {
 					axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
 					console.log(res.data);
 					if(res!=null && res.data.res=='sucess'){
-						alert("Invoice mail send successfully!!");		  
+						// alert("Invoice mail send successfully!!");	
+						
+						Swal.fire(
+							'',
+							'Invoice mail send successfully!!',
+							'success'
+						  )	  
 						}
 						else
-						alert("There is some issue to send invoice amil.");		   
+						// alert("There is some issue to send invoice amil.");		   
+
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: 'There is some issue to send invoice mail',
+							footer: ''
+						  })	
 				}).catch(function(error) {
 					console.log(error);
 				});
@@ -471,11 +537,24 @@ export default function InvoiceList () {
 					axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
 					if(res!=null && res.data.res=='sucess'){
-						alert("Invoice Copied successfully!!");	
+						// alert("Invoice Copied successfully!!");	
+
+						 Swal.fire(
+        '',
+        'Invoice Copied successfully!!',
+        'success'
+      )
 						navigate("/add-invoice?InvNo="+invt+"&action=Clone");	  
 						}
 						else
-						alert("There is some issue Copy invoice.");		   
+						// alert("There is some issue Copy invoice.");		
+					
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: 'There is some issue Copy invoice.',
+							footer: ''
+						  })	
 				}).catch(function(error) {
 					console.log(error);
 				});
@@ -926,14 +1005,15 @@ export default function InvoiceList () {
 											<thead class="thead-light">
 												<tr>
 													<th>Sr No</th>
-												   <th>Invoice ID</th>
-												   <th>Category</th>
-												   <th>Created on</th>
-												   <th>Customer Name</th>
-												   <th>Amount</th>
-												   <th>Invoice date</th>
-												   <th>Status</th>
-												   <th class="text-end">Action</th>
+													<th>Date</th>
+													<th>Customer Name</th>
+												    <th>Invoice No</th>
+												    <th>Gross Total</th>
+												    <th>Sub Total</th>
+												    <th>CGST</th>
+												    <th>SGST</th>
+												    <th>IGST</th>
+												    <th class="text-end">Action</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -1098,6 +1178,9 @@ export default function InvoiceList () {
 													</td>
 												</tr> */}
 											</tbody>
+											<tfoot id="tableFooter">
+												
+											</tfoot>
 										</table>
 									</div>
 								</div>

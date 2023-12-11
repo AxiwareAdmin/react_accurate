@@ -120,6 +120,15 @@ export default function Sidebar() {
 									<li><a href="blog-Categories.html">Categories</a></li>
 								</ul>
 							</li>
+
+							<li className="submenu">
+								<a href="#"><i className="feather-clipboard"></i> <span>  Quotation </span> <span className="menu-arrow"></span></a>
+								<ul className="sub-menus">
+									<li><Link to="/AllQuotation">All Quotation</Link></li>
+									<li><Link to="/CreateQuotation" >Create Quotation</Link></li>
+								</ul>
+							</li>
+							
 							<li className="submenu">
 								<a href="#"><i className="feather-clipboard"></i> <span>  Invoices </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">

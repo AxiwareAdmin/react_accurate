@@ -19,6 +19,10 @@ import Register from "./components/Register";
 import DocumentSequence from "./components/Manage/DocumentSequence";
 import { useNavigate,Navigate } from "react-router-dom";
 import axios from "axios";
+import CreateQuotation from "./components/Quotation/CreateQuotation";
+import AllQuotation from "./components/Quotation/AllQuotation";
+import ViewQuotationByMonth from "./components/Quotation/ViewQuotationByMonth";
+import ViewQuotation from "./components/Quotation/ViewQuotation";
 
 
 function App() {
@@ -26,7 +30,7 @@ function App() {
   const BACKEND_SERVER="http://localhost:8080"
 
   function checkJwtTokenValidity(){
-    debugger;
+    
     var token=localStorage.getItem("token");
 
     if(token==null || token==undefined){
@@ -80,6 +84,10 @@ function App() {
           <Route  path="/dashboard" element={<Index1 />} />
           <Route  path="/register" element={<Register/>} />
 	        <Route path="/DocumentSequence" element={<DocumentSequence/>} />
+          <Route path="/CreateQuotation" element={<CreateQuotation/>} />
+          <Route path="/AllQuotation" element={<AllQuotation/>} />
+          <Route path="/ViewQuotationByMonth" element={<ViewQuotationByMonth/>} />
+          <Route path="/ViewQuotation" element={<ViewQuotation/>} />
           <Route  path="/" element={<Login/>} />
        
         </Routes>

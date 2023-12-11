@@ -667,6 +667,7 @@ $(".add-table-items").on('click','.remove-btn', function (e) {
 });
 
 $(document).on("click",".add-btns",function (e) {
+    debugger;
     e.stopImmediatePropagation();
 var optionList='';
 var token=localStorage.getItem("token")
@@ -1055,7 +1056,7 @@ elem.appendChild(node);
           },
         async:false,
         success:(data)=>{
-            debugger;
+           
             description.value=data.productDescription;
             hsnSac.value=data.hsnCode;
             tax.value=toCurrency(data.applicableTax).replace(/[\$]/g,'');

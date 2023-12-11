@@ -1,14 +1,14 @@
 //invoice wrapper
 
 import React, { useEffect, useState } from "react";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
+import Navbar from "../Navbar";
+import Sidebar from "../Sidebar";
 import axios from "axios";
-import Alert from "./alert";
+import Alert from "../alert";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import Swal from "sweetalert2";
-export default function InvoicePageWrapper(props) {
+export default function CreateQuotation(props) {
 
   const BACKEND_SERVER="http://localhost:8080";
   const editref = useRef(true);
@@ -55,7 +55,7 @@ export default function InvoicePageWrapper(props) {
   const [productCount, setProductCount] = useState(1);
   function prodSelectOnChange(event) {
     console.log(event.target.value);
-
+    debugger;
     var token=localStorage.getItem("token")
     //it was GET method earlier
     axios
@@ -66,6 +66,7 @@ export default function InvoicePageWrapper(props) {
         }
       })
       .then((res) => {
+       
         var td = event.target.parentElement;
         var productId = td.querySelector("#productId").value;
         td = td.parentElement;
@@ -305,16 +306,16 @@ export default function InvoicePageWrapper(props) {
     //it was GET method earlier
 
  
-    axios.get(BACKEND_SERVER+"/allInvoices",{
+    axios.get(BACKEND_SERVER+"/getQuoNo",{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
       }
     }).then((res) => {
-      let invoiceLen = res.data.length;
-      let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
-      console.log("invoice:" + invoiceNum);
-      setInvoiceNumber(invoiceNum);
+      let invoiceLen = res.data;
+      //let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
+      console.log("invoice:" + invoiceLen);
+      setInvoiceNumber(invoiceLen);
     }).catch((e)=>{
       console.log(e)
     })
@@ -476,7 +477,9 @@ var token=localStorage.getItem("token")
         setOtherChargesGstRate(res.data[0])
     }
       setGstRates(res.data)
-    })
+    }).catch(function (error) {
+      console.log(error);
+    });
     
 
 
@@ -485,27 +488,11 @@ var token=localStorage.getItem("token")
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
       }
+    }).catch(function (error) {
+      console.log(error);
     }).then((res) => {
       console.log(res.data);
       res.data.map((a) => {
-       
-        // var label = document.createElement("label");
-        // label.className = "custom_check w-100";
-        // var span = document.createElement("span");
-        // span.className = "checkmark";
-        // var input = document.createElement("input");
-        // input.type = "checkbox";
-        // input.name = "username";
-
-        // var hiddenInput = document.createElement("input");
-        // hiddenInput.type = "hidden";
-        // hiddenInput.value = a.customerId;
-        // var customerName = document.createTextNode(a.customerName);
-
-        // label.appendChild(input);
-        // label.appendChild(span);
-        // label.appendChild(customerName);
-        // label.appendChild(hiddenInput);
         var option = document.createElement("option");
         option.value = a.customerId;
         option.append(document.createTextNode(a.customerName));
@@ -513,7 +500,7 @@ var token=localStorage.getItem("token")
 
         // var str='<label className="custom_check w-100"><input type="checkbox" name="username" /><span className="checkmark"></span>'+a.customerName+'</label>'
         // document.getElementById("customer").appendChild(label);
-      });
+      })
     });
 
     var token=localStorage.getItem("token")
@@ -522,13 +509,15 @@ var token=localStorage.getItem("token")
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
       }
+    }).catch(function (error) {
+      console.log(error);
     }).then((res) => {
       res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
         option.append(document.createTextNode(product.productName));
         document.querySelector(".prodListSelect").append(option);
-      });
+      })
     });
 
     const script11 = document.createElement("script");
@@ -690,7 +679,7 @@ var token=localStorage.getItem("token")
 
   const navigate=useNavigate();
 useEffect(()=>{
-    document.querySelector(".gstContainer").innerHTML='';
+   // document.querySelector(".gstContainer").innerHTML='';
     let tempGstPercentageArr=[];
     let tempGstPercentageVal=[];
     let tempGstCalculationVal={};
@@ -796,7 +785,7 @@ useEffect(()=>{
   
         divElem.appendChild(h4Elem);
 
-        document.querySelector(".gstContainer").append(divElem);
+        //document.querySelector(".gstContainer").append(divElem);
 
          divElem=document.createElement("div");
         divElem.className="invoice-total-footer";
@@ -836,7 +825,7 @@ useEffect(()=>{
   
         divElem.appendChild(h4Elem);
 
-        document.querySelector(".gstContainer").append(divElem);
+       // document.querySelector(".gstContainer").append(divElem);
 
 
 
@@ -861,7 +850,7 @@ useEffect(()=>{
 
   useEffect(()=>{
     debugger;
-    document.querySelector(".gstContainer").innerHTML='';
+    //document.querySelector(".gstContainer").innerHTML='';
     let tempGstPercentageArr=[];
     let tempGstPercentageVal=[];
     let tempGstCalculationVal={};
@@ -1032,7 +1021,7 @@ const onDescriptionChange=(e)=>{
 
     var token=localStorage.getItem("token");
 
-    axios.post('http://localhost:8080/saveInvoice', invoiceData,{
+    axios.post('http://localhost:8080/saveQuotation', invoiceData,{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1175,13 +1164,13 @@ const onDescriptionChange=(e)=>{
           var token=localStorage.getItem('token')
           if(actionedit == "Edit" || actionedit == "Clone"){
 
-            axios.get("http://localhost:8080/erp/viewInvoice?invNo="+invNoEdit,{
+            axios.get("http://localhost:8080/erp/viewquotation?invNo="+invNoEdit,{
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token
               }
             }).then((res) => {
-              console.log("after got data"+res.data.invoiceNo);
+              console.log("after got data"+res.data.quotationNo);
 
 
               if(res.data.invoiceId != null)
@@ -1195,8 +1184,8 @@ const onDescriptionChange=(e)=>{
                 $select.value = optionToSelect.value;
               }
               
-              if(res.data.invoiceNo != null)
-              setInvoiceNumber(res.data.invoiceNo);
+              if(res.data.quotationNo != null)
+              setInvoiceNumber(res.data.quotationNo);
 
               if(res.data.poNumber != null)
               setPoNumber(res.data.poNumber);
@@ -1366,19 +1355,16 @@ const onDescriptionChange=(e)=>{
       <Sidebar />
       <div className="page-wrapper">
         <div className="content container-fluid">
-          <div className="page-header invoices-page-header">
-            <div className="row align-items-center">
+          <div className="page-header invoices-page-header" style={{backgroundColor: '#E8E8E8',boxShadow:'0px 0px 0px grey'}}>
+            <div className="row align-items-center" >
               <div className="col">
                 <ul className="breadcrumb invoices-breadcrumb">
                   <li className="breadcrumb-item invoices-breadcrumb-item">
-                    <a href="invoices.html">
-                      <i className="fa fa-chevron-left"></i> Back to Invoice
-                      List
-                    </a>
+                     Create Quotation
                   </li>
                 </ul>
               </div>
-              <div className="col-auto">
+              {/* <div className="col-auto">
                 <div className="invoices-create-btn">
                   <a
                     className="invoices-preview-link"
@@ -1405,7 +1391,7 @@ const onDescriptionChange=(e)=>{
                     Save Draft
                   </a>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -1519,12 +1505,12 @@ const onDescriptionChange=(e)=>{
 
                         <div className="col-xl-5 col-md-6 col-sm-12 col-12">
                           <h4 className="invoice-details-title">
-                            Invoice details
+                            Quotation details
                           </h4>
                           <div className="invoice-details-box">
                             <div className="invoice-inner-head">
                               <span>
-                                Invoice No.{" "}
+                                Quotation No.{" "}
                                 <a href="view-invoice.html">{invoiceNumber}</a>
                               </span>
                               <br />
@@ -1535,7 +1521,7 @@ const onDescriptionChange=(e)=>{
                                   alignItems: "center",
                                 }}
                               >
-                                Invoice Date.{" "}
+                                Quotation Date.{" "}
                                 <input
                                   className="form-control datetimepicker"
                                   type="text"
@@ -1886,7 +1872,7 @@ const onDescriptionChange=(e)=>{
                       <div className="col-lg-7 col-md-6">
                         <div className="invoice-fields">
                           <h4 className="field-title">More Fields</h4>
-                          <div className="field-box">
+                          {/* <div className="field-box">
                             <p>Payment Details</p>
                             <a
                               className="btn btn-primary"
@@ -1897,7 +1883,7 @@ const onDescriptionChange=(e)=>{
                               <i className="fas fa-plus-circle me-2"></i>Add
                               Bank Details
                             </a>
-                          </div>
+                          </div> */}
                         </div>
                         <div className="invoice-faq">
                           <div
@@ -1908,7 +1894,7 @@ const onDescriptionChange=(e)=>{
                           >
                             <div className="faq-tab">
                               <div className="panel panel-default">
-                                <div
+                                {/* <div
                                   className="panel-heading"
                                   role="tab"
                                   id="headingTwo"
@@ -1926,7 +1912,7 @@ const onDescriptionChange=(e)=>{
                                       Add Terms & Conditions
                                     </a>
                                   </p>
-                                </div>
+                                </div> */}
                                 <div
                                   id="collapseTwo"
                                   className="panel-collapse collapse"
@@ -1989,14 +1975,14 @@ const onDescriptionChange=(e)=>{
                           <div class="invoice-total-box" id="GrossTotal">
                             <div class="invoice-total-inner">
                               {/* <a onchange="finalSum(),calculateDiscount(),calculateSGST12onvalue(),start();finalamount(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),totalAmountWithTax(),calculateSGST28onvalue(),getNumberOFRowsInTable()"> */}
-                              <h4 style={{display:"flex",justifyContent:"space-between"}}>
+                              {/* <h4 style={{display:"flex",justifyContent:"space-between"}}>
                                 {" "}
                                 Gross Total
                                 <span style={{marginLeft:"10%"}} id="grossTotal" name="grossTotal">{toCurrency(totalAmt).replace(/[\$]/g,'')}</span>
                               </h4>
-                              <hr />
+                              <hr /> */}
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
-                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                              {/* <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                                 <p style={{marginBottom:"5px"}}>Transport charge</p>
                                 <span style={{display:"flex"}}>
                                   <input
@@ -2008,8 +1994,8 @@ const onDescriptionChange=(e)=>{
                                     type="text"
                                     id="transportCharge"
                                     placeholder="0.00"
-                                    // value={toCurrency(transportCharge).replace(/[\$]/g,'')}
-                                    onChange={onTransportChargeChange}
+                                    // value={toCurrency(transportCharge).replace(/[\$]/g,'')} */}
+                                    {/* onChange={onTransportChargeChange}
                                   />
                                  
                                 </span>
@@ -2017,8 +2003,8 @@ const onDescriptionChange=(e)=>{
 
 
                               <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                              <p style={{marginBottom:"5px"}}>Transport charge GST</p>
-                                <span>
+                              <p style={{marginBottom:"5px"}}>Transport charge GST</p> */}
+                                {/* <span>
                                   <select  style={{
                                       width: "50px",
                                       textAlign:"end",
@@ -2033,12 +2019,12 @@ const onDescriptionChange=(e)=>{
                                     }
 
                                   </select>
-                                </span>
-                              </p>
+                                </span> */}
+                              {/* </p> */}
 
 
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
-                              <p>
+                              {/* <p>
                                 Other charge
                                 <span>
                                   <input
@@ -2058,8 +2044,8 @@ const onDescriptionChange=(e)=>{
                               </p>{" "}
 
                               <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                              <p style={{marginBottom:"5px"}}>Other charge GST</p>
-                                <span>
+                              <p style={{marginBottom:"5px"}}>Other charge GST</p> */}
+                                {/* <span>
                                   <select  style={{
                                       width: "50px",
                                       textAlign:"end",
@@ -2074,12 +2060,12 @@ const onDescriptionChange=(e)=>{
                                     }
 
                                   </select>
-                                </span>
-                              </p>
+                                </span> */}
+                              {/* </p> */}
 
-                              <hr />
+                              {/* <hr /> */}
                               {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),"> */}
-                              <p>
+                              {/* <p>
                                 Other Discount
                                 <span>
                                   <input
@@ -2090,14 +2076,14 @@ const onDescriptionChange=(e)=>{
                                     }}
                                     type="text"
                                     id="otherDiscount"
-                                    placeholder="0.00"
-                                    // value={toCurrency(discountInRuppes).replace(/[\$]/g,'')}
-                                    onChange={onDiscountInRuppesChange}
+                                    placeholder="0.00" */}
+                                    {/* // value={toCurrency(discountInRuppes).replace(/[\$]/g,'')} */}
+                                    {/* onChange={onDiscountInRuppesChange}
                                   />
                                 </span>
-                              </p>
+                              </p> */}
                               {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),TotalAmountTax()"> */}
-                              <p>
+                              {/* <p>
                                 Discount in %
                                 <span>
                                   <input
@@ -2108,15 +2094,15 @@ const onDescriptionChange=(e)=>{
                                     }}
                                     type="text"
                                     id="discountInPercentage"
-                                    placeholder="0.00"
-                                    // value={discountInPercentage}
-                                    onChange={onDiscountInPercentageChange}
+                                    placeholder="0.00" */}
+                                    {/* // value={discountInPercentage} */}
+                                    {/* onChange={onDiscountInPercentageChange}
                                   />
                                 </span>
                               </p>
                               <p>
                                 Total Discount in $<span id="finalDiscount">{toCurrency(fromCurrency(totalDiscount+"")).replace(/[\$]/g,'')}</span>
-                              </p>
+                              </p> */}
                               {/* </p> */}
                               <div class="invoice-total-footer">
                                 <h4
@@ -2133,7 +2119,7 @@ const onDescriptionChange=(e)=>{
                                   </a>
                                 </h4>
                               </div>
-                              <div className="gstContainer">
+                              {/* <div className="gstContainer">
 
                               <div class="invoice-total-footer" id="cgst18">
                                 <h4
@@ -2174,7 +2160,7 @@ const onDescriptionChange=(e)=>{
                                 <span id="sgstAmount18"></span>
                               </div>
 
-                              </div>
+                              </div> */}
 
 
                               <div class="invoice-total-footer">
@@ -2296,7 +2282,7 @@ const onDescriptionChange=(e)=>{
 <ul class="breadcrumb invoices-breadcrumb">
 <li class="breadcrumb-item invoices-breadcrumb-item">
 <a href="invoices.html">
-<i class="fa fa-chevron-left"></i> Back to Invoice List
+Create Quotation
 </a>
 </li>
 </ul>
@@ -2310,7 +2296,7 @@ const onDescriptionChange=(e)=>{
 </div>
 <div class="form-group float-end mb-0">
 <button className="btn btn-success" onClick={saveInvoice}>
-                              Save Invoice
+                              Save Quotation
                             </button>
 </div>
 </div>

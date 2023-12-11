@@ -8,6 +8,7 @@ export default function DocumentSequence() {
 
 
     const[Mode , setMode] = useState(["Auto","Manual"]);
+    var token=localStorage.getItem("token");
     useEffect(() =>{
 
         const script11 = document.createElement("script");
@@ -105,7 +106,12 @@ export default function DocumentSequence() {
     useEffect(() =>{
             
         axios
-        .get("http://localhost:8080/getDocMaster")
+        .get("http://localhost:8080/getDocMaster",{
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":'Bearer '+token
+              }
+            })
         .then((res) => {
                 res.data.map((elem , index) =>{   
                        let trEle = document.createElement("tr");
@@ -283,9 +289,12 @@ export default function DocumentSequence() {
 
         }
 
+       
+
     axios.post('http://localhost:8080/saveDocMaster', documentdata,{
         headers:{
-          "Content-Type":"application/json"
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
         }
       })
       .then(function (response) {
@@ -314,7 +323,12 @@ export default function DocumentSequence() {
 
     function deleteDoc(){
         //setDelShow(true);
-        axios.get("http://localhost:8080/deleteDocMaster?docId="+delDocId).then((res) => {
+        axios.get("http://localhost:8080/deleteDocMaster?docId="+delDocId ,{
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":'Bearer '+token
+          }
+        }).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
                 // setTimeout(()=>{

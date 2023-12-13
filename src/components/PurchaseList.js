@@ -85,45 +85,19 @@ export default function InvoiceList () {
 		window.onCategoryChange=(e)=>{
 			onCategoryChange(e);
 		}
-		
+		debugger;
 		var url=new URL(window.location.href);
           let month1=url.searchParams.get("month");
           setMonth(month1);
 		  let allinvs = 0;
-		  let paidinvs = 0;
-		  let unpaidinvs = 0;
-		  let cancelinvs = 0;
 		  let allinvvals = 0;
-		  let paidinvvals = 0;
-		  let unpaidinvvals = 0;
-		  let caninvvals = 0;
           let srNo = 0;
-		  let subTotal = 0;
-		  let igst = 0;
-		  let cgst = 0;
-		  let sgst = 0;
-        axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
+        axios.get("http://localhost:8080/purchases/"+month1,header).then((res) => {
 			setInvoicedo(res.data);
 			debugger;
             res.data.map(elem=>{
 
 				srNo = srNo + 1;
-
-				//totat of sub total
-				subTotal = subTotal + parseInt(elem.taxableValue);
-				setSubTotal(subTotal);
-
-				//totat of sub total
-				igst = igst + parseInt(elem.igstValue);
-				setIgst(igst);
-
-				//totat of sub total
-				cgst = cgst + parseInt(elem.cgstValue);
-				setCgst(cgst);
-
-				//totat of sub total
-				sgst = sgst + parseInt(elem.sgstValue);
-				setSgst(sgst);
 
            allinvs = allinvs + 1;
 		   setAllInv(allinvs);
@@ -131,28 +105,28 @@ export default function InvoiceList () {
 		   setAllInvVal(allinvvals);
 
 
-		   if(elem.invoiceStatus == "Paid")
-		   {
-		   paidinvs = paidinvs + 1;
-		   setPaidInv(paidinvs);
-		   paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
-		   setPaidInvVal(paidinvvals);
-		   }
-		   if(elem.invoiceStatus == "Overdue")
-		   {
-		   unpaidinvs = unpaidinvs + 1;
-		   setUnPaidInv(unpaidinvs);
-		   unpaidinvvals = unpaidinvvals + parseInt(elem.invoiceValue);
-		   setUnpaidInvVal(unpaidinvvals);
-		   }
+		//    if(elem.invoiceStatus == "Paid")
+		//    {
+		//    paidinvs = paidinvs + 1;
+		//    setPaidInv(paidinvs);
+		//    paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
+		//    setPaidInvVal(paidinvvals);
+		//    }
+		//    if(elem.invoiceStatus == "Overdue")
+		//    {
+		//    unpaidinvs = unpaidinvs + 1;
+		//    setUnPaidInv(unpaidinvs);
+		//    unpaidinvvals = unpaidinvvals + parseInt(elem.invoiceValue);
+		//    setUnpaidInvVal(unpaidinvvals);
+		//    }
 
-		   if(elem.invoiceStatus == "Cancelled")
-		   {
-		   cancelinvs = cancelinvs + 1;
-		   setCanInv(cancelinvs);
-		   caninvvals = caninvvals + parseInt(elem.invoiceValue);
-		   setCanInvVal(caninvvals);
-		   }
+		//    if(elem.invoiceStatus == "Cancelled")
+		//    {
+		//    cancelinvs = cancelinvs + 1;
+		//    setCanInv(cancelinvs);
+		//    caninvvals = caninvvals + parseInt(elem.invoiceValue);
+		//    setCanInvVal(caninvvals);
+		//    }
 
             let trElem=document.createElement("tr");
 
@@ -162,17 +136,17 @@ export default function InvoiceList () {
 			trElem.appendChild(tdElem);
 
 			tdElem=document.createElement("td");
-            textElem=document.createTextNode(formatDate(elem.createdDate));
+            textElem=document.createTextNode(formatDate(elem.purchaseDate));
             tdElem.appendChild(textElem);
             trElem.appendChild(tdElem);
 
 			tdElem=document.createElement("td");
-            textElem=document.createTextNode(elem.customerName);
+            textElem=document.createTextNode(elem.supplierName);
             tdElem.appendChild(textElem);
             trElem.appendChild(tdElem)
 
             tdElem=document.createElement("td");
-            textElem=document.createTextNode(elem.invoiceNo );//set data
+            textElem=document.createTextNode(elem.purchaseNo );//set data
             //let inputElem=document.createElement("input");
            // let spanElem=document.createElement("span");
           //  let labelElem=document.createElement("label")
@@ -185,7 +159,7 @@ export default function InvoiceList () {
           //  tdElem.appendChild(labelElem);
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
-		    aElem.href="/viewInvoice?id="+elem.invoiceId;
+		    aElem.href="/viewInvoice?id="+elem.purchaseId;
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
             trElem.appendChild(tdElem);
@@ -202,55 +176,25 @@ export default function InvoiceList () {
             tdElem.appendChild(textElem);
             trElem.appendChild(tdElem); 
 
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.cgstValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem);
+			// tdElem=document.createElement("td");
+            // tdElem.className="text-primary";
+            // textElem=document.createTextNode(elem.cgstValue);
+            // tdElem.appendChild(textElem);
+            // trElem.appendChild(tdElem);
 			
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.sgstValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem); 
+			// tdElem=document.createElement("td");
+            // tdElem.className="text-primary";
+            // textElem=document.createTextNode(elem.sgstValue);
+            // tdElem.appendChild(textElem);
+            // trElem.appendChild(tdElem); 
 
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.igstValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem); 
+			// tdElem=document.createElement("td");
+            // tdElem.className="text-primary";
+            // textElem=document.createTextNode(elem.igstValue);
+            // tdElem.appendChild(textElem);
+            // trElem.appendChild(tdElem); 
 
             //invoice category
-		// 	tdElem=document.createElement("td");
-        //     textElem=document.createTextNode("Advertising")
-        //     tdElem.appendChild(textElem);
-        //     trElem.appendChild(tdElem);
-
-        //     tdElem=document.createElement("td");
-        //     textElem=document.createTextNode(formatDate(elem.dueDate));
-        //     tdElem.appendChild(textElem);
-        //     trElem.appendChild(tdElem)             
-            
-        //     tdElem=document.createElement("td");
-        //    let spanElem=document.createElement("span")
-            
-		// 	if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
-        //     spanElem.className="badge bg-success-light" 
-		// 	if(elem.invoiceStatus == "Overdue")
-		// 	spanElem.className="badge bg-danger-light";
-		// 	if(elem.invoiceStatus == "Cancelled")
-		// 	spanElem.className="badge bg-primary-light";
-		//     if(elem.invoiceStatus == "Draft")
-		// 	spanElem.className="badge bg-warning";
-
-
-        //     textElem=document.createTextNode(elem.invoiceStatus);
-
-        //     spanElem.appendChild(textElem)
-
-        //     tdElem.appendChild(spanElem);
-
-        //     trElem.appendChild(tdElem)  
 
             tdElem=document.createElement("td");
             tdElem.className="text-end";
@@ -273,7 +217,7 @@ export default function InvoiceList () {
 				iEle = document.createElement("i");
 				aEle.className = "dropdown-item"
 				aEle.href=ele.path;
-				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.invoiceId+"')");
+				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.purchaseId+"')");
 				iEle.className = ele.classname;
 				textElem = document.createTextNode(ele.name);
 				aEle.appendChild(iEle);
@@ -289,8 +233,11 @@ export default function InvoiceList () {
 
           }).catch((e)=>{
 			console.log(e)
+            if(e.response && e.response.status=='401'){
+                navigate("/")
+            }
 		  }).finally(()=>{
-			debugger;
+			// debugger;
 			let trElem = document.createElement("tr");
 			trElem.style='background-color: #9a55ff;'
 			let tdElem = document.createElement("td");
@@ -328,27 +275,27 @@ export default function InvoiceList () {
 
 			tdElem = document.createElement("td");
 			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(subTotal);
+			 textElem=document.createTextNode("");
 			 tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(cgst);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
+			// tdElem = document.createElement("td");
+			// tdElem.style='color: #ffffff;font-weight:bold'
+			//  textElem=document.createTextNode(cgst);
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
 
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(sgst);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
+			// tdElem = document.createElement("td");
+			// tdElem.style='color: #ffffff;font-weight:bold'
+			//  textElem=document.createTextNode(sgst);
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
 
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(igst);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
+			// tdElem = document.createElement("td");
+			// tdElem.style='color: #ffffff;font-weight:bold'
+			//  textElem=document.createTextNode(igst);
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
 
 			tdElem = document.createElement("td");
 			 textElem=document.createTextNode("");
@@ -370,6 +317,9 @@ export default function InvoiceList () {
 			});
 		}).catch((e)=>{
 			console.log(e)
+            if(e.response && e.response.status=='401'){
+                navigate("/")
+            }
 		  })
 				
 	    const script11 = document.createElement("script");
@@ -486,15 +436,15 @@ export default function InvoiceList () {
 		 if(name == "Edit"){
 			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print Invoice"){
-			navigate("/viewInvoice?id="+invt);
+			navigate("/viewPurchase?id="+invt);
 		 }else if(name == "Delete"){
-			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
+			axios.get("http://localhost:8080/deletePurchase?invNo="+invt,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
 				Swal.fire(
 					'',
-					'Invoice deleted successfully!!',
+					'Purchase deleted successfully!!',
 					'success'
 				  )	  
 				}
@@ -532,6 +482,10 @@ export default function InvoiceList () {
 						  })	
 				}).catch(function(error) {
 					console.log(error);
+                    if(error.response && error.response.status=='401'){
+                        localStorage.removeItem("token");
+                        navigate("/")
+                    }
 				});
 		 } else if(name == "Copy Invoice"){
 					axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
@@ -557,10 +511,13 @@ export default function InvoiceList () {
 						  })	
 				}).catch(function(error) {
 					console.log(error);
+                    if(error.response && error.response.status=='401'){
+                        navigate("/")
+                    }
 				});
 		 }else if(name == "Download Invoice"){
 			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt+"&action=download");
+			navigate("/viewPurchase?id="+invt+"&action=download");
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
 			// 	document.body.appendChild(canvas);  
@@ -611,7 +568,7 @@ export default function InvoiceList () {
 			status,
 			category
 		}
-		axios.post('http://localhost:8080/excel/invoices', data,{
+		axios.post('http://localhost:8080/excel/purchases', data,{
 			method: 'GET',
 			responseType: 'blob', // important
 			...header
@@ -644,12 +601,12 @@ export default function InvoiceList () {
                 			<h3 class="page-title m-0">
 			                <span class="page-title-icon bg-gradient-primary text-white me-2">
 			                  <i class="fa fa-file" aria-hidden="true"></i>
-			                </span> Invoice </h3>
+			                </span> Purchase </h3>
                 		</div>
                         <div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
 								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-								<li class="breadcrumb-item active">Invoice</li>
+								<li class="breadcrumb-item active">Purchase</li>
 							</ul>
                 		</div>
                     </div>
@@ -911,7 +868,7 @@ export default function InvoiceList () {
 										<div class="invoices-tabs">
 											<ul>
 												
-												<li><a href="#" class="active">All Invoice</a></li>
+												<li><a href="#" class="active">All Purchase</a></li>
 												{/* <li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
 												<li><a href="#" onClick={rendertoInvOverDue}>Overdue</a></li>		
 												<li><a href="#" onClick={rendertoInvDraft}>Draft</a></li>	
@@ -926,7 +883,7 @@ export default function InvoiceList () {
 												<i data-feather="settings"></i>
 											</a>
 											<a href="/add-invoice" class="btn">
-												<i data-feather="plus-circle"></i> New Invoice
+												<i data-feather="plus-circle"></i> New Purchase
 											</a>
 										</div>
 									</div>
@@ -946,11 +903,11 @@ export default function InvoiceList () {
 											<div class="inovices-amount">${allInvVal}</div>
 										</div>
 									</div>
-									<p class="inovices-all">All Invoices <span>{allInv}</span></p>
+									<p class="inovices-all">All Purchases <span>{allInv}</span></p>
 								</div>
 							</div>
 						</div>
-						<div class="col-xl-3 col-sm-6 col-12">
+						{/* <div class="col-xl-3 col-sm-6 col-12">
 							<div class="card inovices-card">
 								<div class="card-body">
 									<div class="inovices-widget-header">
@@ -994,7 +951,7 @@ export default function InvoiceList () {
 									<p class="inovices-all">Cancelled Invoices <span>{canInv}</span></p>
 								</div>
 							</div>
-						</div>
+						</div> */}
 					</div>
 
 					<div class="row">
@@ -1007,13 +964,13 @@ export default function InvoiceList () {
 												<tr>
 													<th>Sr No</th>
 													<th>Date</th>
-													<th>Customer Name</th>
-												    <th>Invoice No</th>
+													<th>Supplier Name</th>
+												    <th>Purchase No</th>
 												    <th>Gross Total</th>
-												    <th>Sub Total</th>
-												    <th>CGST</th>
+												    <th>Taxable Value</th>
+												    {/* <th>CGST</th>
 												    <th>SGST</th>
-												    <th>IGST</th>
+												    <th>IGST</th> */}
 												    <th class="text-end">Action</th>
 												</tr>
 											</thead>

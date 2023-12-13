@@ -15,8 +15,12 @@ import InvoicesDraft from "./components/InvoicesDraft";
 import InvoicesRecurring from "./components/invoicesRecurring";
 import InvoicesCancelled from "./components/InvoicesCancelled";
 import Login from "./components/Login";
+import PurchaseList from "./components/PurchaseList";
+import PurchaseRegister from "./components/PurchaseRegister"
+import ViewPurchase from "./components/ViewPurchase"
 import Register from "./components/Register";
 import DocumentSequence from "./components/Manage/DocumentSequence";
+import PurchaseCreate from "./components/PurchaceCreate"
 import { useNavigate,Navigate } from "react-router-dom";
 import axios from "axios";
 
@@ -69,9 +73,13 @@ function App() {
         checkJwtTokenValidity()===true?(
         <Routes>
           <Route  path="/add-invoice" element={<InvoicePageWrapper/>} />
+          <Route  path="/add-purchase" element={<PurchaseCreate/>} />
           <Route path="/invoiceList" element={<InvoiceList/>}/>
+          <Route path="/purchaseList" element={<PurchaseList/>}/>
           <Route path="/viewInvoice" element={<ViewInvoice/>}/>
+          <Route path="/viewPurchase" element={<ViewPurchase/>}/>
           <Route path="/salesRegister" element={<SalesRegister/>} />
+          <Route path="/purchaseRegister" element={<PurchaseRegister/>} />
           <Route path="/InvoicesPaid" element={<InvoicesPaid/>} />
           <Route path="/InvoicesOverDue" element={<InvoicesOverDue/>} />
           <Route path="/InvoicesDraft" element={<InvoicesDraft/>} />

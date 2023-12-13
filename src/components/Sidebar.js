@@ -109,7 +109,7 @@ export default function Sidebar() {
 							<li> 
 								<a href="activities.html"><i className="feather-calendar"></i> <span>Activities</span></a>
 							</li>							
-							<li className="submenu">
+							{/* <li className="submenu">
 								<a href="#"><i className="feather-grid"></i> <span> Blogs</span>
 									<span className="menu-arrow"></span>
 								</a>
@@ -118,6 +118,17 @@ export default function Sidebar() {
 									<li><a href="add-blog.html">Add Blog</a></li>
 									<li><a href="edit-blog.html">Edit Blog</a></li>
 									<li><a href="blog-Categories.html">Categories</a></li>
+								</ul>
+							</li> */}
+							<li class="submenu">
+								<a href="#"><i class="feather-grid"></i> <span> Purchase</span>
+									<span class="menu-arrow"></span>
+								</a>
+								<ul class="sub-menus">
+									<li><a href="/purchaseRegister" >Purchase Register</a></li>
+									<li><a href="/add-purchase">Add Purchase</a></li>
+									<li><a href="invoice.html">Create Supplier</a></li>
+									<li><a href="invoice.html">Products And Services</a></li>
 								</ul>
 							</li>
 							<li className="submenu">

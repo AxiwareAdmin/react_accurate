@@ -247,7 +247,7 @@ export default function ViewQuotation (){
           if(tot != null && tot != undefined && tot != "")
           settotal(tot);
 
-         res.data.invoiceProductDO.map(ele => {
+         res.data.quotationProductDO.map(ele => {
 
            let trEle = document.createElement("tr");
            let tdEle = document.createElement("td");

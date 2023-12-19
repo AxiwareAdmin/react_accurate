@@ -8,10 +8,35 @@ import Alert from "./alert";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import Swal from "sweetalert2";
+import AddProduct from "./Manage/AddProduct";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import AddCustomer from "./Manage/AddCustomer";
+
+
 export default function InvoicePageWrapper(props) {
 
   const BACKEND_SERVER="http://localhost:8080";
   const editref = useRef(true);
+
+  const [isOpenCustomer, setIsOpenCustomer] = React.useState(false);
+  const [isOpenAddProduct, setIsOpenAddProduct] = React.useState(false);
+
+ const handleClickOpenCustomer = (e) => {
+       e.preventDefault();
+       setIsOpenCustomer(true);
+       
+ }
+
+ const AddProductDetails = (e) => {
+  e.preventDefault();
+  setIsOpenAddProduct(true);
+  
+}
+
 
   const [productUnits, setProductUnits] = useState([
     {
@@ -387,6 +412,7 @@ export default function InvoicePageWrapper(props) {
   }
 
   useEffect(() => {
+
     console.log("produnit changed" + productUnits);
     setTotalAmt(calculateTotalAmt());
     // setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
@@ -528,6 +554,8 @@ var token=localStorage.getItem("token")
         option.append(document.createTextNode(product.productName));
         document.querySelector(".prodListSelect").append(option);
       });
+    }).catch(function (error) {
+      console.log(error);
     });
 
     const script11 = document.createElement("script");
@@ -1385,7 +1413,7 @@ const onDescriptionChange=(e)=>{
                     data-bs-toggle="modal"
                     data-bs-target="#invoices_preview"
                   >
-                    <i className="fa fa-eye"></i> Preview
+                    <i className="fa fa-eye"></i> Preview 
                   </a>
                   <a
                     href="#"
@@ -1424,6 +1452,9 @@ const onDescriptionChange=(e)=>{
                           >
                             <option value="-1">Select Customer</option>
                           </select>
+                          <button class="btn btn-primary" onClick={handleClickOpenCustomer}>
+                           Add Customer
+                           </button>
                           {/* <div className="form-group"> */}
                           {/* <label>Customer Name</label> */}
 
@@ -1867,7 +1898,7 @@ const onDescriptionChange=(e)=>{
                                   <i className="fas fa-plus-circle"></i>
                                 </a>
                                 <a href="#" className="copy-btn me-2">
-                                  <i className="fas fa-copy"></i>
+                                  <i className="fas fa-copy" onClick={AddProductDetails}></i>
                                 </a>
                                 <a
                                   href="javascript:void(0);"
@@ -2693,6 +2724,21 @@ const onDescriptionChange=(e)=>{
 
       <iframe id="ifmcontentstoprint" style={{height: '0px', width: '0px', position: 'absolute'}}></iframe>
     </div>
+    {/*  add product dialog box code start onClose={handleClose} */}
+    
+    
+    <Dialog open={isOpenAddProduct} >
+        <AddProduct toChild={isOpenAddProduct} sendToParent={setIsOpenAddProduct}></AddProduct>
+    </Dialog>
+
+    {/* add product dialog code end  */}
+    
+    {/*   add product details code start */}
+       
+    <Dialog open={isOpenCustomer} >
+        <AddCustomer toChild={isOpenCustomer} sendToParent={setIsOpenCustomer}></AddCustomer>
+    </Dialog>
+    {/* add product code end */}
     </>
   );
 }

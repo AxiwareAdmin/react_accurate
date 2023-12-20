@@ -5,17 +5,17 @@ import axios from "axios";
 export default function AddProduct(props) {
 
     //const [customerId , setCustomerId] = useState();
-    const [productName, setProductName] = useState("sachin");
-    const [productDescription, setProductDescription] = useState("1234");
-    const [productType, setProductType] = useState("4444");
-    const [partCode, setPartCode] = useState("patlipada");
-    const [hsnCode, setHsnCode] = useState("thane");
-    const [unit, setUnit] = useState("mumbai");
-    const [unitVarchar, setUnitVarchar] = useState("413310");
-    const [rate, setRate] = useState("mharashtra");
-    const [category, setCategory] = useState("Goa");
-    const [applicableTax, setApplicableTax] = useState("India");
-    const [openingStock, setOpeningStock] = useState("abc@gmail.com");
+    const [productName, setProductName] = useState();
+    const [productDescription, setProductDescription] = useState();
+    const [productType, setProductType] = useState("Food");
+    const [partCode, setPartCode] = useState();
+    const [hsnCode, setHsnCode] = useState();
+    const [unit, setUnit] = useState();
+    const [unitVarchar, setUnitVarchar] = useState("ss");
+    const [rate, setRate] = useState();
+    const [category, setCategory] = useState();
+    const [applicableTax, setApplicableTax] = useState();
+    const [openingStock, setOpeningStock] = useState();
     
 
     const BACKEND_SERVER = "http://localhost:8080";
@@ -43,7 +43,7 @@ export default function AddProduct(props) {
         var token = localStorage.getItem("token")
         //it was GET method earlier
         axios
-            .get(BACKEND_SERVER + "/addProductDetails", productData, {
+            .post(BACKEND_SERVER + "/addProductDetails", productData, {
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": 'Bearer ' + token
@@ -66,8 +66,36 @@ export default function AddProduct(props) {
                 props.sendToParent(true);
             });
 
-
     }
+
+    useEffect (() => {
+        window.selectCategory = (e) => {
+            selectCategory(e);
+        }
+
+        window.selectUnit = (e) => {
+            selectUnit(e);
+        }
+
+        window.selectAppTax = (e) => {
+            selectAppTax(e);
+        }
+    });
+
+    function selectCategory (e) {
+        console.log("category"+e +" cc"+e.target.value);
+        setCategory(e.target.value);
+    }
+
+    function selectUnit(e){
+        //console.log("category"+e +" cc"+e.target.value);
+        setUnit(e.target.value);
+    }
+
+    function selectAppTax(e) {
+        setApplicableTax(e.target.value);
+    }
+
 
 
 
@@ -91,28 +119,32 @@ export default function AddProduct(props) {
                         </div> */}
 
                         <div class="row">
+                           <div class="col-md-12">
+                                <label>Product Name</label>
+                                <input  type="text" onChange={e => setProductName(e.target.value)}  class="form-control" placeholder="Product Name"/>
+                            </div>
                             <div class="col-md-12">
                                 <label>Product Description</label>
-                                <input name="ctl00$ContentPlaceHolder1$p_name" type="text" id="ContentPlaceHolder1_p_name" class="form-control" placeholder="Product"/>
+                                <input  type="text" onChange={e => setProductDescription(e.target.value)}  class="form-control" placeholder="Product Description"/>
                             </div>
                             <div class="col-md-6">
                                 <label>Part Code</label>
-                                <input name="ctl00$ContentPlaceHolder1$sku" type="text" id="ContentPlaceHolder1_sku" class="form-control" placeholder="Optional"/>
+                                <input type="text" onChange={e => setPartCode(e.target.value)} class="form-control" placeholder="Optional"/>
                             </div>
 
                             <div class="col-md-6">
                                 <label>HSN Code</label>
-                                <input name="ctl00$ContentPlaceHolder1$hsn" type="text" id="ContentPlaceHolder1_hsn" class="form-control" placeholder="Enter a valid HSN Code" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
+                                <input  type="text" onChange={e => setHsnCode(e.target.value)}  class="form-control" placeholder="Enter a valid HSN Code" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
                             </div>
                             <div class="col-md-6">
                                 <label>Unit</label>
-                                <select name="ctl00$ContentPlaceHolder1$DropDownList2" id="ContentPlaceHolder1_DropDownList2" class="form-control">
+                                <select onChange={selectUnit} class="form-control">
                                     <option value="0">--Select Unit--</option>
-                                    <option value="6">NOS</option>
-                                    <option value="7">BAG</option>
-                                    <option value="8">BKL</option>
-                                    <option value="9">BTL</option>
-                                    <option value="10">CBM</option>
+                                    <option value="1">NOS</option>
+                                    <option value="2">BAG</option>
+                                    <option value="3">BKL</option>
+                                    <option value="4">BTL</option>
+                                    {/* <option value="10">CBM</option>
                                     <option value="11">CTN</option>
                                     <option value="12">GGK</option>
                                     <option value="13">GYD</option>
@@ -160,18 +192,18 @@ export default function AddProduct(props) {
                                     <option value="56">FT</option>
                                     <option value="57">RFT</option>
                                     <option value="58">LOT</option>
-                                    <option value="59">RMT</option>
+                                    <option value="59">RMT</option> */}
 
                                 </select>
 
                             </div>
                             <div class="col-md-6">
                                 <label>Rate</label>
-                                <input name="ctl00$ContentPlaceHolder1$cost" type="text" id="ContentPlaceHolder1_cost" class="form-control" placeholder="Rate" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
+                                <input type="text" onChange={e => setRate(e.target.value)} class="form-control" placeholder="Rate" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
                             </div>
                             <div class="col-md-12">
                                 <label>Category</label>
-                                <select name="ctl00$ContentPlaceHolder1$DropDownList3" id="ContentPlaceHolder1_DropDownList3" class="form-control">
+                                <select onChange={selectCategory} class="form-control">
                                     <option value="--Select--">--Select--</option>
                                     <option value="Finished Product">Finished Product</option>
                                     <option value="Raw Material">Raw Material</option>
@@ -190,22 +222,22 @@ export default function AddProduct(props) {
                             </div>
                             <div class="col-md-12">
                                 <label>Applicable Tax</label>
-                                <select name="ctl00$ContentPlaceHolder1$DropDownList5" id="ContentPlaceHolder1_DropDownList5" class="form-control">
-                                    <option value="-Select Tax-">-Select Tax-</option>
-                                    <option value="GST@28%">GST@28%</option>
-                                    <option value="GST@18%">GST@18%</option>
-                                    <option value="GST@12%">GST@12%</option>
-                                    <option value="GST@5%">GST@5%</option>
-                                    <option value="GST@3%">GST@3%</option>
-                                    <option value="GST@0%(Nill rated)">GST@0%(Nill rated)</option>
-                                    <option value="Exempt GST">Exempt GST</option>
+                                <select onChange={selectAppTax} class="form-control">
+                                    <option value="0">-Select Tax-</option>
+                                    <option value="28">GST@28%</option>
+                                    <option value="18">GST@18%</option>
+                                    <option value="12">GST@12%</option>
+                                    <option value="11">GST@5%</option>
+                                    <option value="3">GST@3%</option>
+                                    <option value="0">GST@0%(Nill rated)</option>
+                                    <option value="1">Exempt GST</option>
 
                                 </select>
                             </div>
 
                             <div class="col-md-12">
                                 <label>Opening Stock</label>
-                                <input name="ctl00$ContentPlaceHolder1$Text1" type="text" id="ContentPlaceHolder1_Text1" class="form-control" placeholder="Quantity" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
+                                <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="Quantity" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
                             </div>
 
 
@@ -219,7 +251,7 @@ export default function AddProduct(props) {
                 </div>
                 <div class="modal-footer">
                     <button type="button" onClick={() => {props.sendToParent(false)}} class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <input type="submit" name="ctl00$ContentPlaceHolder1$btnsave" value="Save" onClick={saveProduct}  class="btn btn-success" style={{float: "right"}}/>
+                    <input type="submit" value="Save" onClick={saveProduct}  class="btn btn-success" style={{float: "right"}}/>
                 </div>
             </div>
         </div>

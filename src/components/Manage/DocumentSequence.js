@@ -1,10 +1,20 @@
 
 import React, { useEffect, useState } from "react";
 import Sidebar from "../Sidebar"
+import Navbar from "../Navbar";
 import axios from "axios";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
 export default function DocumentSequence() {
+
+    const navigate=useNavigate();
+
+    var token=localStorage.getItem("token");
+
+    var headers={
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
+      };
 
 
     const[Mode , setMode] = useState(["Auto","Manual"]);
@@ -92,6 +102,7 @@ export default function DocumentSequence() {
 
     },[]);
 
+    const [selectedIndex,setSelectedIndex]=useState("");
     const [documentId , setDocumentId] = useState("");
     const [documentName , setDocumentName] = useState("");
     const [prefix1 , setPrefix1] = useState("");
@@ -103,10 +114,13 @@ export default function DocumentSequence() {
     const [delShow , setDelShow] = useState(true);
    
     useEffect(() =>{
-            
+            debugger;
         axios
-        .get("http://localhost:8080/getDocMaster")
+        .get("http://localhost:8080/getDocMaster",{
+            headers:headers
+        })
         .then((res) => {
+            debugger;
                 res.data.map((elem , index) =>{   
                        let trEle = document.createElement("tr");
                             trEle.role = "row";
@@ -118,10 +132,14 @@ export default function DocumentSequence() {
                         let tdEle = document.createElement("td");
                           tdEle.className="sorting_1";
                         let textEle = document.createTextNode(index+1);
-                        tdEle.appendChild(textEle);
+                        let spanElem=document.createElement("span");
+                        spanElem.id="srNo"
+                        spanElem.appendChild(textEle)
+                        tdEle.appendChild(spanElem);
                         trEle.appendChild(tdEle);
 
                         tdEle = document.createElement("td");
+                        spanElem=document.createElement("span");
                         textEle = document.createTextNode(elem.documentName);
                         let inputEle = document.createElement("input");
                         inputEle.type="hidden";
@@ -133,7 +151,9 @@ export default function DocumentSequence() {
                         inputEle.id = "documentName"+index;
                         inputEle.value=elem.documentName;
                         tdEle.appendChild(inputEle);
-                        tdEle.appendChild(textEle);
+                        spanElem.id="spandocumentName"+index
+                        spanElem.appendChild(textEle)
+                        tdEle.appendChild(spanElem);
                         trEle.appendChild(tdEle);
 
                         tdEle = document.createElement("td");
@@ -143,7 +163,10 @@ export default function DocumentSequence() {
                         inputEle.id = "prefix1"+index;
                         inputEle.value=elem.prefix1;
                         tdEle.appendChild(inputEle);
-                        tdEle.appendChild(textEle);
+                        spanElem=document.createElement("span");
+                        spanElem.id="spanprefix1"+index;
+                        spanElem.appendChild(textEle)
+                        tdEle.appendChild(spanElem);
                         trEle.appendChild(tdEle);
                         
                         tdEle = document.createElement("td");
@@ -153,7 +176,10 @@ export default function DocumentSequence() {
                         inputEle.id = "prefix2"+index;
                         inputEle.value=elem.prefix2;
                         tdEle.appendChild(inputEle);
-                        tdEle.appendChild(textEle);
+                        spanElem=document.createElement("span");
+                        spanElem.id="spanprefix2"+index;
+                        spanElem.appendChild(textEle)
+                        tdEle.appendChild(spanElem);
                         trEle.appendChild(tdEle);
 
                         tdEle = document.createElement("td");
@@ -163,7 +189,10 @@ export default function DocumentSequence() {
                         inputEle.id = "series"+index;
                         inputEle.value=elem.series;
                         tdEle.appendChild(inputEle);
-                        tdEle.appendChild(textEle);
+                        spanElem=document.createElement("span");
+                        spanElem.id="spanseries"+index;
+                        spanElem.appendChild(textEle)
+                        tdEle.appendChild(spanElem);
                         trEle.appendChild(tdEle);
 
                         tdEle = document.createElement("td");
@@ -173,17 +202,21 @@ export default function DocumentSequence() {
                         inputEle.id = "mode"+index;
                         inputEle.value=elem.mode;
                         tdEle.appendChild(inputEle);
-                        tdEle.appendChild(textEle);
+                        spanElem=document.createElement("span");
+                        spanElem.id="spanmode"+index;
+                        spanElem.appendChild(textEle)
+                        tdEle.appendChild(spanElem);
                         trEle.appendChild(tdEle);
 
                         tdEle = document.createElement("td");
                         let divEle = document.createElement("div");
                         divEle.className="status-toggle";
                         inputEle = document.createElement("input");
-                        inputEle.id="rating_1";
+                        inputEle.id="rating_1"+index;
                         inputEle.type = "checkbox";
                         inputEle.className = "check";
-                        inputEle.checked="";
+                        inputEle.value=elem.isActive==1?1:0;
+                        inputEle.checked=elem.isActive==1?"true":"";
                         let lableEle = document.createElement("label");
                         lableEle.for="rating_2";
                         lableEle.className = "checktoggle checkbox-bg";
@@ -255,12 +288,14 @@ export default function DocumentSequence() {
     function EditDocument (index){
 
         console.log("clicked index::"+index);
-
+        setSelectedIndex(index);
         setDocumentId(document.querySelector("#documentId"+index).value);
         setDocumentName(document.querySelector("#documentName"+index).value);
         setPrefix1(document.querySelector("#prefix1"+index).value);
         setPrefix2(document.querySelector("#prefix2"+index).value);
         setSeries(document.querySelector("#series"+index).value);
+        setModeVal(document.querySelector("#mode"+index).value)
+        setStatus(document.querySelector("#rating_1"+index).value);
 
         const text = document.querySelector("#mode"+index).value;
         const $select = document.querySelector('#modeedit');
@@ -268,6 +303,39 @@ export default function DocumentSequence() {
         const optionToSelect = $options.find(item => item.text ===text);
         $select.value = optionToSelect.value;
 
+        
+
+
+    }
+
+    function onStatusClick(e){
+
+        // var status=document.querySelector("#rating_2");
+
+        // console.log("status:"+status.checked);
+
+        // console.log("switch:"+document.querySelector("#flexSwitchCheckChecked").checked);
+        // debugger;
+
+        // if(status.checked==false){
+        //         status.checked=true;
+
+        //         document.querySelector("#flexSwitchCheckChecked").checked=false;
+        //         setStatus(1);
+        // }else{
+        //         status.checked=false;
+
+        //         document.querySelector("#flexSwitchCheckChecked").checked=true;
+        //         setStatus(0);
+        // }
+
+
+        if(status==0){
+            setStatus(1);
+        }
+        else{
+            setStatus(0);
+        }
     }
 
     function save(){
@@ -282,11 +350,11 @@ export default function DocumentSequence() {
             Status : status
 
         }
+       
+    
 
     axios.post('http://localhost:8080/saveDocMaster', documentdata,{
-        headers:{
-          "Content-Type":"application/json"
-        }
+        headers:headers
       })
       .then(function (response) {
         console.log(response)
@@ -297,6 +365,24 @@ export default function DocumentSequence() {
         //   props.onAlertChange(null)
         // },2000)
         alert("Document master created or Updated successfully!!");
+debugger;
+        document.querySelector("#spandocumentName"+selectedIndex).innerText=documentName;
+        document.querySelector("#spanprefix1"+selectedIndex).innerText=prefix1;
+        document.querySelector("#spanprefix2"+selectedIndex).innerText=prefix2;
+        document.querySelector("#spanseries"+selectedIndex).innerText=series;
+        document.querySelector("#spanmode"+selectedIndex).innerText=modeVal;
+
+        document.querySelector("#documentName"+selectedIndex).innerText=documentName;
+        document.querySelector("#prefix1"+selectedIndex).value=prefix1;
+        document.querySelector("#prefix2"+selectedIndex).value=prefix2;
+        document.querySelector("#series"+selectedIndex).value=series;
+        document.querySelector("#mode"+selectedIndex).value=modeVal;
+
+
+        document.querySelector("#rating_1"+selectedIndex).checked=status==1?true:false;
+
+        document.querySelector("#rating_1"+selectedIndex).value=status;
+
         }
         else
           alert("There is some issue created or Updated document master. kindly check wherether all the data is entered or not.")
@@ -334,6 +420,7 @@ export default function DocumentSequence() {
 
     return(
         <div>
+            <Navbar/>
             <Sidebar/>
 
             <div class="page-wrapper" style={{minHeight:"288px"}}>
@@ -472,10 +559,12 @@ export default function DocumentSequence() {
                                         <input type="text" class="form-control" onChange={e=>setSeries(e.target.value)}/>
                                     </div>
                                 </div>
+
+                           
                                 <div class="form-group">
                                     <label>Status</label>
                                     <div class="status-toggle">
-                                        <input id="rating_1" class="check" type="checkbox" checked=""/>
+                                        <input id="rating_1" class="check" type="checkbox" checked/>
                                         <label for="rating_1" class="checktoggle checkbox-bg ">checkbox</label>
                                     </div>
                                 </div>
@@ -543,10 +632,13 @@ export default function DocumentSequence() {
                                         <input type="text" class="form-control" value={series} onChange={e=>setSeries(e.target.value)}/>
                                     </div>
                                 </div>
+  
+ 
+
                                 <div class="form-group">
                                     <label>Status</label>
                                     <div class="status-toggle">
-                                        <input id="rating_2" class="check" type="checkbox" checked=""/>
+                                        <input id="rating_2" class="check"  type="checkbox" checked={status==1?true:false} onClick={onStatusClick}/>
                                         <label for="rating_2" class="checktoggle checkbox-bg ">checkbox</label>
                                     </div>
                                 </div>

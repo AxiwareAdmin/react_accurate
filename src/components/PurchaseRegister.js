@@ -128,6 +128,7 @@ export default function SalesRegister () {
         axios.get("http://localhost:8080/getPurchases",header).then((res) =>{
             if(res.data.res && res.data.res=="Purchase are not found") return;
             res.data.map(ele => {
+                debugger;
                 if(ele != null && ele != "" && ele != undefined){
                 let obj = JSON.parse(ele);
                 tempTotal=tempTotal+fromCurrency(toCurrency(obj.amount));

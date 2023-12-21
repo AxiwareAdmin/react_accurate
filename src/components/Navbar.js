@@ -12,6 +12,17 @@ export default function Navbar() {
 		navigate("/")
 	}
 
+	function getCurrentFinancialYear() {
+		var fiscalyear = "";
+		var today = new Date();
+		if (today.getMonth() + 1 <= 3) {
+		  fiscalyear = today.getFullYear() - 1 + "-" + today.getFullYear().toString().substr(2);
+		} else {
+		  fiscalyear = today.getFullYear() + "-" + (today.getFullYear() + 1).toString().substr(2);
+		}
+		return fiscalyear;
+	  }
+
   return (
     <div>
       
@@ -35,8 +46,9 @@ export default function Navbar() {
 					</span>
 				</a>
 				
+				
 
-                <div className="page-title-box">
+                <div className="page-title-box" style={{display:'flex'}}>
 					<div className="top-nav-search">
 							<a href="javascript:void(0);" className="responsive-search">
 								<i className="fa fa-search"></i>
@@ -46,8 +58,9 @@ export default function Navbar() {
 								<button className="btn" type="submit"><i className="fa fa-search"></i></button>
 							</form>
 						</div>
-                </div>
-				
+				<p style={{margin:'0px 0px 0px 5px',display:'flex',alignItems:'center',fontWeight:"bold",color:"#9a55ff"}}>FY: {getCurrentFinancialYear()}</p>
+                <input type="hidden" id="financialYear" value={getCurrentFinancialYear()}/>
+				</div>
 				<a id="mobile_btn" className="mobile_btn" href="#sidebar"><i className="fa fa-bars"></i></a>
 				
 

@@ -2,6 +2,8 @@ import React,{useEffect} from 'react'
 import { Link } from 'react-router-dom'
 
 export default function Sidebar() {
+
+
 	/*useEffect(() => {
 		// document.querySelectorAll("script").forEach(e => e.remove());
 		// document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());

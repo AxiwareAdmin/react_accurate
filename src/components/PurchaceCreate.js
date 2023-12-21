@@ -380,7 +380,7 @@ export default function InvoicePageWrapper(props) {
         // setShippingAddress1(shippingAddr1);
         // setShippingAddress2(shippingAddr2);
 
-        let poNum = res.data.poNumber;
+        let poNum = res.data.pono;
         if (poNum != null && poNum != undefined && poNum != "")
           setPoNumber(poNum);
       });
@@ -994,23 +994,23 @@ const onDescriptionChange=(e)=>{
       totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
     })
 
-    let invoiceData={
-      invoiceProducts:productUnits,
-      invoiceNo:invoiceNumber,
-      invoiceId : invoiceId,
+    let purchaseData={
+      purchaseProducts:productUnits,
+      purchaseNo:invoiceNumber,
+      purchaseId : invoiceId,
       sgstValue:totalSgst,
       cgstValue:totalCgst,
       taxableValue:totalTaxableAmt,
-      invoiceValue:finalAmt,
+      purchaseValue:finalAmt,
       transportCharges:transportCharge,
       additionalCharges:otherCharge,
       discount:discountInRuppes,
       otherDiscount:(roundNum(totalAmt*discountInPercentage/100)),
-      shippingAddress:shippingAddress1+shippingAddress2,
+    //   shippingAddress:shippingAddress1+shippingAddress2,
       billingAddress:fromAddr1+fromAddr2,
       poNumber:poNumber,
-      customerName:document.querySelector("#customer option:checked").innerText,
-      invoiceDate:invoiceDate,
+      supplierName:document.querySelector("#customer option:checked").innerText,
+      purchaseDate:invoiceDate,
       poDate:poDate,
       challanNumber:challanNumber,
       challanDate:challanDate,
@@ -1023,15 +1023,15 @@ const onDescriptionChange=(e)=>{
       gstNo:gstNo,
       shippingGstNo:shippingGstNo,
       serviceCheck:serviceCheck,
-      shippingState:shippingState,
+    //   shippingState:shippingState,
       termsAndCondition:termsAndCondition
     }
 
-    console.log(invoiceData)
+    console.log(purchaseData)
 
     var token=localStorage.getItem("token");
 
-    axios.post('http://localhost:8080/saveInvoice', invoiceData,{
+    axios.post('http://localhost:8080/savepurchase', purchaseData,{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1044,7 +1044,7 @@ const onDescriptionChange=(e)=>{
 
       Swal.fire(
         '',
-        'Invoice created successfully!',
+        'Purchase created successfully!',
         'success'
       )
 
@@ -1056,7 +1056,7 @@ const onDescriptionChange=(e)=>{
 
       }
       else
-        alert("There is some issue created invoice. kindly check wherether all the data is entered or not.")
+        alert("There is some issue in creating purchase. kindly check whether all the data is entered or not.")
     })
     .catch(function (error) {
       console.log(error);
@@ -1523,7 +1523,7 @@ const onDescriptionChange=(e)=>{
                           <div className="invoice-details-box">
                             <div className="invoice-inner-head">
                               <span>
-                                Invoice No.{" "}
+                                Puchase No.{" "}
                                 <a href="view-invoice.html">{invoiceNumber}</a>
                               </span>
                               <br />
@@ -1534,7 +1534,7 @@ const onDescriptionChange=(e)=>{
                                   alignItems: "center",
                                 }}
                               >
-                                Invoice Date.{" "}
+                                Purchase Date.{" "}
                                 <input
                                   className="form-control datetimepicker"
                                   type="text"
@@ -1603,9 +1603,9 @@ const onDescriptionChange=(e)=>{
                     </div>
     
                     <div className="invoice-item" style={{border: "1px solid #E5E5E5",borderRadius: "10px", width: "100%",marginBottom:"15px", background: "#FFFFFF"}}>
-                      <div className="row">
-                        <div className="col-xl-6 col-lg-6 col-md-6 h-100 " style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px 0px 0px 20px"}}>
-                          <div className="invoice-info w-100" >
+                      <div className="row" >
+                        <div className="col-xl-12 col-lg-12 col-md-12 h-100 " >
+                          <div className="invoice-info w-100" style={{marginBottom:"10px",padding:"20px 0px 0px 20px"}}>
                             <strong className="customer-text">
                               Billing Address{" "}
                               <a className="small" href="edit-invoice.html">
@@ -1623,22 +1623,22 @@ const onDescriptionChange=(e)=>{
                           </div>
                                       {/* address footer start */}
                           <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                                        GST No. &nbsp;
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex align-items-center" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                                       <a>GST No.</a>&nbsp;
                                         <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
                       {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
                       GST No.&nbsp;
                       <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div> */}
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex align-items-center" style={{marginBottom:"0px",padding:"20px"}}>
                         State&nbsp;
                         <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
                       </div>
                             {/* address footer end */}
                         </div>
-                        <div className="col-xl-6 col-lg-6 col-md-6 h-100" style={{paddingLeft:"0px"}}>
+                        <div className="col-xl-6 col-lg-6 col-md-6 h-100" style={{paddingLeft:"0px",display:'none'}}>
                           <div className="invoice-info w-100" style={{marginBottom:"0px",padding:"20px"}} >
                             <strong className="customer-text">
                               Shipping Address
@@ -2309,7 +2309,7 @@ const onDescriptionChange=(e)=>{
 </div>
 <div class="form-group float-end mb-0">
 <button className="btn btn-success" onClick={saveInvoice}>
-                              Save Invoice
+                              Save Purchase
                             </button>
 </div>
 </div>

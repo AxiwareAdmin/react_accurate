@@ -8,10 +8,89 @@ import Alert from "./alert";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import Swal from "sweetalert2";
+import AddProduct from "./Manage/AddProduct";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import AddCustomer from "./Manage/AddCustomer";
+
 export default function InvoicePageWrapper(props) {
 
   const BACKEND_SERVER="http://localhost:8080";
   const editref = useRef(true);
+
+  const [isOpenCustomer, setIsOpenCustomer] = React.useState(false);
+  const [isOpenAddProduct, setIsOpenAddProduct] = React.useState(false);
+
+ const handleClickOpenCustomer = (e) => {
+       e.preventDefault();
+       setIsOpenCustomer(true);
+
+ }
+
+ const AddProductDetails = (e) => {
+  e.preventDefault();
+  setIsOpenAddProduct(true);
+
+}
+
+const custData = (data) => {
+  var custId = "";
+  var custName = "";
+  if(data.custId != null && data.custId != "undefined"){
+    custId = data.custId;
+  }
+  if(data.custName != null && data.custName != "undefined"){
+    custName = data.custName;
+  }
+
+  if( custId != null && custName != null){
+  var option = document.createElement("option");
+  option.value = custId;
+  option.append(document.createTextNode(custName));
+  document.querySelector("#customer").append(option);
+  }
+
+  if(data.flag != null && data.flag != "undefined"){
+    setIsOpenCustomer(data.flag);
+  }
+  console.log("In parent got data from child "+data.flag);
+  console.log("In parent got data from child "+data.custId);
+  console.log("In parent got data from child "+data.custName);
+  console.log("In parent got data from child "+data);
+}
+
+const prodData = (data) => {
+
+  var prodId = "";
+  var prodName = "";
+  if(data.prodId != null && data.prodId != "undefined"){
+    prodId = data.prodId;
+  }
+  if(data.prodName != null && data.prodName != "undefined"){
+    prodName = data.prodName;
+  }
+
+  if( prodId != null && prodName != null){
+    var option = document.createElement("option");
+    option.value = prodId;
+    option.append(document.createTextNode(prodName));
+    document.querySelector(".prodListSelect").append(option);
+  }
+
+  if(data.flag != null && data.flag != "undefined"){
+    setIsOpenAddProduct(data.flag);
+  }
+
+  console.log("In parent got data from child "+data.flag);
+  console.log("In parent got data from child "+data.prodId);
+  console.log("In parent got data from child "+data.prodName);
+  console.log("In parent got data from child "+data);
+
+}
+
 
   const [productUnits, setProductUnits] = useState([
     {
@@ -304,20 +383,53 @@ export default function InvoicePageWrapper(props) {
     var token=localStorage.getItem("token")
     //it was GET method earlier
 
- 
-    axios.get(BACKEND_SERVER+"/allInvoices",{
+    axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
       }
-    }).then((res) => {
-      let invoiceLen = res.data.length;
-      let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
-      console.log("invoice:" + invoiceNum);
-      setInvoiceNumber(invoiceNum);
-    }).catch((e)=>{
-      console.log(e)
+    }).then((res)=>{
+        var prefix1=res.data.prefix1;
+
+        var prefix2=res.data.prefix2;
+
+        var mode=res.data.mode;
+
+        if(mode!='Auto'){
+          setInvoiceMode(mode);
+          return;
+        } 
+
+        
+
+        var series=res.data.series;
+
+        var adder=parseInt(series);
+
+
+        axios.get(BACKEND_SERVER+"/invoices/year/"+document.querySelector("#financialYear").value,{
+          headers:{
+            "Content-Type":"application/json",
+            "Authorization":'Bearer '+token
+          }
+        }).then((res) => {
+          let invoiceLen = res.data.length+adder+"";
+
+          while(invoiceLen.length<series.length){
+            invoiceLen='0'+invoiceLen;
+          }
+
+          
+          let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
+          console.log("invoice:" + invoiceNum);
+          setInvoiceNumber(invoiceNum);
+        }).catch((e)=>{
+          console.log(e)
+        })
+
     })
+ 
+    
 
     
     var token=localStorage.getItem("token")
@@ -528,6 +640,8 @@ var token=localStorage.getItem("token")
         option.append(document.createTextNode(product.productName));
         document.querySelector(".prodListSelect").append(option);
       });
+    }).catch(function (error) {
+      console.log(error);
     });
 
     const script11 = document.createElement("script");
@@ -686,6 +800,8 @@ var token=localStorage.getItem("token")
   const [otherChargesGstRate,setOtherChargesGstRate]=useState(0);
 
   const [termsAndCondition, setTermsAndCondition]=useState("");
+
+  const [invoiceMode,setInvoiceMode]=useState("Auto")
 
   const navigate=useNavigate();
 useEffect(()=>{
@@ -977,9 +1093,9 @@ const onDescriptionChange=(e)=>{
     var fiscalyear = "";
     var today = new Date();
     if (today.getMonth() + 1 <= 3) {
-      fiscalyear = today.getFullYear() - 1 + "-" + today.getFullYear();
+      fiscalyear = today.getFullYear() - 1 + "-" + today.getFullYear().toString().substr(2);
     } else {
-      fiscalyear = today.getFullYear() + "-" + (today.getFullYear() + 1);
+      fiscalyear = today.getFullYear() + "-" + (today.getFullYear() + 1).toString().substr(2);
     }
     return fiscalyear;
   }
@@ -1024,7 +1140,8 @@ const onDescriptionChange=(e)=>{
       shippingGstNo:shippingGstNo,
       serviceCheck:serviceCheck,
       shippingState:shippingState,
-      termsAndCondition:termsAndCondition
+      termsAndCondition:termsAndCondition,
+      financialYear:document.querySelector("#financialYear").value
     }
 
     console.log(invoiceData)
@@ -1056,7 +1173,7 @@ const onDescriptionChange=(e)=>{
 
       }
       else
-        alert("There is some issue created invoice. kindly check wherether all the data is entered or not.")
+        alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
     })
     .catch(function (error) {
       console.log(error);
@@ -1077,6 +1194,11 @@ const onDescriptionChange=(e)=>{
 
 
     setInvoiceDate(e.target.value)
+  }
+
+  function onInvoiceNumberChange(e){
+    var invoiceNo=e.target.value;
+    setInvoiceNumber(invoiceNo);
   }
 
   const onPoDateChange=(e)=>{
@@ -1424,6 +1546,10 @@ const onDescriptionChange=(e)=>{
                           >
                             <option value="-1">Select Customer</option>
                           </select>
+
+                          <button class="btn btn-primary" onClick={handleClickOpenCustomer}>
+                           Add Customer
+                           </button>
                           {/* <div className="form-group"> */}
                           {/* <label>Customer Name</label> */}
 
@@ -1524,7 +1650,21 @@ const onDescriptionChange=(e)=>{
                             <div className="invoice-inner-head">
                               <span>
                                 Invoice No.{" "}
-                                <a href="view-invoice.html">{invoiceNumber}</a>
+                               {invoiceMode=='Auto'?<a href="view-invoice.html">{invoiceNumber}</a>:
+                                <input
+                                className="form-control"
+                                type="text"
+                                placeholder="Enter Invoice Number"
+                                value={invoiceNumber}
+                                onChange={onInvoiceNumberChange}
+                                style={{
+                                  border: "1px solid #9a55ff",
+                                  width: "100%",
+                                  padding: "10px",
+                                }}
+                              />
+                               } 
+                                
                               </span>
                               <br />
                               <br />
@@ -1693,7 +1833,7 @@ const onDescriptionChange=(e)=>{
 <div class="row align-items-center">
 
 <div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date">
+<div class="invoice-inner-date" style={{border:'none'}}>
 <div class="form-group">
 <label>Challan No.</label>
 <input value={challanNumber} onChange={onChallanNumberChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" />
@@ -1701,7 +1841,7 @@ const onDescriptionChange=(e)=>{
 </div>
 </div>
 <div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date invoice-inner-datepic">
+<div class="invoice-inner-date invoice-inner-datepic" style={{borderRight:'1px solid #E5E5E5'}}>
 <div class="form-group">
 <label for="">Challan Date</label>
 <input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="challanDate" type="text" value={challanDate}  placeholder="Select"/>
@@ -1710,7 +1850,7 @@ const onDescriptionChange=(e)=>{
 </div>
 
 <div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date">
+<div class="invoice-inner-date" style={{border:'none'}}>
 <div class="form-group">
 <label>Payment Terms</label>
 {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
@@ -1725,7 +1865,7 @@ const onDescriptionChange=(e)=>{
 </div>
 </div>
 <div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date invoice-inner-datepic">
+<div class="invoice-inner-date invoice-inner-datepic" style={{borderRight:'1px solid #E5E5E5'}}>
 <div class="form-group">
 <label for="">Due Date</label>
 <input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="dueDate" type="text"  placeholder="Select" readOnly="true"/>
@@ -1734,7 +1874,7 @@ const onDescriptionChange=(e)=>{
 </div>
 
 <div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date">
+<div class="invoice-inner-date" style={{border:'none'}}>
 <div class="form-group">
 <label>Transport Mode</label>
 {/* <input value={transportMode} onChange={onTransportModeChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
@@ -1752,7 +1892,7 @@ const onDescriptionChange=(e)=>{
 <div class="col-lg-2 col-md-4">
 <div class="form-group">
 <label for="">Vehicle No.</label>
-<input value={vehicleNumber} onChange={onVehicleNumberChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" />
+<input value={vehicleNumber} onChange={onVehicleNumberChange}  style ={{ border:"1px solid #9a55ff", width:"90%", padding:"10px"}} class="form-control" type="text" />
 </div>
 </div>
 </div>
@@ -1777,7 +1917,7 @@ const onDescriptionChange=(e)=>{
                               <th>Rate</th>
                               <th>Discount</th>
                               <th>Amount</th>
-                              <th>Tax</th>
+                              <th>GST Rate</th>
                               <th>Actions</th>
                             </tr>
                           </thead>
@@ -1867,7 +2007,7 @@ const onDescriptionChange=(e)=>{
                                   <i className="fas fa-plus-circle"></i>
                                 </a>
                                 <a href="#" className="copy-btn me-2">
-                                  <i className="fas fa-copy"></i>
+                                <i className="fas fa-copy" onClick={AddProductDetails}></i>
                                 </a>
                                 <a
                                   href="javascript:void(0);"
@@ -1883,9 +2023,9 @@ const onDescriptionChange=(e)=>{
                     </div>
                     <div className="row">
                       <div className="col-lg-7 col-md-6">
-                        <div className="invoice-fields">
+                        <div className="invoice-fields" style={{display:'none'}}>
                           <h4 className="field-title">More Fields</h4>
-                          <div className="field-box">
+                          <div className="field-box" >
                             <p>Payment Details</p>
                             <a
                               className="btn btn-primary"
@@ -1905,6 +2045,41 @@ const onDescriptionChange=(e)=>{
                             role="tablist"
                             aria-multiselectable="true"
                           >
+
+<div className="faq-tab">
+                              <div className="panel panel-default">
+                                <div
+                                  className="panel-heading"
+                                  role="tab"
+                                  id="headingThree"
+                                >
+                                  <p className="panel-title">
+                                    <a
+                                      className="collapsed"
+                                      data-bs-toggle="collapse"
+                                      data-bs-parent="#accordion"
+                                      href="#collapseThree"
+                                      aria-expanded="false"
+                                      aria-controls="collapseThree"
+                                    >
+                                      <i className="fas fa-plus-circle me-1"></i>{" "}
+                                      Remarks
+                                    </a>
+                                  </p>
+                                </div>
+                                <div
+                                  id="collapseThree"
+                                  className="panel-collapse collapse"
+                                  role="tabpanel"
+                                  aria-labelledby="headingThree"
+                                  data-bs-parent="#accordion"
+                                >
+                                  <div className="panel-body">
+                                    <textarea id="remark" className="form-control"></textarea>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                             <div className="faq-tab">
                               <div className="panel panel-default">
                                 <div
@@ -1939,40 +2114,7 @@ const onDescriptionChange=(e)=>{
                                 </div>
                               </div>
                             </div>
-                            <div className="faq-tab">
-                              <div className="panel panel-default">
-                                <div
-                                  className="panel-heading"
-                                  role="tab"
-                                  id="headingThree"
-                                >
-                                  <p className="panel-title">
-                                    <a
-                                      className="collapsed"
-                                      data-bs-toggle="collapse"
-                                      data-bs-parent="#accordion"
-                                      href="#collapseThree"
-                                      aria-expanded="false"
-                                      aria-controls="collapseThree"
-                                    >
-                                      <i className="fas fa-plus-circle me-1"></i>{" "}
-                                      Remarks
-                                    </a>
-                                  </p>
-                                </div>
-                                <div
-                                  id="collapseThree"
-                                  className="panel-collapse collapse"
-                                  role="tabpanel"
-                                  aria-labelledby="headingThree"
-                                  data-bs-parent="#accordion"
-                                >
-                                  <div className="panel-body">
-                                    <textarea id="remark" className="form-control"></textarea>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                     {/* here */}
                           </div>
                         </div>
                       </div>
@@ -1997,11 +2139,17 @@ const onDescriptionChange=(e)=>{
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
                               <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                                 <p style={{marginBottom:"5px"}}>Transport charge</p>
+                                <div style={{display:'flex', alignItems:'center',justifyItems:'center'}}>
+                               
+
                                 <span style={{display:"flex"}}>
                                   <input
                                     style={{
-                                      width: "50px",
-
+                                      width: "90px",
+                                      height:'30px',
+                                      border:"1px solid #9a55ff",
+                                      borderRadius:'6px',
+                                      marginRight:'5px',
                                       textAlign:"end"
                                     }}
                                     type="text"
@@ -2012,10 +2160,31 @@ const onDescriptionChange=(e)=>{
                                   />
                                  
                                 </span>
+
+                                <span>
+                                  <select  style={{
+                                       width: "50px",
+                                       height:'30px',
+                                       border:"1px solid #9a55ff",
+                                       borderRadius:'6px',
+                                      textAlign:"end"
+                                    }}
+                                    onChange={onTransportGstChange}
+                                    >
+                                    {
+                                      gstRates.map((elem)=>{
+                                       return <option value={elem}>{elem}%</option>
+                                      })
+                                    }
+
+                                  </select>
+                                </span>
+                                
+                                </div>
                               </p>
 
 
-                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                              {/* <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                               <p style={{marginBottom:"5px"}}>Transport charge GST</p>
                                 <span>
                                   <select  style={{
@@ -2033,19 +2202,23 @@ const onDescriptionChange=(e)=>{
 
                                   </select>
                                 </span>
-                              </p>
+                              </p> */}
 
 
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
-                              <p>
-                                Other charge
+                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                              <p style={{marginBottom:"5px",widht:'-webkit-fill-available'}}>Other charge</p>
+                              <div style={{display:'flex', alignItems:'center',justifyItems:'center'}}>
                                 <span>
                                   <input
-                                    style={{
-                                      width: "50px",
-                                      marginLeft: "200px",
-                                      textAlign:"end"
-                                    }}
+                                   style={{
+                                    width: "90px",
+                                    height:'30px',
+                                    border:"1px solid #9a55ff",
+                                    borderRadius:'6px',
+                                    marginRight:'5px',
+                                    textAlign:"end"
+                                  }}
                                     type="text"
                                     id="otherCharge"
                                     name="othercharges"
@@ -2054,9 +2227,29 @@ const onDescriptionChange=(e)=>{
                                     onChange={onOtherChargeChange}
                                   />
                                 </span>
+
+                                <span>
+                                  <select   style={{
+                                       width: "50px",
+                                       height:'30px',
+                                       border:"1px solid #9a55ff",
+                                       borderRadius:'6px',
+                                      textAlign:"end"
+                                    }}
+                                    onChange={onOtherChargeGstChange}
+                                    >
+                                    {
+                                      gstRates.map((elem)=>{
+                                       return <option value={elem}>{elem}%</option>
+                                      })
+                                    }
+
+                                  </select>
+                                </span>
+                                </div>
                               </p>{" "}
 
-                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                              {/* <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                               <p style={{marginBottom:"5px"}}>Other charge GST</p>
                                 <span>
                                   <select  style={{
@@ -2074,7 +2267,7 @@ const onDescriptionChange=(e)=>{
 
                                   </select>
                                 </span>
-                              </p>
+                              </p> */}
 
                               <hr />
                               {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),"> */}
@@ -2082,9 +2275,11 @@ const onDescriptionChange=(e)=>{
                                 Other Discount
                                 <span>
                                   <input
-                                    style={{
-                                      width: "50px",
-                                      marginLeft: "200px",
+                                     style={{
+                                      width: "90px",
+                                      height:'30px',
+                                      border:"1px solid #9a55ff",
+                                      borderRadius:'6px',
                                       textAlign:"end"
                                     }}
                                     type="text"
@@ -2100,11 +2295,13 @@ const onDescriptionChange=(e)=>{
                                 Discount in %
                                 <span>
                                   <input
-                                    style={{
-                                      width: "50px",
-                                      marginLeft: "200px",
-                                      textAlign:"end"
-                                    }}
+                                      style={{
+                                        width: "90px",
+                                        height:'30px',
+                                        border:"1px solid #9a55ff",
+                                        borderRadius:'6px',
+                                        textAlign:"end"
+                                      }}
                                     type="text"
                                     id="discountInPercentage"
                                     placeholder="0.00"
@@ -2241,7 +2438,7 @@ const onDescriptionChange=(e)=>{
                             </div>
                           </div>
                         </div> */}
-                        <div className="upload-sign">
+                        <div className="upload-sign" style={{display:'none'}}>
                           <div className="form-group service-upload">
                             <span>Upload Sign</span>
                             <input type="file" multiple />
@@ -2460,7 +2657,7 @@ const onDescriptionChange=(e)=>{
 
                       <div className="row align-items-center justify-content-center">
                         <div className="col-lg-6 col-md-6">
-                          <div className="invoice-payment-box">
+                          <div className="invoice-payment-box" >
                             <h4>Payment Details</h4>
                             <div className="payment-details">
                               <p>Debit Card XXXXXXXXXXXX-2541 HDFC Bank</p>
@@ -2693,6 +2890,23 @@ const onDescriptionChange=(e)=>{
 
       <iframe id="ifmcontentstoprint" style={{height: '0px', width: '0px', position: 'absolute'}}></iframe>
     </div>
+
+                          {/*  add product dialog box code start onClose={handleClose} */}
+
+
+    <Dialog open={isOpenAddProduct} >
+        <AddProduct toChild={isOpenAddProduct} sendToParent={prodData}></AddProduct>
+    </Dialog>
+
+    {/* add product dialog code end  */}
+
+    {/*   add product details code start */}
+
+    <Dialog open={isOpenCustomer} >
+        <AddCustomer toChild={isOpenCustomer} sendToParent={custData}></AddCustomer>
+    </Dialog>
+    {/* add product code end */}
+
     </>
   );
 }

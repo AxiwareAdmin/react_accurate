@@ -37,6 +37,61 @@ export default function InvoicePageWrapper(props) {
   
 }
 
+const custData = (data) => {
+  var custId = "";
+  var custName = "";
+  if(data.custId != null && data.custId != "undefined"){
+    custId = data.custId;
+  }
+  if(data.custName != null && data.custName != "undefined"){
+    custName = data.custName;
+  }
+  
+  if( custId != null && custName != null){
+  var option = document.createElement("option");
+  option.value = custId;
+  option.append(document.createTextNode(custName));
+  document.querySelector("#customer").append(option);
+  }
+
+  if(data.flag != null && data.flag != "undefined"){
+    setIsOpenCustomer(data.flag);
+  }
+  console.log("In parent got data from child "+data.flag);
+  console.log("In parent got data from child "+data.custId);
+  console.log("In parent got data from child "+data.custName);
+  console.log("In parent got data from child "+data);
+}
+
+const prodData = (data) => {
+  
+  var prodId = "";
+  var prodName = "";
+  if(data.prodId != null && data.prodId != "undefined"){
+    prodId = data.prodId;
+  }
+  if(data.prodName != null && data.prodName != "undefined"){
+    prodName = data.prodName;
+  }
+  
+  if( prodId != null && prodName != null){
+    var option = document.createElement("option");
+    option.value = prodId;
+    option.append(document.createTextNode(prodName));
+    document.querySelector(".prodListSelect").append(option);
+  }
+
+  if(data.flag != null && data.flag != "undefined"){
+    setIsOpenAddProduct(data.flag);
+  }
+
+  console.log("In parent got data from child "+data.flag);
+  console.log("In parent got data from child "+data.prodId);
+  console.log("In parent got data from child "+data.prodName);
+  console.log("In parent got data from child "+data);
+
+}
+
 
   const [productUnits, setProductUnits] = useState([
     {
@@ -2728,7 +2783,7 @@ const onDescriptionChange=(e)=>{
     
     
     <Dialog open={isOpenAddProduct} >
-        <AddProduct toChild={isOpenAddProduct} sendToParent={setIsOpenAddProduct}></AddProduct>
+        <AddProduct toChild={isOpenAddProduct} sendToParent={prodData}></AddProduct>
     </Dialog>
 
     {/* add product dialog code end  */}
@@ -2736,7 +2791,7 @@ const onDescriptionChange=(e)=>{
     {/*   add product details code start */}
        
     <Dialog open={isOpenCustomer} >
-        <AddCustomer toChild={isOpenCustomer} sendToParent={setIsOpenCustomer}></AddCustomer>
+        <AddCustomer toChild={isOpenCustomer} sendToParent={custData}></AddCustomer>
     </Dialog>
     {/* add product code end */}
     </>

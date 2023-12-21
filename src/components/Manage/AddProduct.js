@@ -52,9 +52,12 @@ export default function AddProduct(props) {
             .then((res) => {
                 console.log("In customer pop up all invoice data" + res.data);
 
-                if (res != null && res.data.res == 'success') {
+                if (res != null && res.data.res != "failure") {
                     alert("saved success");
-                    props.sendToParent(false);
+                    //props.sendToParent(false);
+                    props.sendToParent({flag : false});
+                    props.sendToParent({prodId : res.data.res});
+                    props.sendToParent({prodName : productName});
 
                 } else {
                     alert("something is wrong");

@@ -39,14 +39,14 @@ export default function InvoicePageWrapper(props) {
 const custData = (data) => {
   var custId = "";
   var custName = "";
-  if(data.custId != null && data.custId != "undefined"){
+  if(data.custId != null && data.custId != undefined){
     custId = data.custId;
   }
-  if(data.custName != null && data.custName != "undefined"){
+  if(data.custName != null && data.custName != undefined){
     custName = data.custName;
   }
 
-  if( custId != null && custName != null){
+  if( custId != null && custName != null && custName!== undefined){
   var option = document.createElement("option");
   option.value = custId;
   option.append(document.createTextNode(custName));

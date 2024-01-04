@@ -18,6 +18,7 @@ import AddCustomer from "./Manage/AddCustomer";
 
 export default function InvoicePageWrapper(props) {
 
+  const addProductForCopy=window.addProductForCopy;
   const BACKEND_SERVER="http://localhost:8080";
   const editref = useRef(true);
 
@@ -150,7 +151,7 @@ const prodData = (data) => {
         td = td.parentElement;
         var description = td.querySelector("#description").value;
         var hsnSac=td.querySelector("#hsnSac").value;
-        var tax=fromCurrency(td.querySelector("#tax").value);
+        var tax=fromCurrency(td.querySelector("#tax").value.replace('%',''));
         var quantity = fromCurrency(td.querySelector("#quantity").value);
         var price = fromCurrency(td.querySelector("#price").value);
         var discount = fromCurrency(td.querySelector("#discount").value);
@@ -184,6 +185,51 @@ const prodData = (data) => {
       });
   }
 
+
+  function prodSelectOnChangeForCopy(dataArr) {
+        debugger;
+        let tempProdUnits = [];
+
+        var index=2;
+
+        dataArr.map((data,ind)=>{
+          var productId = index;
+          index=index+1;
+          var description = data.productDescription;
+          var hsnSac=data.hsnSac;
+          var tax=data.tax;
+          var quantity = data.quantity;
+          var price = data.rate;
+          var discount = data.discount;
+          var amount = data.amount;
+          var unit=data.unit;
+          var productName = data.productName;
+
+          var tempObj={
+            id:productId,
+            description,
+            hsnSac,
+            tax,
+            quantity,
+            price,
+            discount,
+            amount,
+            productName,
+            unit
+          }
+  
+  
+         tempProdUnits.push(tempObj);
+        })
+
+        
+
+        setProductUnits(tempProdUnits);
+
+        setTotalAmt(calculateTotalAmt());
+
+
+  }
 
 
   function getProductCount() {
@@ -229,6 +275,7 @@ const prodData = (data) => {
   // }
 
   const calculateTotalAmt = () => {
+    debugger;
     console.log(productUnits)
     let totAmt = 0;
     let tempProdUnits = [...productUnits];
@@ -499,6 +546,7 @@ const prodData = (data) => {
   }
 
   useEffect(() => {
+    debugger;
     console.log("produnit changed" + productUnits);
     setTotalAmt(calculateTotalAmt());
     // setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
@@ -516,6 +564,10 @@ const prodData = (data) => {
 
 window.onPaymentTermsChange=(e)=>{
   onPaymentTermsChange(e);
+}
+
+window.prodSelectOnChangeForCopy=(data)=>{
+  prodSelectOnChangeForCopy(data)
 }
 
 window.onDescriptionChange=(e)=>{
@@ -571,11 +623,59 @@ window.onTransportModeChange=(e)=>{
     window.getProductCount = () => getProductCount();
   });
   useEffect(() => {
+
+
     // document.querySelectorAll("script").forEach(e => e.remove());
     // document.querySelectorAll("script[src]").forEach(a=>a.remove())
     // document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());
 var token=localStorage.getItem("token")
+//it was GET method earlier
 
+axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
+  headers:{
+    "Content-Type":"application/json",
+    "Authorization":'Bearer '+token
+  }
+}).then((res)=>{
+    var prefix1=res.data.prefix1;
+
+    var prefix2=res.data.prefix2;
+
+    var mode=res.data.mode;
+
+    if(mode!='Auto'){
+      setInvoiceMode(mode);
+      return;
+    } 
+
+    
+
+    var series=res.data.series;
+
+    var adder=parseInt(series);
+
+
+    axios.get(BACKEND_SERVER+"/invoices/year/"+document.querySelector("#financialYear").value,{
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
+      }
+    }).then((res) => {
+      let invoiceLen = res.data.length+adder+"";
+
+      while(invoiceLen.length<series.length){
+        invoiceLen='0'+invoiceLen;
+      }
+
+      
+      let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
+      console.log("invoice:" + invoiceNum);
+      setInvoiceNumber(invoiceNum);
+    }).catch((e)=>{
+      console.log(e)
+    })
+
+})
 
     axios.get(BACKEND_SERVER+"/gstRates",{
       headers:{
@@ -710,6 +810,11 @@ var token=localStorage.getItem("token")
 
     document.body.appendChild(script);
 
+    setTimeout(()=>{
+
+      onCopyInvoiceAddInvoiceDetails()
+    },1000)
+
     return () => {
       document.body.removeChild(script);
       document.body.removeChild(script2);
@@ -723,10 +828,14 @@ var token=localStorage.getItem("token")
       document.body.removeChild(script10);
       //   document.body.removeChild(script11);
     };
+    
+    
   }, []);
 
   const [fromAddr1, setFromAddr1] = useState("");
   const [fromAddr2, setFromAddr2] = useState("");
+
+  const [loadingCompleted,setLoadingCompleted]=useState()
 
   const [remarks,setRemarks]=useState("")
 
@@ -871,6 +980,7 @@ useEffect(()=>{
 },[totalAmt])
 
     useEffect(()=>{
+      document.querySelector(".gstContainer").innerHTML='';
 
       gstPercentageArr.map((elem)=>{
         let index=gstPercentageArr.indexOf(elem);
@@ -970,7 +1080,7 @@ useEffect(()=>{
      
       setFinalAmt(roundNum(parseFloat(totalTaxableAmt)+totalGstVal-fromCurrency(totalDiscount)))
 
-    },[totalTaxableAmt])
+    },[totalTaxableAmt,totalDiscount])
 
 
 
@@ -1196,6 +1306,22 @@ const onDescriptionChange=(e)=>{
     setInvoiceDate(e.target.value)
   }
 
+  const onInvoiceDateChangeForCopyProduct=(date)=>{
+    debugger; 
+    var inDateArr=date.split("/")
+    var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
+    console.log(inDate)
+    inDate=inDate.addDays(parseInt(paymentTermVal.split(" ")[0]));
+    console.log(inDate)
+    inDate=getFormattedDate(inDate)
+
+    document.getElementById("dueDate").value=inDate
+    setDueDate(inDate)
+
+
+    setInvoiceDate(date)
+  }
+
   function onInvoiceNumberChange(e){
     var invoiceNo=e.target.value;
     setInvoiceNumber(invoiceNo);
@@ -1282,28 +1408,33 @@ const onDescriptionChange=(e)=>{
     return day + '/' + month + '/' + year;
   }
 
+
+
+  
   // start code for edit invoice
   
-  useEffect (() => {
+ function onCopyInvoiceAddInvoiceDetails() {
  
    if(editref.current){
     
-           
-          var url=new URL(window.location.href);
-          let invNoEdit=url.searchParams.get("InvNo");
-          let actionedit = url.searchParams.get("action");
+     var url=new URL(window.location.href);
+     let invNoEdit=url.searchParams.get("InvNo");
+     let actionedit = url.searchParams.get("action");
+     
+     var token=localStorage.getItem('token')
+     if(actionedit == "Edit" || actionedit == "Clone"){
+       
+       document.querySelector("#prodtable").innerHTML=''
+            debugger;
 
-          var token=localStorage.getItem('token')
-          if(actionedit == "Edit" || actionedit == "Clone"){
-
-            axios.get("http://localhost:8081/erp/viewInvoice?invNo="+invNoEdit,{
+            axios.get("http://localhost:8080/viewInvoice?invId="+invNoEdit,{
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token
               }
             }).then((res) => {
               console.log("after got data"+res.data.invoiceNo);
-
+              debugger;
 
               if(res.data.invoiceId != null)
                setInvoiceId(res.data.invoiceId);
@@ -1312,19 +1443,25 @@ const onDescriptionChange=(e)=>{
                 const text = res.data.customerName;
                 const $select = document.querySelector('#customer');
                 const $options = Array.from($select.options);
+              
                 const optionToSelect = $options.find(item => item.text ===text);
                 $select.value = optionToSelect.value;
+                         //below code is used to dispatch change event on customer select box becuase i is not getting updated otherwise
+                         var event = new Event('change');
+
+                         // Dispatch it.
+                         $select.dispatchEvent(event);
               }
               
-              if(res.data.invoiceNo != null)
-              setInvoiceNumber(res.data.invoiceNo);
+              // if(res.data.invoiceNo != null)
+              // setInvoiceNumber(res.data.invoiceNo);
 
               if(res.data.poNumber != null)
               setPoNumber(res.data.poNumber);
 
               if(res.data.invoiceDate != null){
-                let finvdate = getFormattedDate(new Date(res.data.invoiceDate));
-              setInvoiceDate(finvdate);
+                let finvdate = getFormattedDate(new Date());
+                onInvoiceDateChangeForCopyProduct(finvdate);
               }
 
               if(res.data.poDate != null){
@@ -1352,6 +1489,8 @@ const onDescriptionChange=(e)=>{
                 const $options = Array.from($select.options);
                 const optionToSelect = $options.find(item => item.text ===text);
                 $select.value = optionToSelect.value;
+
+       
               }
 
               if(res.data.paymentTerms != null)
@@ -1364,109 +1503,58 @@ const onDescriptionChange=(e)=>{
                 $select.value = optionToSelect.value;
               }
               
-               if(res.data.dueDate != null){
-                let finvdate = getFormattedDate(new Date(res.data.dueDate));
-               setDueDate(finvdate);
-               }
+              //no need to set due date here it will be done automatically
+              //  if(res.data.dueDate != null){
+              //   let finvdate = getFormattedDate(new Date(res.data.dueDate));
+              //  setDueDate(finvdate);
+              //  }
               
 
               if(res.data.vehicleNo != null)
               setVehicleNumber(res.data.vehicleNo);
+
+              if(res.data.transportCharges!=null){
+
+                var transportChargeTemp=document.querySelector("#transportCharge")
+                transportChargeTemp.value=res.data.transportCharges;
+
+                setTransportCharge(fromCurrency(res.data.transportCharges));
+              }
+
+              if(res.data.additionalCharges!=null){
+                document.querySelector("#otherCharge").value=res.data.additionalCharges;
+                setOtherCharge(fromCurrency(res.data.additionalCharges))
+              }
+
+              if(res.data.discount!=null){
+                document.querySelector("#otherDiscount").value=res.data.discount;
+                setDiscountInRupees(res.data.discount);
+              }
+
+              if(res.data.otherDiscount!=null){
+                document.querySelector("#discountInPercentage").value=res.data.otherDiscount;
+
+                setDiscountInPercentage(res.data.otherDiscount);
+              }
+
+
+
+
              
               //start prod set code
-              window.fetchProdList();
+              // window.fetchProdList();
+              var productUnitsTemp=[];
               
               res.data.invoiceProductDO.map((elem,index)=>{
-                
+                debugger;
                 console.log('product data '+ elem.productName+':index id :'+index);
-               
-              if(index == 0){
-                if(elem.productName != null)
-              {
-                const text = elem.productName;
-                const $select = document.querySelector('.prodListSelect1');
-                const $options = Array.from($select.options);
-                const optionToSelect = $options.find(item => item.text ===text);
-                $select.value = optionToSelect.value;
-              }
-               
-              // setdesc(elem.productDescription);
-                document.querySelector("#description").value=elem.productDescription;
-                document.querySelector("#hsnSac").value=elem.hsnSac;
-                document.querySelector("#quantity").value=elem.quantity;
-                document.querySelector("#unit").value=elem.unit;
-                document.querySelector("#price").value=elem.rate;
-                document.querySelector("#discount").value=elem.discount;
-                document.querySelector("#amount").value=elem.amount;
-                document.querySelector("#tax").value=elem.tax;
 
-                // var description = document.querySelector("#description").value;
-                // var hsnSac=document.querySelector("#hsnSac").value;
-                // var tax=fromCurrency(document.querySelector("#tax").value);
-                // var quantity = fromCurrency(document.querySelector("#quantity").value);
-                // var price = fromCurrency(document.querySelector("#price").value);
-                // var discount = fromCurrency(document.querySelector("#discount").value);
-                // var amount = fromCurrency(document.querySelector("#amount").value);
-                // var unit=document.querySelector("#unit").value;
-                //var productName = event.target.querySelector("option:checked").text;
-                //let productId = document.querySelector("#productId").value;
+                addProductForCopy(elem,index)
 
-                 }
-               
-                if(index > 0){
-                  window.addRowOnEdit(elem , index);
-              }
+                productUnitsTemp.push(elem);
+              });   
               
-              // var temp = {
-              //   id: elem.invoiceProductId,
-              //   productName: elem.productName,
-              //   description: elem.productDescription,
-              //   hsnSac:elem.hsnSac,
-              //   tax:elem.tax,
-              //   quantity: elem.quantity,
-              //   price: elem.price,
-              //   amount: elem.amount,
-              //   discount: elem.discount,
-              //   unit:elem.unit
-              // };
-             
-              setProductUnits([...productUnits,{
-                id: elem.invoiceProductId,
-                productName: elem.productName,
-                description: elem.productDescription,
-                hsnSac:elem.hsnSac,
-                tax:elem.tax,
-                quantity: elem.quantity,
-                price: elem.price,
-                amount: elem.amount,
-                discount: elem.discount,
-                unit:elem.unit
-              }]);
-            
-              setProductCount(index+1);
-              //setProductUnits(newList);
-              console.log('product length ::::'+productUnits);
-
-              // let tempProdUnits = [...productUnits];
-
-              // tempProdUnits.map((prodUnit) => {
-              //   // if (prodUnit.id == productId) {
-              //     prodUnit.description=elem.productDescription;
-              //     prodUnit.hsnSac=elem.hsnSac;
-              //     prodUnit.tax=elem.tax;
-              //     prodUnit.quantity = elem.quantity;
-              //     prodUnit.price = elem.price;
-              //     prodUnit.discount = elem.discount;
-              //     prodUnit.amount = elem.amount;
-              //     prodUnit.productName = elem.productName;
-              //     prodUnit.unit=elem.unit;
-              //  // }
-             // });
-
-             // setProductUnits(tempProdUnits);
-
-              });
-              //end prod set code             
+              prodSelectOnChangeForCopy(productUnitsTemp);
              
             }).catch(function (error) {
               console.log(error);
@@ -1475,7 +1563,7 @@ const onDescriptionChange=(e)=>{
           }
           editref.current = false;
         }
-   });
+   }
    
   // End code of edit invoice
 
@@ -1763,7 +1851,7 @@ const onDescriptionChange=(e)=>{
                           </div>
                                       {/* address footer start */}
                           <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
                                         GST No. &nbsp;
                                         <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
@@ -1771,7 +1859,7 @@ const onDescriptionChange=(e)=>{
                       GST No.&nbsp;
                       <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div> */}
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
                         State&nbsp;
                         <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
@@ -1794,7 +1882,7 @@ const onDescriptionChange=(e)=>{
 
                                          {/* address footer start */}
                                          <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
                                         GST No. &nbsp;
                                         <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
@@ -1802,7 +1890,7 @@ const onDescriptionChange=(e)=>{
                       GST No.&nbsp;
                       <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div> */}
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
                         State&nbsp;
                         <input class="form-control" type="text" value={shippingState} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
@@ -2501,12 +2589,12 @@ const onDescriptionChange=(e)=>{
 <div class="form-group float-end mb-0">
 <button class="btn btn-danger" id="submitButton" type="submit" value="Submit">Cancel</button>
 </div>
-<div class="form-group float-end mb-0">
+<div class="form-group float-end mb-0" style={{marginRight:'5px'}}>
 <button class="btn btn-primary" onClick={printButtonClicked} id="submitButton" type="submit" value="Submit">Print</button>
 </div>
-<div class="form-group float-end mb-0">
+<div class="form-group float-end mb-0" style={{marginRight:'5px'}}>
 <button className="btn btn-success" onClick={saveInvoice}>
-                              Save Invoice
+                              Save
                             </button>
 </div>
 </div>
@@ -2536,7 +2624,7 @@ const onDescriptionChange=(e)=>{
                         <div className="row">
                           <div className="col-md-6">
                             <div className="invoice-logo">
-                              <img src="assets/img/logo.png" alt="logo" />
+                              <img src="assets/img/logo. png" alt="logo" />
                             </div>
                           </div>
                           <div className="col-md-6">

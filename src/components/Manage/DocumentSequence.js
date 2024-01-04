@@ -314,19 +314,19 @@ export default function DocumentSequence() {
 
         // console.log("status:"+status.checked);
 
-        // console.log("switch:"+document.querySelector("#flexSwitchCheckChecked").checked);
+        // // console.log("switch:"+document.querySelector("#flexSwitchCheckChecked").checked);
         // debugger;
 
         // if(status.checked==false){
-        //         status.checked=true;
+        //         // status.checked=true;
 
-        //         document.querySelector("#flexSwitchCheckChecked").checked=false;
-        //         setStatus(1);
+        //         // document.querySelector("#flexSwitchCheckChecked").checked=false;
+        //         // setStatus(1);
         // }else{
-        //         status.checked=false;
+        //         // status.checked=false;
 
-        //         document.querySelector("#flexSwitchCheckChecked").checked=true;
-        //         setStatus(0);
+        //         // document.querySelector("#flexSwitchCheckChecked").checked=true;
+        //         // setStatus(0);
         // }
 
 
@@ -638,7 +638,7 @@ debugger;
                                 <div class="form-group">
                                     <label>Status</label>
                                     <div class="status-toggle">
-                                        <input id="rating_2" class="check"  type="checkbox" checked={status==1?true:false} onClick={onStatusClick}/>
+                                        <input id="rating_2" class="check"  type="checkbox" checked={status==1?true:false}  onClick={onStatusClick}/>
                                         <label for="rating_2" class="checktoggle checkbox-bg ">checkbox</label>
                                     </div>
                                 </div>

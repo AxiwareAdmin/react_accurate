@@ -10,6 +10,7 @@ import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Swal from "sweetalert2";
+import { render } from "react-dom";
 
 
 export default function InvoiceList () {
@@ -37,15 +38,16 @@ export default function InvoiceList () {
 	const [sgst , setSgst] = useState(0);
 
 	const [customerName,setCustomerName]=useState("");
+	const [userId,setUserId]=useState("");
 	const [fromDate,setFromDate]=useState("");
 	const [toDate,setToDate]=useState("");
 	const [status,setStatus]=useState("");
 	const [category,setCategory]=useState("");
 	//  "/viewInvoice?id="
-	const actionmap = [{name:"Edit",path:'#',classname:"far fa-edit me-2"},{name:"View",path:'#',classname:"far fa-eye me-2"},
-	{name:"Delete",path:"#",classname:"far fa-trash-alt me-2"},{name:"Mark as sent",path:"#",classname:"far fa-check-circle me-2"},
-	{name:"Send Invoice",path:"#",classname:"far fa-paper-plane me-2"},{name:"Copy Invoice",path:"#",classname:"far fa-copy me-2"},
-	{name:"Print Invoice",path:"#",classname:"far fa-copy me-2"},{name:"Download Invoice",path:"#",classname:"far fa-copy me-2"}];
+	const actionmap = [{name:"View",path:'#',classname:"far fa-eye me-2"},{name:"Edit",path:'#',classname:"far fa-edit me-2"}
+	,{name:"Cancel",path:"#",classname:"fa fa-times me-2"},{name:"Delete",path:"#",classname:"far fa-trash-alt me-2"},
+	{name:"Send",path:"#",classname:"far fa-paper-plane me-2"},{name:"Copy",path:"#",classname:"far fa-copy me-2"},
+	{name:"Print",path:"#",classname:"far fa-copy me-2"},{name:"Download",path:"#",classname:"far fa-copy me-2"}];
     const otionsDate = ["Today","Tomarrow","Lastweek"];
 	const [invoicedo , setInvoicedo] = useState("");
 
@@ -65,313 +67,8 @@ export default function InvoiceList () {
         return [day, month, year].join('-');
     }
 
-    useEffect(() => {
-		window.onCustomerNameChange=(e)=>{
-			onCustomerNameChange(e);
-		}
+	useEffect(()=>{
 
-		window.onFromDateChange=(e)=>{
-			onFromDateChange(e)
-		}
-
-		window.onToDateChange=(e)=>{
-			onToDateChange(e);
-		}
-
-		window.onStatusChange=(e)=>{
-			onStatusChange(e);
-		}
-
-		window.onCategoryChange=(e)=>{
-			onCategoryChange(e);
-		}
-		
-		var url=new URL(window.location.href);
-          let month1=url.searchParams.get("month");
-          setMonth(month1);
-		  let allinvs = 0;
-		  let paidinvs = 0;
-		  let unpaidinvs = 0;
-		  let cancelinvs = 0;
-		  let allinvvals = 0;
-		  let paidinvvals = 0;
-		  let unpaidinvvals = 0;
-		  let caninvvals = 0;
-          let srNo = 0;
-		  let subTotal = 0;
-		  let igst = 0;
-		  let cgst = 0;
-		  let sgst = 0;
-        axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
-			setInvoicedo(res.data);
-			debugger;
-            res.data.map(elem=>{
-
-				srNo = srNo + 1;
-
-				//totat of sub total
-				subTotal = subTotal + parseInt(elem.taxableValue);
-				setSubTotal(subTotal);
-
-				//totat of sub total
-				igst = igst + parseInt(elem.igstValue);
-				setIgst(igst);
-
-				//totat of sub total
-				cgst = cgst + parseInt(elem.cgstValue);
-				setCgst(cgst);
-
-				//totat of sub total
-				sgst = sgst + parseInt(elem.sgstValue);
-				setSgst(sgst);
-
-           allinvs = allinvs + 1;
-		   setAllInv(allinvs);
-		   allinvvals = allinvvals + parseInt(elem.invoiceValue);
-		   setAllInvVal(allinvvals);
-
-
-		   if(elem.invoiceStatus == "Paid")
-		   {
-		   paidinvs = paidinvs + 1;
-		   setPaidInv(paidinvs);
-		   paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
-		   setPaidInvVal(paidinvvals);
-		   }
-		   if(elem.invoiceStatus == "Overdue")
-		   {
-		   unpaidinvs = unpaidinvs + 1;
-		   setUnPaidInv(unpaidinvs);
-		   unpaidinvvals = unpaidinvvals + parseInt(elem.invoiceValue);
-		   setUnpaidInvVal(unpaidinvvals);
-		   }
-
-		   if(elem.invoiceStatus == "Cancelled")
-		   {
-		   cancelinvs = cancelinvs + 1;
-		   setCanInv(cancelinvs);
-		   caninvvals = caninvvals + parseInt(elem.invoiceValue);
-		   setCanInvVal(caninvvals);
-		   }
-
-            let trElem=document.createElement("tr");
-
-			let tdElem = document.createElement("td");
-			let textElem =  document.createTextNode(srNo);
-			tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem=document.createElement("td");
-            textElem=document.createTextNode(formatDate(elem.createdDate));
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem);
-
-			tdElem=document.createElement("td");
-            textElem=document.createTextNode(elem.customerName);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem)
-
-            tdElem=document.createElement("td");
-            textElem=document.createTextNode(elem.invoiceNo );//set data
-            //let inputElem=document.createElement("input");
-           // let spanElem=document.createElement("span");
-          //  let labelElem=document.createElement("label")
-           // labelElem.className="custom_check";
-           // inputElem.type="checkbox";
-          //  inputElem.name="invoice";
-            //spanElem.className="checkmark";
-           // labelElem.appendChild(inputElem);
-           // labelElem.appendChild(spanElem);
-          //  tdElem.appendChild(labelElem);
-            let aElem=document.createElement("a"); 
-			aElem.className="invoice-link";
-		    aElem.href="/viewInvoice?id="+elem.invoiceId;
-            aElem.appendChild(textElem); 
-			tdElem.appendChild(aElem);
-            trElem.appendChild(tdElem);
-			
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.invoiceValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem); 
-
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.taxableValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem); 
-
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.cgstValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem);
-			
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.sgstValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem); 
-
-			tdElem=document.createElement("td");
-            tdElem.className="text-primary";
-            textElem=document.createTextNode(elem.igstValue);
-            tdElem.appendChild(textElem);
-            trElem.appendChild(tdElem); 
-
-            //invoice category
-		// 	tdElem=document.createElement("td");
-        //     textElem=document.createTextNode("Advertising")
-        //     tdElem.appendChild(textElem);
-        //     trElem.appendChild(tdElem);
-
-        //     tdElem=document.createElement("td");
-        //     textElem=document.createTextNode(formatDate(elem.dueDate));
-        //     tdElem.appendChild(textElem);
-        //     trElem.appendChild(tdElem)             
-            
-        //     tdElem=document.createElement("td");
-        //    let spanElem=document.createElement("span")
-            
-		// 	if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
-        //     spanElem.className="badge bg-success-light" 
-		// 	if(elem.invoiceStatus == "Overdue")
-		// 	spanElem.className="badge bg-danger-light";
-		// 	if(elem.invoiceStatus == "Cancelled")
-		// 	spanElem.className="badge bg-primary-light";
-		//     if(elem.invoiceStatus == "Draft")
-		// 	spanElem.className="badge bg-warning";
-
-
-        //     textElem=document.createTextNode(elem.invoiceStatus);
-
-        //     spanElem.appendChild(textElem)
-
-        //     tdElem.appendChild(spanElem);
-
-        //     trElem.appendChild(tdElem)  
-
-            tdElem=document.createElement("td");
-            tdElem.className="text-end";
-			let divEle = document.createElement("div");
-			divEle.className = "dropdown dropdown-action";
-			let aEle = document.createElement("a");
-            aEle.className = "action-icon dropdown-toggle";
-			aEle.href = "#";
-			aEle.setAttribute("data-bs-toggle" , "dropdown");
-			aEle.setAttribute("aria-expanded" , "false");
-			let iEle = document.createElement("i");
-			iEle.className = "fas fa-ellipsis-v";
-			aEle.appendChild(iEle);
-			divEle.appendChild(aEle);
-			let innerDiv = document.createElement("div");
-			innerDiv.className = "dropdown-menu dropdown-menu-end";
-			innerDiv.style = "";
-			actionmap.map(ele =>{
-				aEle = document.createElement("a");
-				iEle = document.createElement("i");
-				aEle.className = "dropdown-item"
-				aEle.href=ele.path;
-				aEle.setAttribute("Onclick","rendercommon('"+ele.name+"','"+elem.invoiceId+"')");
-				iEle.className = ele.classname;
-				textElem = document.createTextNode(ele.name);
-				aEle.appendChild(iEle);
-				aEle.appendChild(textElem);
-				innerDiv.appendChild(aEle);
-			});
-			divEle.appendChild(innerDiv);
-			tdElem.appendChild(divEle);
-            trElem.appendChild(tdElem) 
-
-            document.querySelector(".datatable tbody").appendChild(trElem);
-        })
-
-          }).catch((e)=>{
-			console.log(e)
-		  }).finally(()=>{
-			debugger;
-			let trElem = document.createElement("tr");
-			trElem.style='background-color: #9a55ff;'
-			let tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			let textElem=document.createTextNode("Grand Total");
-			
-			tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-	
-			tdElem = document.createElement("td");
-			 textElem=document.createTextNode("");
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			 textElem=document.createTextNode("");
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			 textElem=document.createTextNode("");
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			// tdElem = document.createElement("td");
-			//  textElem=document.createTextNode("");
-			//  tdElem.appendChild(textElem);
-			// trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(allinvvals);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(subTotal);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(cgst);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(sgst);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			tdElem.style='color: #ffffff;font-weight:bold'
-			 textElem=document.createTextNode(igst);
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-
-			tdElem = document.createElement("td");
-			 textElem=document.createTextNode("");
-			 tdElem.appendChild(textElem);
-			trElem.appendChild(tdElem);
-	
-			
-	
-			document.querySelector("#tableFooter").appendChild(trElem); 
-		  })
-
-		axios.get("http://localhost:8080/customers",header).then((res) => {
-		console.log(res.data);
-		res.data.map((a) => {
-        var option = document.createElement("option");
-        option.value = a.customerId;
-        option.append(document.createTextNode(a.customerName));
-        document.querySelector("#customer").append(option);
-			});
-		}).catch((e)=>{
-			console.log(e)
-		  })
-				
 	    const script11 = document.createElement("script");
         script11.src = "/assets/js/jquery-3.6.0.min.js";
         script11.async = false;
@@ -451,6 +148,349 @@ export default function InvoiceList () {
           document.body.removeChild(script10);
           document.body.removeChild(script11);
         };
+	},[])
+
+    useEffect(() => {
+		window.onCustomerNameChange=(e)=>{
+			onCustomerNameChange(e);
+		}
+
+		window.onFromDateChange=(e)=>{
+			onFromDateChange(e)
+		}
+
+		window.onToDateChange=(e)=>{
+			onToDateChange(e);
+		}
+
+		window.onStatusChange=(e)=>{
+			onStatusChange(e);
+		}
+
+		window.onCategoryChange=(e)=>{
+			onCategoryChange(e);
+		}
+
+		window.onUserIdChange=(e)=>{
+			onUserIdChange(e);
+		}
+		
+		var url=new URL(window.location.href);
+          let month1=url.searchParams.get("month");
+          setMonth(month1);
+		  let allinvs = 0;
+		  let paidinvs = 0;
+		  let unpaidinvs = 0;
+		  let cancelinvs = 0;
+		  let allinvvals = 0;
+		  let paidinvvals = 0;
+		  let unpaidinvvals = 0;
+		  let caninvvals = 0;
+          let srNo = 0;
+		  let subTotal = 0;
+		  let igst = 0;
+		  let cgst = 0;
+		  let sgst = 0;
+        axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
+			setInvoicedo(res.data);
+			debugger;
+            res.data.map(elem=>{
+
+				srNo = srNo + 1;
+
+				//totat of sub total
+				subTotal = subTotal + parseInt(elem.taxableValue);
+				setSubTotal(subTotal);
+
+				//totat of sub total
+				igst = igst + parseInt(elem.igstValue);
+				setIgst(igst);
+
+				//totat of sub total
+				cgst = cgst + parseInt(elem.cgstValue);
+				setCgst(cgst);
+
+				//totat of sub total
+				sgst = sgst + parseInt(elem.sgstValue);
+				setSgst(sgst);
+
+           allinvs = allinvs + 1;
+		   setAllInv(allinvs);
+		   allinvvals = allinvvals + parseInt(elem.invoiceValue);
+		   setAllInvVal(allinvvals);
+
+
+		   if(elem.invoiceStatus == "Paid")
+		   {
+		   paidinvs = paidinvs + 1;
+		   setPaidInv(paidinvs);
+		   paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
+		   setPaidInvVal(paidinvvals);
+		   }
+		   if(elem.invoiceStatus == "Overdue")
+		   {
+		   unpaidinvs = unpaidinvs + 1;
+		   setUnPaidInv(unpaidinvs);
+		   unpaidinvvals = unpaidinvvals + parseInt(elem.invoiceValue);
+		   setUnpaidInvVal(unpaidinvvals);
+		   }
+
+		   if(elem.invoiceStatus == "Cancelled")
+		   {
+		   cancelinvs = cancelinvs + 1;
+		   setCanInv(cancelinvs);
+		   caninvvals = caninvvals + parseInt(elem.invoiceValue);
+		   setCanInvVal(caninvvals);
+		   }
+
+            let trElem=document.createElement("tr");
+
+			let tdElem = document.createElement("td");
+			let textElem =  document.createTextNode(srNo);
+			tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(elem.invoiceNo );//set data
+            //let inputElem=document.createElement("input");
+           // let spanElem=document.createElement("span");
+          //  let labelElem=document.createElement("label")
+           // labelElem.className="custom_check";
+           // inputElem.type="checkbox";
+          //  inputElem.name="invoice";
+            //spanElem.className="checkmark";
+           // labelElem.appendChild(inputElem);
+           // labelElem.appendChild(spanElem);
+          //  tdElem.appendChild(labelElem);
+            let aElem=document.createElement("a"); 
+			aElem.className="invoice-link";
+		    aElem.href="/viewInvoice?id="+elem.invoiceId;
+            aElem.appendChild(textElem); 
+			tdElem.appendChild(aElem);
+            trElem.appendChild(tdElem);
+
+			
+
+	
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(formatDate(elem.createdDate));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(elem.customerName);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem)
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.invoiceValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.taxableValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.cgstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.sgstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.igstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+            //invoice category
+		// 	tdElem=document.createElement("td");
+        //     textElem=document.createTextNode("Advertising")
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem);
+
+        //     tdElem=document.createElement("td");
+        //     textElem=document.createTextNode(formatDate(elem.dueDate));
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem)             
+            
+        //     tdElem=document.createElement("td");
+        //    let spanElem=document.createElement("span")
+            
+		// 	if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
+        //     spanElem.className="badge bg-success-light" 
+		// 	if(elem.invoiceStatus == "Overdue")
+		// 	spanElem.className="badge bg-danger-light";
+		// 	if(elem.invoiceStatus == "Cancelled")
+		// 	spanElem.className="badge bg-primary-light";
+		//     if(elem.invoiceStatus == "Draft")
+		// 	spanElem.className="badge bg-warning";
+
+
+        //     textElem=document.createTextNode(elem.invoiceStatus);
+
+        //     spanElem.appendChild(textElem)
+
+        //     tdElem.appendChild(spanElem);
+
+        //     trElem.appendChild(tdElem)  
+
+            tdElem=document.createElement("td");
+            tdElem.className="text-end";
+			let divEle = document.createElement("div");
+			divEle.className = "dropdown dropdown-action";
+			let aEle = document.createElement("a");
+            aEle.className = "action-icon dropdown-toggle";
+			aEle.href = "#";
+			aEle.setAttribute("data-bs-toggle" , "dropdown");
+			aEle.setAttribute("aria-expanded" , "false");
+			let iEle = document.createElement("i");
+			iEle.className = "fas fa-ellipsis-v";
+			aEle.appendChild(iEle);
+			divEle.appendChild(aEle);
+			let innerDiv = document.createElement("div");
+			innerDiv.className = "dropdown-menu dropdown-menu-end";
+			innerDiv.style = "";
+			actionmap.map(ele =>{
+				aEle = document.createElement("a");
+				iEle = document.createElement("i");
+				aEle.className = "dropdown-item"
+				aEle.href=ele.path;
+				aEle.addEventListener('click',(e)=>{
+					rendercommon(e,ele.name,elem.invoiceId);
+				})
+				// aEle.setAttribute("Onclick","function demo(e){rendercommon(e,'"+ele.name+"','"+elem.invoiceId+"')}");
+				iEle.className = ele.classname;
+				textElem = document.createTextNode(ele.name);
+				aEle.appendChild(iEle);
+				aEle.appendChild(textElem);
+				innerDiv.appendChild(aEle);
+			});
+			divEle.appendChild(innerDiv);
+			tdElem.appendChild(divEle);
+            trElem.appendChild(tdElem) 
+
+            document.querySelector(".datatable tbody").appendChild(trElem);
+        })
+
+          }).catch((e)=>{
+			console.log(e)
+		  }).finally(()=>{
+			debugger;
+			let trElem = document.createElement("tr");
+			trElem.style='background-color: #9a55ff;'
+			let tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			let textElem=document.createTextNode("Grand Total");
+			
+			tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			// tdElem = document.createElement("td");
+			//  textElem=document.createTextNode("");
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(allinvvals));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(subTotal));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(cgst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(sgst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(igst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			
+	
+			document.querySelector("#tableFooter").appendChild(trElem); 
+
+			// if (document.querySelector('.datatable').length > 0) {
+				
+			// }
+			// if (document.querySelector('.datatables').length > 0) {
+			// 	document.querySelector('.datatables').DataTable({
+			// 		"bFilter": true,
+			// 	});
+			// }
+		  })
+
+		axios.get("http://localhost:8080/customers",header).then((res) => {
+		console.log(res.data);
+		res.data.map((a) => {
+        var option = document.createElement("option");
+        option.value = a.customerId;
+        option.append(document.createTextNode(a.customerName));
+        document.querySelector("#customer").append(option);
+			});
+		}).catch((e)=>{
+			console.log(e)
+		  })
+
+
+		  axios.get("http://localhost:8080/getusersbyregistrid",header).then((res) => {
+			console.log(res.data);
+			res.data.map((a) => {
+			var option = document.createElement("option");
+			option.value = a.userId;
+			option.append(document.createTextNode(a.userName));
+			document.querySelector("#user").append(option);
+				});
+			}).catch((e)=>{
+				console.log(e)
+			  })
+				
+		
       }, []);
 
 	  useEffect(() => {
@@ -458,7 +498,7 @@ export default function InvoiceList () {
 			
 		  };
 		  window.rendercommon = (name , invno) => {
-			rendercommon(name , invno);
+			rendercommon(this,name , invno);
 		  }
 
 	  });
@@ -481,7 +521,7 @@ export default function InvoiceList () {
 		navigate("/InvoicesCancelled", { state: invoicedo });
 	  };
 
-	  function rendercommon(name , invt) {
+	  function rendercommon(e,name , invt) {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
@@ -496,7 +536,9 @@ export default function InvoiceList () {
 					'',
 					'Invoice deleted successfully!!',
 					'success'
-				  )	  
+				  )
+				  //remving the deleted row from DOM
+				  e.target.closest('tr').remove();
 				}
 				else
 				//   alert("There is some issue delete invoice.");	
@@ -507,9 +549,49 @@ export default function InvoiceList () {
 					footer: ''
 				  })	   
 		    });
-		 } else if(name == "Mark as sent"){
-			navigate("/InvoicesCancelled");
-		 }else if(name == "Send Invoice"){
+		 } else if(name == "Cancel"){
+			//old code
+			// navigate("/InvoicesCancelled");
+			debugger;
+			//new code
+			console.log(e)
+			axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
+				if(res!=null && res.data.res=='success'){
+					Swal.fire(
+						'',
+						'Invoice cancelled successfully!!',
+						'success'
+					  )	
+
+					  e.target.closest("tr").querySelector("td:nth-child(5)").innerText='0';
+
+					  e.target.closest("tr").querySelector("td:nth-child(6)").innerText='0';
+
+					  e.target.closest("tr").querySelector("td:nth-child(7)").innerText='0';
+
+					  e.target.closest("tr").querySelector("td:nth-child(8)").innerText='0';
+
+					  e.target.closest("tr").querySelector("td:nth-child(9)").innerText='0';
+				}
+				else{
+					Swal.fire({
+						icon: 'error',
+						title: 'Oops...',
+						text: 'There is some issue to cancel invoice',
+						footer: ''
+					  })	
+				}
+			}).catch((e)=>{
+				Swal.fire({
+					icon: 'error',
+					title: 'Oops...',
+					text: 'There is some issue to cancel invoice',
+					footer: ''
+				  })	
+			})
+
+
+		 }else if(name == "Send"){
 					axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
 					console.log(res.data);
 					if(res!=null && res.data.res=='sucess'){
@@ -533,8 +615,10 @@ export default function InvoiceList () {
 				}).catch(function(error) {
 					console.log(error);
 				});
-		 } else if(name == "Copy Invoice"){
-					axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
+		 } else if(name == "Copy"){
+			 navigate("/add-invoice?InvNo="+invt+"&action=Clone");
+			 //comented temporarily	  
+		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
 					if(res!=null && res.data.res=='sucess'){
 						// alert("Invoice Copied successfully!!");	
@@ -544,7 +628,6 @@ export default function InvoiceList () {
         'Invoice Copied successfully!!',
         'success'
       )
-						navigate("/add-invoice?InvNo="+invt+"&action=Clone");	  
 						}
 						else
 						// alert("There is some issue Copy invoice.");		
@@ -557,8 +640,8 @@ export default function InvoiceList () {
 						  })	
 				}).catch(function(error) {
 					console.log(error);
-				});
-		 }else if(name == "Download Invoice"){
+				});*/
+		 }else if(name == "Download"){
 			console.log("download invoice");
 			navigate("/viewInvoice?id="+invt+"&action=download");
 
@@ -585,6 +668,10 @@ export default function InvoiceList () {
 		setCustomerName(e.target.querySelector("option:checked").text);
 	  }
 
+	  function onUserIdChange(e){
+			setUserId(e.target.querySelector("option:checked").value);
+	  }
+
 	  function onFromDateChange(e){
 		setFromDate(e.target.value)
 	  }
@@ -600,12 +687,18 @@ export default function InvoiceList () {
 	  function onCategoryChange(e){
 		setCategory(e.target.querySelector("option:checked").text)
 	  }
+
+	  function accountingFormat(val){
+		console.log(val+" "+toCurrency(fromCurrency(val)).replace(/[\$]/g,''));
+		return  toCurrency(fromCurrency(val)).replace(/[\$]/g,'')
+	  }
   
 
 	  function onReportButtonClicked(e){
 		e.preventDefault();
 		var data={
 			customerName,
+			userId,
 			fromDate,
 			toDate,
 			status,
@@ -625,6 +718,341 @@ export default function InvoiceList () {
 			link.click();
 			link.remove();
 		});
+
+		refreshDataTable(data);
+	  }
+	  function toCurrency(value) {
+        try {
+          if( isNaN(Number(value)) ) return value;
+          return Number(value).toLocaleString("en-US",{style:"currency", currency:"USD"});    
+        }
+        catch(err) {
+          throw err;
+        }
+      }
+      function fromCurrency(value) {
+        try {
+          let num = Number(String(value).replace(/[\$,]/g,''));
+          return isNaN(num) ? 0 : num;
+        }
+        catch(err) {
+          throw err;
+        }
+      }
+	  //This function is loading the filtered invoice data into datatable.
+	  function refreshDataTable(data){
+		debugger;
+		//clearing table body
+		document.querySelector(".invoicelisttable tbody").innerHTML='';
+
+		//clearing table footer
+		document.querySelector(".invoicelisttable tfoot").innerHTML=''
+
+
+		var url=new URL(window.location.href);
+          let month1=url.searchParams.get("month");
+          setMonth(month1);
+		  let allinvs = 0;
+		  let paidinvs = 0;
+		  let unpaidinvs = 0;
+		  let cancelinvs = 0;
+		  let allinvvals = 0;
+		  let paidinvvals = 0;
+		  let unpaidinvvals = 0;
+		  let caninvvals = 0;
+          let srNo = 0;
+		  let subTotal = 0;
+		  let igst = 0;
+		  let cgst = 0;
+		  let sgst = 0;
+        axios.post("http://localhost:8080/getFilterInvoices",data,{
+			...header
+		}).then((res) => {
+			setInvoicedo(res.data);
+			debugger;
+            res.data.map(elem=>{
+
+				srNo = srNo + 1;
+
+				//totat of sub total
+				subTotal = subTotal + parseInt(elem.taxableValue);
+				setSubTotal(subTotal);
+
+				//totat of sub total
+				igst = igst + parseInt(elem.igstValue);
+				setIgst(igst);
+
+				//totat of sub total
+				cgst = cgst + parseInt(elem.cgstValue);
+				setCgst(cgst);
+
+				//totat of sub total
+				sgst = sgst + parseInt(elem.sgstValue);
+				setSgst(sgst);
+				debugger;
+           allinvs = allinvs + 1;
+		   setAllInv(allinvs);
+		   allinvvals = allinvvals + parseInt(elem.invoiceValue);
+		   setAllInvVal(allinvvals);
+
+				
+		   if(elem.invoiceStatus == "Paid")
+		   {
+		   paidinvs = paidinvs + 1;
+		   setPaidInv(paidinvs);
+		   paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
+		   setPaidInvVal(paidinvvals);
+		   }
+		   if(elem.invoiceStatus == "Overdue")
+		   {
+		   unpaidinvs = unpaidinvs + 1;
+		   setUnPaidInv(unpaidinvs);
+		   unpaidinvvals = unpaidinvvals + parseInt(elem.invoiceValue);
+		   setUnpaidInvVal(unpaidinvvals);
+		   }
+
+		   if(elem.invoiceStatus == "Cancelled")
+		   {
+		   cancelinvs = cancelinvs + 1;
+		   setCanInv(cancelinvs);
+		   caninvvals = caninvvals + parseInt(elem.invoiceValue);
+		   setCanInvVal(caninvvals);
+		   }
+
+            let trElem=document.createElement("tr");
+
+			let tdElem = document.createElement("td");
+			let textElem =  document.createTextNode(srNo);
+			tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(elem.invoiceNo );//set data
+            //let inputElem=document.createElement("input");
+           // let spanElem=document.createElement("span");
+          //  let labelElem=document.createElement("label")
+           // labelElem.className="custom_check";
+           // inputElem.type="checkbox";
+          //  inputElem.name="invoice";
+            //spanElem.className="checkmark";
+           // labelElem.appendChild(inputElem);
+           // labelElem.appendChild(spanElem);
+          //  tdElem.appendChild(labelElem);
+            let aElem=document.createElement("a"); 
+			aElem.className="invoice-link";
+		    aElem.href="/viewInvoice?id="+elem.invoiceId;
+            aElem.appendChild(textElem); 
+			tdElem.appendChild(aElem);
+            trElem.appendChild(tdElem);
+
+			
+
+	
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(formatDate(elem.createdDate));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(elem.customerName);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem)
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.invoiceValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.taxableValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.cgstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.sgstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.igstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+            //invoice category
+		// 	tdElem=document.createElement("td");
+        //     textElem=document.createTextNode("Advertising")
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem);
+
+        //     tdElem=document.createElement("td");
+        //     textElem=document.createTextNode(formatDate(elem.dueDate));
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem)             
+            
+        //     tdElem=document.createElement("td");
+        //    let spanElem=document.createElement("span")
+            
+		// 	if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
+        //     spanElem.className="badge bg-success-light" 
+		// 	if(elem.invoiceStatus == "Overdue")
+		// 	spanElem.className="badge bg-danger-light";
+		// 	if(elem.invoiceStatus == "Cancelled")
+		// 	spanElem.className="badge bg-primary-light";
+		//     if(elem.invoiceStatus == "Draft")
+		// 	spanElem.className="badge bg-warning";
+
+
+        //     textElem=document.createTextNode(elem.invoiceStatus);
+
+        //     spanElem.appendChild(textElem)
+
+        //     tdElem.appendChild(spanElem);
+
+        //     trElem.appendChild(tdElem)  
+
+            tdElem=document.createElement("td");
+            tdElem.className="text-end";
+			let divEle = document.createElement("div");
+			divEle.className = "dropdown dropdown-action";
+			let aEle = document.createElement("a");
+            aEle.className = "action-icon dropdown-toggle";
+			aEle.href = "#";
+			aEle.setAttribute("data-bs-toggle" , "dropdown");
+			aEle.setAttribute("aria-expanded" , "false");
+			let iEle = document.createElement("i");
+			iEle.className = "fas fa-ellipsis-v";
+			aEle.appendChild(iEle);
+			divEle.appendChild(aEle);
+			let innerDiv = document.createElement("div");
+			innerDiv.className = "dropdown-menu dropdown-menu-end";
+			innerDiv.style = "";
+			actionmap.map(ele =>{
+				aEle = document.createElement("a");
+				iEle = document.createElement("i");
+				aEle.className = "dropdown-item"
+				aEle.href=ele.path;
+				aEle.addEventListener('click',(e)=>{
+					rendercommon(e,ele.name,elem.invoiceId);
+				})
+				// aEle.setAttribute("Onclick","function demo(e){rendercommon(e,'"+ele.name+"','"+elem.invoiceId+"')}");
+				iEle.className = ele.classname;
+				textElem = document.createTextNode(ele.name);
+				aEle.appendChild(iEle);
+				aEle.appendChild(textElem);
+				innerDiv.appendChild(aEle);
+			});
+			divEle.appendChild(innerDiv);
+			tdElem.appendChild(divEle);
+            trElem.appendChild(tdElem) 
+
+            document.querySelector(".datatable tbody").appendChild(trElem);
+			
+        })
+
+		console.log("all invoice:"+allinvvals+" paid invoice:"+paidinvvals);
+
+          }).catch((e)=>{
+			console.log(e)
+		  }).finally(()=>{
+			debugger;
+			setPaidInvVal(paidinvvals);
+			setPaidInv(paidinvs)
+
+			setUnPaidInv(unpaidinvs);
+			setUnpaidInvVal(unpaidinvvals);
+
+			setCanInv(cancelinvs);
+			setCanInvVal(caninvvals);
+
+			let trElem = document.createElement("tr");
+			trElem.style='background-color: #9a55ff;'
+			let tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			let textElem=document.createTextNode("Grand Total");
+			
+			tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			// tdElem = document.createElement("td");
+			//  textElem=document.createTextNode("");
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(allinvvals));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(subTotal));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(cgst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(sgst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(igst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			
+	
+			document.querySelector("#tableFooter").appendChild(trElem); 
+			if (document.querySelector('.datatable').length > 0) {
+				document.querySelector('.datatable').DataTable({
+					"bFilter": false,
+				});
+			}
+			if (document.querySelector('.datatables').length > 0) {
+				document.querySelector('.datatables').DataTable({
+					"bFilter": true,
+				});
+			}
+		  })
 	  }
 
   return (
@@ -671,6 +1099,23 @@ export default function InvoiceList () {
 							<div class="row">
 								<div class="col-md-12">
 									<ul class="app-listing">
+									<li>
+											<div class="multipleSelection">
+												{/* <div class="selectBox">
+													<p class="mb-0"><i data-feather="user-plus" class="me-1 select-icon"></i> Select User</p>
+													<span class="down-icon"><i class="fa fa-angle-down" aria-hidden="true"></i></span>
+												</div>	 */}
+												 <span>
+												{/*<i style={{position: "absolute",zIndex: "1",marginTop: "7%",marginLeft:"4%",color: "#9a55ff"}}data-feather="user-plus" class="me-1 select-icon"></i> */}
+												<select class="form-control select2 invoiceListUserOption"
+					                              name="product"	id="user">
+												  <option  value="-1" >--Select User--</option>
+												  </select>	</span>  
+
+											</div>
+										</li>
+
+
 										<li>
 											<div class="multipleSelection">
 												{/* <div class="selectBox">
@@ -681,7 +1126,7 @@ export default function InvoiceList () {
 												{/*<i style={{position: "absolute",zIndex: "1",marginTop: "7%",marginLeft:"4%",color: "#9a55ff"}}data-feather="user-plus" class="me-1 select-icon"></i> */}
 												<select class="form-control select2 invoiceListCustomerOption"
 					                              name="product"	id="customer">
-												  <option  value="-1" >--Select User--</option>
+												  <option  value="-1" >--Select Customer--</option>
 												  </select>	</span>  
 												{/* <div id="checkBoxes">
 													<form action="#">
@@ -733,7 +1178,7 @@ export default function InvoiceList () {
 								  id="fromDate"
                                 //   value={invoiceDate}
                                 //   id="invoiceDate"
-                                  style={{ border: "1px solid #9a55ff", width: 120,color: "#9a55ff"}}
+                                  style={{ border: "1px solid #9a55ff", width: 120,height:'50px',color: "#9a55ff"}}
                                 />
 
 											{/* <div class="multipleSelection">
@@ -777,7 +1222,7 @@ export default function InvoiceList () {
                                   placeholder="Select To Date"
                                 //   value={invoiceDate}
                                   id="toDate"
-                                  style={{ border: "1px solid #9a55ff", width: 120,color: "#9a55ff"}}/>
+                                  style={{ border: "1px solid #9a55ff", width: 120,height:'50px',color: "#9a55ff"}}/>
 								  </li>
 
 										<li>
@@ -934,64 +1379,64 @@ export default function InvoiceList () {
 							</div>
 						</div>
 					</div>
-					<div class="row">
-						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card inovices-card">
+					<div class="row d-flex align-items-stretch">
+						<div class="col-xl-3 col-sm-6 col-12 ">
+							<div class="card inovices-card" style={{height:'90%'}}>
 								<div class="card-body">
-									<div class="inovices-widget-header">
+									<div class="inovices-widget-header" style={{display:'flex',flexDirection:'column',justifyContent:'space-between',alignItems:'center'}}>
 										<span class="inovices-widget-icon">
 											<img src="assets/img/invoices-icon1.svg" alt=""/>
 										</span>
 										<div class="inovices-dash-count">
-											<div class="inovices-amount">${allInvVal}</div>
+											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(allInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all">All Invoices <span>{allInv}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>All Invoices <div style={{fontSize:'15px'}}>{accountingFormat(allInv)}</div></p>
 								</div>
 							</div>
 						</div>
 						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card inovices-card">
+							<div class="card inovices-card" style={{height:'90%'}}>
 								<div class="card-body">
-									<div class="inovices-widget-header">
+									<div class="inovices-widget-header" style={{display:'flex',flexDirection:'column',justifyContent:'space-between',alignItems:'center'}}>
 										<span class="inovices-widget-icon">
 											<img src="assets/img/invoices-icon2.svg" alt=""/>
 										</span>
 										<div class="inovices-dash-count">
-											<div class="inovices-amount">${paidInvVal}</div>
+											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(paidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all">Paid Invoices <span>{paidInv}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Paid Invoices <span style={{fontSize:'15px'}}>{accountingFormat(paidInv)}</span></p>
 								</div>
 							</div>
 						</div>
 						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card inovices-card">
+							<div class="card inovices-card" style={{height:'90%'}}>
 								<div class="card-body">
-									<div class="inovices-widget-header">
+									<div class="inovices-widget-header" style={{display:'flex',flexDirection:'column',justifyContent:'space-between',alignItems:'center'}}>
 										<span class="inovices-widget-icon">
 											<img src="assets/img/invoices-icon3.svg" alt=""/>
 										</span>
 										<div class="inovices-dash-count">
-											<div class="inovices-amount">${unpaidInvVal}</div>
+											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(unpaidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all">Unpaid Invoices <span>{unPaidInv}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Unpaid Invoices <span style={{fontSize:'15px'}}>{accountingFormat(unPaidInv)}</span></p>
 								</div>
 							</div>
 						</div>
 						<div class="col-xl-3 col-sm-6 col-12">
-							<div class="card inovices-card">
+							<div class="card inovices-card" style={{height:'90%'}}>
 								<div class="card-body">
-									<div class="inovices-widget-header">
+									<div class="inovices-widget-header" style={{display:'flex',flexDirection:'column',justifyContent:'space-between',alignItems:'center'}}>
 										<span class="inovices-widget-icon">
 											<img src="assets/img/invoices-icon4.svg" alt=""/>
 										</span>
 										<div class="inovices-dash-count">
-											<div class="inovices-amount">${canInvVal}</div>
+											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(canInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all">Cancelled Invoices <span>{canInv}</span></p>
+									<p class="inovices-all" style={{fontSize:'16px',display:'flex',justifyContent:'space-around',alignItems:'end',flexWrap:'wrap'}}>Cancelled Invoices <span style={{fontSize:'14px'}}>{accountingFormat(canInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1004,11 +1449,11 @@ export default function InvoiceList () {
 									<div class="table-responsive">
 										<table class="table table-striped invoicelisttable table-nowrap custom-table mb-0 datatable">
 											<thead class="thead-light">
-												<tr>
+												<tr style={{background: "linear-gradient(90deg, rgba(67,203,255,1) 25%, rgba(151,8,204,1) 100%)",color:"white"}}>
 													<th>Sr No</th>
+													<th>Invoice No</th>
 													<th>Date</th>
-													<th>Customer Name</th>
-												    <th>Invoice No</th>
+												    <th>Customer Name</th>
 												    <th>Gross Total</th>
 												    <th>Sub Total</th>
 												    <th>CGST</th>

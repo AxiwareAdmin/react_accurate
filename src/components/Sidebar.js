@@ -4,63 +4,13 @@ import { Link } from 'react-router-dom'
 export default function Sidebar() {
 
 
-	/*useEffect(() => {
-		// document.querySelectorAll("script").forEach(e => e.remove());
-		// document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());
-		// const script11 = document.createElement('script');
-        // script11.src = "/assets/js/jquery-3.6.0.min.js";
-        // script11.async = false;
-      
-        // document.body.appendChild(script11);
-
-    
-
-
-        // const script9 = document.createElement('script');
-        // script9.src = "/assets/js/jquery.slimscroll.min.js";
-        // script9.async = false;
-      
-        // document.body.appendChild(script9);//can be uncommented
-
-
-
-
-        // const script6 = document.createElement('script');
-        // script6.src = "/assets/js/jquery.dataTables.min.js";
-        // script6.async = false;
-      
-        // document.body.appendChild(script6);//can be uncommented
-
-
-
-
-
-        // const script = document.createElement('script');
-        // script.src = "/assets/js/app.js";
-        // script.async = false;
-      
-        // document.body.appendChild(script);
-		//testing
-
-
-        return () => {
-        //   document.body.removeChild(script);
-        //   document.body.removeChild(script6);
-        //   document.body.removeChild(script9);  
-        //   document.body.removeChild(script11);
-        }
-      } );*/
   return (
     <div>
       <div className="sidebar" id="sidebar">
                 <div className="sidebar-inner slimscroll">
-                	<form action="search.html" className="mobile-view">
-						<input className="form-control" type="text" placeholder="Search here"/>
-						<button className="btn" type="button"><i className="fa fa-search"></i></button>
-					</form>
 					<div id="sidebar-menu" className="sidebar-menu">
 
-						<ul>
+					<ul>
 							<li className="nav-item nav-profile">
 				              <a href="#" className="nav-link">
 				                <div className="nav-profile-image">
@@ -110,18 +60,7 @@ export default function Sidebar() {
 							</li>
 							<li> 
 								<a href="activities.html"><i className="feather-calendar"></i> <span>Activities</span></a>
-							</li>							
-							{/* <li className="submenu">
-								<a href="#"><i className="feather-grid"></i> <span> Blogs</span>
-									<span className="menu-arrow"></span>
-								</a>
-								<ul className="sub-menus">
-									<li><a href="blog.html" >All Blogs</a></li>
-									<li><a href="add-blog.html">Add Blog</a></li>
-									<li><a href="edit-blog.html">Edit Blog</a></li>
-									<li><a href="blog-Categories.html">Categories</a></li>
-								</ul>
-							</li> */}
+							</li>	
 							<li class="submenu">
 								<a href="#"><i class="feather-grid"></i> <span> Purchase</span>
 									<span class="menu-arrow"></span>

@@ -189,7 +189,6 @@ export default function ViewInvoice (){
           setBillToAddrShow(serviceChkT);
           
           if(!initilized.current){  
-            
             initilized.current=true;
             axios
             .get("http://localhost:8080/viewInvoice?invId="+id1,header)
@@ -287,17 +286,17 @@ export default function ViewInvoice (){
 
          });
 
+         if(action == "download" && action != null && action != "" && action != undefined){
+            
+            setTimeout(function () {
+              downloadpdf(res.data.invoiceNo);
+          }, 500);
+        }
       
         }).catch((e)=>{
           console.log(e)
         })
 
-     if(action == "download" && action != null && action != "" && action != undefined){
-        
-        setTimeout(function () {
-          downloadpdf();
-      }, 500);
-    }
       }
 
       });
@@ -306,12 +305,12 @@ export default function ViewInvoice (){
       // useEffect (() =>{
      
       //   if(initilized.current){
-     const downloadpdf = () =>{
+     const downloadpdf = (invoiceNo) =>{
           html2canvas(invoicepdf.current).then((canvas) => {
 					const imgData = canvas.toDataURL("image/png");
 					const pdf = new jsPDF();
 					pdf.addImage(imgData, "JPEG", 0, 0,210,310);
-					pdf.save("download.pdf");
+					pdf.save(invoiceNo+".pdf");
           
 				//   });
         // }
@@ -354,7 +353,7 @@ export default function ViewInvoice (){
               <div class="card-body">
                 <div class="invoice-item invoice-item-one">
                   <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                       <div class="invoice-logo">
                         <img src="assets/img/logo.png" alt="logo"/>
                       </div>
@@ -363,7 +362,7 @@ export default function ViewInvoice (){
                         <p>Invoice Number : {invNo}</p>
                       </div>
                     </div>
-                    <div class="col-md-6">
+                    {/* <div class="col-md-6">
                       <div class="invoice-info">
                         <strong class="customer-text-one">Invoice From</strong>
                         <h6 class="invoice-name">Company Name : {compName}</h6>
@@ -371,7 +370,20 @@ export default function ViewInvoice (){
                          {fromAddr}
                         <p/>
                       </div>
-                    </div>
+                    </div> */}
+                     
+                      <div class="col-md-4" style={{display:'flex',flexDirection:'column'}}>
+                        <div class="invoice-item-box">
+                          <p>Invoice No. : {payTerm}</p>
+                          <p class="mb-0">Invoice Date : {poNum}</p>
+                        </div>
+              
+                        <div class="invoice-item-box">
+                          <p>PO No. : {poNum}</p>
+                          <p class="mb-0">PO Date : {}</p>
+                        </div>
+                       
+                        </div>
                   </div>
                 </div>
                 
@@ -395,10 +407,12 @@ export default function ViewInvoice (){
                           XXXXXXXXXXXX-2541 <br/>
                           HDFC Bank
                         <p/>
+                        {/*
+                        check it again
                         <div class="invoice-item-box">
                           <p>Recurring : {payTerm}</p>
                           <p class="mb-0">PO Number : {poNum}</p>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </div>
@@ -484,8 +498,9 @@ export default function ViewInvoice (){
                   </div>
                 </div>
                 <div class="invoice-sign text-end">
+                <h4>Company name here:</h4>
                   <img class="img-fluid d-inline-block" src="assets/img/signature.png" alt="sign"/>
-                  <span class="d-block">Harristemp</span>
+                  <span class="d-block">Authorized Signatory</span>
                 </div>
               </div>
             </div>

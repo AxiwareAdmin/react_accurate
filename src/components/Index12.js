@@ -3,7 +3,7 @@ import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 export default function Index1() {
 
-  useEffect(() => {
+ useEffect(() => {
 
         const script10 = document.createElement('script');
         script10.src = "/assets/js/bootstrap.bundle.min.js";
@@ -60,7 +60,7 @@ export default function Index1() {
 
 
 		
-
+//uncomment
 		const script3 = document.createElement('script');
 		script3.src = "/assets/js/apex.min.js";
 
@@ -81,18 +81,20 @@ export default function Index1() {
 		  document.body.removeChild(script);
 		  document.body.removeChild(script1);
 		  document.body.removeChild(script4);
-		  document.body.removeChild(script3);
+		  document.body.removeChild(script3);//uncomment
 		  document.body.removeChild(script2);
-		  document.body.removeChild(script6);
+		  document.body.removeChild(script6);//uncomment
 		  document.body.removeChild(script7);
 		}
 	  },[]);
+
+    
   
   return (
     <div>
        <Navbar/>
 		<Sidebar />
-      <div className="page-wrapper">
+        <div className="page-wrapper">
         <div className="content container-fluid">
           <div className="crms-title row bg-white mb-4">
             <div className="col">

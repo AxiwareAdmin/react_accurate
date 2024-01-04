@@ -13379,3 +13379,41 @@ a.comment-btn:hover {
 .alignEnd{
 	text-align: end;
 }
+
+/* #prodtable input{
+width: fit-content;
+} */
+
+
+#prodtable .select2-container--default{
+	 width:190px !important;
+}
+
+
+#price,#discount,#quantity{
+	width: 120px;
+}
+
+#amount{
+	width: 150px;
+}
+
+#unit{
+	width:80px;
+}
+
+#invoiceListTable tr{
+	line-height: 5px;
+}
+
+.invoicelisttable tr th{
+	color:inherit;
+}
+
+.invoicelisttable tbody tr{
+	line-height: 1;
+}
+
+.invoicelisttable thead tr{
+	line-height: 2;
+}

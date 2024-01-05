@@ -83,13 +83,13 @@ export default function ViewInvoice (){
      "<img src='" + source + "' /></body></html>";
    }
   
-   function ImagePrint(source) {
-     var Pagelink = "about:blank";
-     var pwa = window.open(Pagelink, "_new");
-     pwa.document.open();
-     pwa.document.write(ImageSourcetoPrint(source));
-     pwa.document.close();
-   }
+  //  function ImagePrint(source) {
+  //    var Pagelink = "about:blank";
+  //    var pwa = window.open(Pagelink, "_new");
+  //    pwa.document.open();
+  //    pwa.document.write(ImageSourcetoPrint(source));
+  //    pwa.document.close();
+  //  }
   
     useEffect(() => {
 
@@ -200,23 +200,26 @@ export default function ViewInvoice (){
 
           let billingaddr = res.data.billingAddress;
           if(billingaddr !=null && billingaddr != undefined && billingaddr != "")
-          setToAddr(billingaddr);
+          setfromAddr(billingaddr);
+
+          if(res.data.shippingAddress !=null && res.data.shippingAddress  != undefined && res.data.shippingAddress  != "")
+          setToAddr(res.data.shippingAddress );
           
           let custName = res.data.customerName;
           if(custName != null && custName != undefined && custName != "")
           setcustName(custName);
-          
-          let fromaddr1 = res.data.shippingAddress;
-          if(fromaddr1 != null && fromaddr1 != undefined && fromaddr1 != "")
-          setfromAddr(fromaddr1);
          
           let toCustName = res.data.shippingCustomerName;
           if(toCustName != null && toCustName != undefined && toCustName != "")
-          setcmpName(toCustName);
+          setShippingCustName(toCustName);
 
           let ponum = res.data.poNumber;
           if(ponum != null && ponum != undefined && ponum != "")
           setpoNum(ponum);
+
+          let poDate = res.data.poDate;
+          if(poDate != null && poDate != undefined && poDate != "")
+          setPoDate(formatDate(poDate));
 
           let tIssueDate = res.data.createdDate;
           if(tIssueDate != null && tIssueDate != undefined && tIssueDate != "")
@@ -225,6 +228,10 @@ export default function ViewInvoice (){
           let tDueDt=res.data.dueDate;
           if(tDueDt != null && tDueDt != undefined && tDueDt != "")
           setDueDt(formatDate(tDueDt));
+
+          let invoiceDate=res.data.invoiceDate;
+          if(invoiceDate != null && invoiceDate != undefined && invoiceDate != "")
+          setInvDate(formatDate(invoiceDate));
 
           let payTermT = res.data.paymentTerms;
           if(payTermT != null && payTermT != undefined && payTermT != "")
@@ -242,25 +249,42 @@ export default function ViewInvoice (){
           if(discnt != null && discnt != undefined && discnt != "")
           setdiscount(discnt);
 
+          let remarks = res.data.remarks;
+          if(remarks != null && remarks != undefined && remarks != "")
+          setRemark(remarks);
+
+          let sgst = res.data.sgstValue;
+          if(sgst != null && sgst != undefined && sgst != "")
+          setSgst(sgst);
+
+          let cgst = res.data.cgstValue;
+          if(cgst != null && cgst != undefined && cgst != "")
+          setCgst(cgst);
+
+          let igst = res.data.igstValue;
+          if(igst != null && igst != undefined && igst != "")
+          setIgst(igst);
+
           let tot = res.data.invoiceValue;
           if(tot != null && tot != undefined && tot != "")
           settotal(tot);
-
+           let i = 1;
          res.data.invoiceProductDO.map(ele => {
 
-           let trEle = document.createElement("tr");
+          let trEle = document.createElement("tr");
            let tdEle = document.createElement("td");
-           let textEle = document.createTextNode(ele.productName);
+           let textEle = document.createTextNode(i);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+           i = i+1;
+
+           tdEle = document.createElement("td");
+           textEle = document.createTextNode(ele.productName);
            tdEle.appendChild(textEle);
            trEle.appendChild(tdEle);
 
            tdEle = document.createElement("td");
-           textEle = document.createTextNode(ele.productDescription);
-           tdEle.appendChild(textEle);
-           trEle.appendChild(tdEle);
-
-           tdEle = document.createElement("td");
-           textEle = document.createTextNode("$"+ele.rate);
+           textEle = document.createTextNode(ele.hsnSac);
            tdEle.appendChild(textEle);
            trEle.appendChild(tdEle);
 
@@ -270,13 +294,23 @@ export default function ViewInvoice (){
            trEle.appendChild(tdEle);
 
            tdEle = document.createElement("td");
-           textEle = document.createTextNode(ele.discount+"%");
+           textEle = document.createTextNode(ele.unit);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           tdEle = document.createElement("td");
+           textEle = document.createTextNode(ele.rate);
+           tdEle.appendChild(textEle);
+           trEle.appendChild(tdEle);
+
+           tdEle = document.createElement("td");
+           textEle = document.createTextNode(ele.tax);
            tdEle.appendChild(textEle);
            trEle.appendChild(tdEle);
 
            tdEle = document.createElement("td");
            tdEle.className = "text-end";
-           textEle = document.createTextNode("$"+ele.amount);
+           textEle = document.createTextNode(ele.amount);
            tdEle.appendChild(textEle);
            trEle.appendChild(tdEle);
 
@@ -321,10 +355,13 @@ export default function ViewInvoice (){
 
       const [invNo,setinvNo]=useState(null);
   const [compName , setcmpName] = useState("");
+  const [invDate , setInvDate] = useState("");
   const [fromAddr , setfromAddr] = useState("");
   const [custName , setcustName] = useState("");
+  const [shippingCustName , setShippingCustName] = useState("");
   const [toAddr, setToAddr] = useState('');
   const [poNum , setpoNum] = useState("");
+  const [poDate , setPoDate] = useState("");
   const [issDt , setissDt] = useState("");
   const [dueDt , setDueDt] = useState("");
   const [dueAmt , setdueAmt] = useState("");
@@ -334,6 +371,10 @@ export default function ViewInvoice (){
   const [total , settotal] = useState("");
   const [subTotal , setsubTotal] = useState("");
   const [payTerm , setpayTerm] = useState("");
+  const [remark , setRemark] = useState("");
+  const [sgst , setSgst] = useState("");
+  const [cgst , setCgst] = useState("");
+  const [igst , setIgst] = useState("");
   const [billToAddrShow , setBillToAddrShow] = useState(false);
 
   const [serviceCheck,setServiceCheck]=useState("false")
@@ -373,14 +414,14 @@ export default function ViewInvoice (){
                     </div> */}
                      
                       <div class="col-md-4" style={{display:'flex',flexDirection:'column'}}>
-                        <div class="invoice-item-box">
-                          <p>Invoice No. : {payTerm}</p>
-                          <p class="mb-0">Invoice Date : {poNum}</p>
+                        <div class="invoice-item-box" style={{width:'230px'}}>
+                          <p>Invoice No. : {invNo}</p>
+                          <p class="mb-0">Invoice Date : {invDate}</p>
                         </div>
               
-                        <div class="invoice-item-box">
+                        <div class="invoice-item-box" style={{width:'230px'}}>
                           <p>PO No. : {poNum}</p>
-                          <p class="mb-0">PO Date : {}</p>
+                          <p class="mb-0">PO Date : {poDate}</p>
                         </div>
                        
                         </div>
@@ -390,22 +431,24 @@ export default function ViewInvoice (){
                
                 <div class="invoice-item invoice-item-two">
                   <div class="row">
-                   {serviceCheck=='false' &&<div class="col-md-6">
+                  {/* {serviceCheck=='false' && */}
+                   <div class="col-md-6">
                       <div class="invoice-info" style={billToAddrShow ? {display:"none"} : {display : "block"}}>
-                        <strong class="customer-text-one">Billed to</strong>
-                        <h6 class="invoice-name">Customer Name : {custName}</h6>
+                        <strong class="customer-text-one">Billing Address</strong>
+                         <h6 class="invoice-name">{custName}</h6>
+                        {/* <h6 class="invoice-name">Customer Name : {custName}</h6> */}
                         <p class="invoice-details invoice-details-two"/>
                          {toAddr}
                         <p/>
                       </div>
-                    </div>}
-                    <div class={`col-md-${serviceCheck=='false'?6:12}`}>
+                    </div>
+                    {/* }  class={`col-md-${serviceCheck=='false'?6:12}`}*/}
+                    <div class="col-md-6">
                       <div class="invoice-info invoice-info2">
-                        <strong class="customer-text-one">Payment Details</strong>
+                        <strong class="customer-text-one">Shipping Address</strong>
+                        <h6 class="invoice-name">{shippingCustName}</h6>
                         <p class="invoice-details"/>
-                          Debit Card <br/>
-                          XXXXXXXXXXXX-2541 <br/>
-                          HDFC Bank
+                         {fromAddr}
                         <p/>
                         {/*
                         check it again
@@ -445,11 +488,13 @@ export default function ViewInvoice (){
                         <table class="invoice-table table table-center mb-0">
                           <thead>
                             <tr>
+                              <th>Sr.No</th>
                               <th>Description</th>
-                              <th>Category</th>
-                              <th>Rate/Item</th>
+                              <th>HSN/SAC</th>
                               <th>Quantity</th>
-                              <th>Discount (%)</th>
+                              <th>Unit</th>
+                              <th>Rate/Item</th>
+                              <th>Tax (%)</th>
                               <th class="text-end">Amount</th>
                             </tr>
                           </thead>
@@ -473,25 +518,28 @@ export default function ViewInvoice (){
                 <div class="row align-items-center justify-content-center">
                   <div class="col-lg-6 col-md-6">
                     <div class="invoice-terms">
-                      <h6>Notes:</h6>
-                      <p class="mb-0">Enter customer notes or any other details</p>
+                      <h6>Remark:</h6>
+                      <p class="mb-0">{remark}</p>
                     </div>
-                    <div class="invoice-terms">
+                    {/* <div class="invoice-terms">
                       <h6>Terms and Conditions:</h6>
                       <p class="mb-0">Enter customer notes or any other details</p>
-                    </div>
+                    </div> */}
                   </div>
                   <div class="col-lg-6 col-md-6">
                     <div class="invoice-total-card">
                       <div class="invoice-total-box">
                         <div class="invoice-total-inner">
-                          <p>Taxable <span>${taxable}</span></p>
-                          <p>Additional Charges <span>${addChrg}</span></p>
-                          <p>Discount <span>${discount}</span></p>
-                          <p class="mb-0">Sub total <span>$3,300.00</span></p>
+                          <p>Taxable Value <span>{taxable}</span></p>
+                          <p>SGST <span>{sgst}</span></p>
+                          <p>CGST <span>{cgst}</span></p>
+                          {/* <p>Taxable Value <span>{taxable}</span></p> */}
+                          <p>Additional Charges <span>{addChrg}</span></p>
+                          <p>Discount <span>{discount}</span></p>
+                          {/* <p class="mb-0">Sub total <span>$3,300.00</span></p> */}
                         </div>
                         <div class="invoice-total-footer">
-                          <h4>Total Amount <span>${total}</span></h4>
+                          <h4>Total Amount <span>{total}</span></h4>
                         </div>
                       </div>
                     </div>

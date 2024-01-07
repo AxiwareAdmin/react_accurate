@@ -269,7 +269,39 @@ export default function ViewInvoice (){
           if(tot != null && tot != undefined && tot != "")
           settotal(tot);
            let i = 1;
+         
+           let temp = [...GST];
          res.data.invoiceProductDO.map(ele => {
+            debugger;
+          if(ele.tax != null || ele.tax != undefined || ele.tax != ""){
+               let perTax = ele.tax / 2;
+               let taxAmt = 0;
+               if(ele.amount != null || ele.amount != undefined || ele.amount != "");
+                  taxAmt = ele.amount / 100 * perTax;
+                
+                
+                temp.map((tempPer) => {
+                  debugger;
+                  if(tempPer.taxPer == perTax || tempPer.taxPer == 0){
+                    tempPer.taxPer = perTax;
+                    taxAmt.toFixed(2);
+                    console.log('old per with amount:'+ tempPer.taxPer +" :: "+tempPer.taxAmt);
+                    tempPer.taxAmt = tempPer.taxAmt + taxAmt;
+                  }
+                else{
+                  var tempObj={
+                  taxPer : perTax,
+                  taxAmt : taxAmt.toFixed(2)
+                  }
+                  if(tempObj != undefined){
+                   temp.push(tempObj);
+                  }
+                }
+                });
+                
+          }
+           
+          setGST(temp);
 
           let trEle = document.createElement("tr");
            let tdEle = document.createElement("td");
@@ -315,8 +347,6 @@ export default function ViewInvoice (){
            trEle.appendChild(tdEle);
 
            document.querySelector("#productTable").appendChild(trEle);
-
-
 
          });
 
@@ -375,6 +405,10 @@ export default function ViewInvoice (){
   const [sgst , setSgst] = useState("");
   const [cgst , setCgst] = useState("");
   const [igst , setIgst] = useState("");
+  const [GST, setGST] = useState([{
+    taxPer : 0,
+    taxAmt :0
+  }]);
   const [billToAddrShow , setBillToAddrShow] = useState(false);
 
   const [serviceCheck,setServiceCheck]=useState("false")
@@ -531,10 +565,14 @@ export default function ViewInvoice (){
                       <div class="invoice-total-box">
                         <div class="invoice-total-inner">
                           <p>Taxable Value <span>{taxable}</span></p>
-                          <p>SGST <span>{sgst}</span></p>
-                          <p>CGST <span>{cgst}</span></p>
+                          {/* <p>SGST <span>{sgst}</span></p>
+                          <p>CGST <span>{cgst}</span></p> */}
                           {/* <p>Taxable Value <span>{taxable}</span></p> */}
-                          <p>Additional Charges <span>{addChrg}</span></p>
+                           {GST.map((taxIter) => {
+                             return (<p> SGST @{taxIter.taxPer} % <span>{taxIter.taxAmt}</span><br/>CGST @{taxIter.taxPer} % <span>{taxIter.taxAmt}</span></p>)
+                           })}
+
+                           <p>Additional Charges <span>{addChrg}</span></p>
                           <p>Discount <span>{discount}</span></p>
                           {/* <p class="mb-0">Sub total <span>$3,300.00</span></p> */}
                         </div>
@@ -545,11 +583,11 @@ export default function ViewInvoice (){
                     </div>
                   </div>
                 </div>
-                <div class="invoice-sign text-end">
+                {/* <div class="invoice-sign text-end">
                 <h4>Company name here:</h4>
                   <img class="img-fluid d-inline-block" src="assets/img/signature.png" alt="sign"/>
                   <span class="d-block">Authorized Signatory</span>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

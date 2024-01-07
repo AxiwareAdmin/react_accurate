@@ -30,7 +30,7 @@ function App() {
   const BACKEND_SERVER="http://localhost:8080"
 
   function checkJwtTokenValidity(){
-    debugger;
+    
     var token=localStorage.getItem("token");
 
     if(token==null || token==undefined){

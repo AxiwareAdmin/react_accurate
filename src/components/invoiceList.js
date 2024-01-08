@@ -274,7 +274,9 @@ export default function InvoiceList () {
 	
 
 			tdElem=document.createElement("td");
-            textElem=document.createTextNode(formatDate(elem.createdDate));
+            // textElem=document.createTextNode(formatDate(elem.createdDate));
+
+			textElem=document.createTextNode(formatDate(elem.invoiceDate));
             tdElem.appendChild(textElem);
             trElem.appendChild(tdElem);
 
@@ -689,7 +691,7 @@ export default function InvoiceList () {
 	  }
 
 	  function accountingFormat(val){
-		console.log(val+" "+toCurrency(fromCurrency(val)).replace(/[\$]/g,''));
+		// console.log(val+" "+toCurrency(fromCurrency(val)).replace(/[\$]/g,''));
 		return  toCurrency(fromCurrency(val)).replace(/[\$]/g,'')
 	  }
   

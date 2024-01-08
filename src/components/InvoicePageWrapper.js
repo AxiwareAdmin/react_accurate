@@ -190,7 +190,7 @@ const prodData = (data) => {
         debugger;
         let tempProdUnits = [];
 
-        var index=2;
+        var index=1;
 
         dataArr.map((data,ind)=>{
           var productId = index;
@@ -430,7 +430,7 @@ const prodData = (data) => {
     var token=localStorage.getItem("token")
     //it was GET method earlier
 
-    axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
+  /*  axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -469,18 +469,13 @@ const prodData = (data) => {
           
           let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
           console.log("invoice:" + invoiceNum);
-          setInvoiceNumber(invoiceNum);
+          // setInvoiceNumber(invoiceNum);
         }).catch((e)=>{
           console.log(e)
         })
 
-    })
+    })*/
  
-    
-
-    
-    var token=localStorage.getItem("token")
-
 
     axios
       .get(BACKEND_SERVER+"/customer/" + customerId,{
@@ -648,8 +643,14 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       return;
     } 
 
-    
+    debugger;
 
+    var url=new URL(window.location.href);
+    let actionedit = url.searchParams.get("action");
+
+    if(actionedit!=undefined && actionedit!=null && actionedit=='Edit') return;
+    
+    
     var series=res.data.series;
 
     var adder=parseInt(series);
@@ -670,6 +671,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       
       let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
       console.log("invoice:" + invoiceNum);
+      debugger;
       setInvoiceNumber(invoiceNum);
     }).catch((e)=>{
       console.log(e)
@@ -1453,13 +1455,17 @@ const onDescriptionChange=(e)=>{
                          $select.dispatchEvent(event);
               }
               
-              // if(res.data.invoiceNo != null)
-              // setInvoiceNumber(res.data.invoiceNo);
+              if(res.data.invoiceNo != null && actionedit == "Edit")
+              setInvoiceNumber(res.data.invoiceNo);
 
               if(res.data.poNumber != null)
               setPoNumber(res.data.poNumber);
 
-              if(res.data.invoiceDate != null){
+              if(res.data.invoiceDate != null && actionedit == "Edit"){
+                let finvdate = getFormattedDate(new Date(res.data.invoiceDate));
+                onInvoiceDateChangeForCopyProduct(finvdate);
+              }
+              else if(res.data.invoiceDate != null){
                 let finvdate = getFormattedDate(new Date());
                 onInvoiceDateChangeForCopyProduct(finvdate);
               }

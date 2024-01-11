@@ -1,424 +1,773 @@
-import React,{useEffect , useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { useLocation,useParams,useNavigate } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 
-
-
-
-export default function ViewInvoice (){
-
-  var token=localStorage.getItem("token")
-	var header={
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":'Bearer '+token
-        }
-      }
+export default function ViewInvoice() {
+  var token = localStorage.getItem("token");
+  var header = {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+  };
 
   const initilized = useRef(false);
 
+  function formatDate(date) {
+    var d = new Date(date),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
 
-   function formatDate(date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-    
-        if (month.length < 2) 
-            month = '0' + month;
-        if (day.length < 2) 
-            day = '0' + day;
-    
-        return [day, month, year].join('-');
-    }
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
 
-    const printButtonClicked=(e)=>{
-      // var content = document.getElementsByClassName("page-wrapper")[0];
-      // var pri = document.getElementById("ifmcontentstoprint").contentWindow;
-      // pri.document.open();
-      // pri.document.write(content.innerHTML);
-      // pri.document.close();
-      // pri.focus();
-      // pri.print();
+    return [day, month, year].join("-");
+  }
 
+  const printButtonClicked = (e) => {
+    // var content = document.getElementsByClassName("page-wrapper")[0];
+    // var pri = document.getElementById("ifmcontentstoprint").contentWindow;
+    // pri.document.open();
+    // pri.document.write(content.innerHTML);
+    // pri.document.close();
+    // pri.focus();
+    // pri.print();
 
-      // var panel = document.getElementsByClassName("page-wrapper")[0];
-      // var printWindow = window.open();
+    // var panel = document.getElementsByClassName("page-wrapper")[0];
+    // var printWindow = window.open();
 
-      // printWindow.document.write(panel.innerHTML);
+    // printWindow.document.write(panel.innerHTML);
 
-      // printWindow.document.close();
-      // setTimeout(function () {
-      //     printWindow.print();
-      // }, 500);
+    // printWindow.document.close();
+    // setTimeout(function () {
+    //     printWindow.print();
+    // }, 500);
 
-      html2canvas(invoicepdf.current).then((canvas) => {
-        const myImage = canvas.toDataURL("image/png");
+    html2canvas(invoicepdf.current).then((canvas) => {
+      const myImage = canvas.toDataURL("image/png");
 
-        var nWindow = window.open('');
+      var nWindow = window.open("");
 
-        // append the canvas to the body
-        nWindow.document.body.appendChild(canvas);
-    
-        // focus on the window
-        nWindow.focus();
-    
-        // print the window
-        nWindow.print();
+      // append the canvas to the body
+      nWindow.document.body.appendChild(canvas);
 
+      // focus on the window
+      nWindow.focus();
+
+      // print the window
+      nWindow.print();
     });
-    
+  };
 
+  function ImageSourcetoPrint(source) {
+    return (
+      "<html><head><script>function step1(){\n" +
+      "setTimeout('step2()', 10);}\n" +
+      "function step2(){window.print();window.close()}\n" +
+      "</scri" +
+      "pt></head><body onload='step1()'>\n" +
+      "<img src='" +
+      source +
+      "' /></body></html>"
+    );
+  }
+
+  function toCurrency(value) {
+    try {
+      if (isNaN(Number(value))) return value;
+      return Number(value).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+    } catch (err) {
+      throw err;
     }
+  }
+  function fromCurrency(value) {
+    try {
+      let num = Number((value + "").replace(/[\$,]/g, ""));
+      return isNaN(num) ? 0 : num;
+    } catch (err) {
+      throw err;
+    }
+  }
+  const roundNum = (num) => {
+    num = fromCurrency(toCurrency(num));
+    // num=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'')
+    return num;
+  };
 
-    function ImageSourcetoPrint(source) {
-      return "<html><head><script>function step1(){\n" +
-     "setTimeout('step2()', 10);}\n" +
-     "function step2(){window.print();window.close()}\n" +
-     "</scri" + "pt></head><body onload='step1()'>\n" +
-     "<img src='" + source + "' /></body></html>";
-   }
-  
-   function ImagePrint(source) {
-     var Pagelink = "about:blank";
-     var pwa = window.open(Pagelink, "_new");
-     pwa.document.open();
-     pwa.document.write(ImageSourcetoPrint(source));
-     pwa.document.close();
-   }
-  
-    useEffect(() => {
+  function getFormattedDate(date) {
+    var year = date.getFullYear();
 
-      const script11 = document.createElement("script");
-      script11.src = "/assets/js/jquery-3.6.0.min.js";
-      script11.async = false;
-  
-      document.body.appendChild(script11);
+    var month = (1 + date.getMonth()).toString();
+    month = month.length > 1 ? month : "0" + month;
 
+    var day = date.getDate().toString();
+    day = day.length > 1 ? day : "0" + day;
 
+    return day + "/" + month + "/" + year;
+  }
 
-        const script8 = document.createElement("script");
-        script8.src = "/assets/plugins/moment/moment.min.js";
-        script8.async = false;
-    
-        document.body.appendChild(script8);
-    
-        const script10 = document.createElement("script");
-        script10.src = "/assets/js/bootstrap.bundle.min.js";
-        script10.async = false;
-    
-        document.body.appendChild(script10); //can be uncommented
-    
-        const script9 = document.createElement("script");
-        script9.src = "/assets/js/jquery.slimscroll.min.js";
-        script9.async = false;
-    
-        document.body.appendChild(script9); //can be uncommented
-    
-        const script7 = document.createElement("script");
-        script7.src = "/assets/js/bootstrap-datetimepicker.min.js";
-        script7.async = false;
-    
-        document.body.appendChild(script7); //can be uncommented
-    
-        const script6 = document.createElement("script");
-        script6.src = "/assets/js/jquery.dataTables.min.js";
-        script6.async = false;
-    
-        document.body.appendChild(script6); //can be uncommented
-    
-        const script5 = document.createElement("script");
-        script5.src = "/assets/js/dataTables.bootstrap4.min.js";
-        script5.async = false;
-    
-        document.body.appendChild(script5); //can be uncommented
-    
-        const script4 = document.createElement("script");
-        script4.src = "/assets/js/feather.min.js";
-        script4.async = false;
-    
-        document.body.appendChild(script4); //can be uncommented
-    
-        const script3 = document.createElement("script");
-        script3.src = "/assets/js/select2.min.js";
-        script3.async = false;
-    
-        document.body.appendChild(script3); //can be uncommented
-    
-        const script2 = document.createElement("script");
-        script2.src = "/assets/js/theme-settings.js";
-        script2.async = false;
-    
-        document.body.appendChild(script2); //can be uncommented
-    
-        const script = document.createElement("script");
-        script.src = "/assets/js/app.js";
-        script.async = false;
-    
-        document.body.appendChild(script);
-    
-        return () => {
-          document.body.removeChild(script);
-          document.body.removeChild(script2);
-          document.body.removeChild(script3);
-          document.body.removeChild(script4);
-          document.body.removeChild(script5);
-          document.body.removeChild(script6);
-          document.body.removeChild(script7);
-          document.body.removeChild(script8);
-          document.body.removeChild(script9);
-          document.body.removeChild(script10);
-          //   document.body.removeChild(script11);
-        };
+  function convertToAccountingStandard(num) {
+    num = toCurrency(fromCurrency(num)).replace(/[\$]/g, "");
 
-      }, [])  
+    return num;
+  }
 
-                  
-      useEffect(() => {
-        
+  function ImagePrint(source) {
+    var Pagelink = "about:blank";
+    var pwa = window.open(Pagelink, "_new");
+    pwa.document.open();
+    pwa.document.write(ImageSourcetoPrint(source));
+    pwa.document.close();
+  }
 
+  function addGstElems(gstPercentageArr, gstPercentageVal, gstCalculationVal) {
+    gstPercentageArr.map((elem) => {
+      let index = gstPercentageArr.indexOf(elem);
 
-          var url=new URL(window.location.href);
-          let id1=url.searchParams.get("id");
-          let action=url.searchParams.get("action");
-          let serviceChkT = url.searchParams.get("serviceChk");
-          setBillToAddrShow(serviceChkT);
-          
-          if(!initilized.current){  
-            initilized.current=true;
-            axios
-            .get("http://localhost:8080/viewInvoice?invId="+id1,header)
-            .then((res) => {
-              
-              setinvNo(res.data.invoiceNo);
+      let divElem = document.createElement("div");
+      divElem.className = "invoice-total-footer";
+      let h4Elem = document.createElement("h4");
+      let aElem = document.createElement("a");
 
-            setServiceCheck(res.data.serviceCheck);
+      h4Elem.style =
+        "font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between";
+
+      aElem.style = "color:grey;display:flex;flex-direction:column";
+
+      let textElem = document.createTextNode(
+        "SGST " + parseFloat(elem) / 2 + " %"
+      );
+      let spanElem = document.createElement("span");
+
+      spanElem.appendChild(textElem);
+      aElem.appendChild(spanElem);
+
+      textElem = document.createTextNode(
+        "(Amount: " +
+          convertToAccountingStandard(gstCalculationVal[parseFloat(elem)]) +
+          ")"
+      );
+      spanElem = document.createElement("span");
+
+      spanElem.style = "text-transform:capitaize;font-size:18px";
+      spanElem.appendChild(textElem);
+      aElem.appendChild(spanElem);
+
+      textElem = document.createTextNode(
+        toCurrency(fromCurrency(gstPercentageVal[index] + "") / 2).replace(
+          /[\$]/g,
+          ""
+        )
+      );
+
+      spanElem = document.createElement("span");
+      spanElem.appendChild(textElem);
+
+      spanElem.style = "color:grey";
+
+      h4Elem.appendChild(aElem);
+
+      h4Elem.appendChild(spanElem);
+
+      divElem.appendChild(h4Elem);
+
+      document.querySelector(".gstContainer").append(divElem);
+
+      divElem = document.createElement("div");
+      divElem.className = "invoice-total-footer";
+      h4Elem = document.createElement("h4");
+      aElem = document.createElement("a");
+
+      h4Elem.style =
+        "font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between";
+
+      aElem.style = "color:grey;display:flex;flex-direction:column";
+
+      textElem = document.createTextNode("CGST " + parseFloat(elem) / 2 + " %");
+      spanElem = document.createElement("span");
+
+      spanElem.appendChild(textElem);
+
+      aElem.appendChild(spanElem);
+
+      textElem = document.createTextNode(
+        "(Amount: " +
+          convertToAccountingStandard(gstCalculationVal[parseFloat(elem)]) +
+          ")"
+      );
+      spanElem = document.createElement("span");
+
+      spanElem.style = "text-transform:capitaize;font-size:18px";
+      spanElem.appendChild(textElem);
+      aElem.appendChild(spanElem);
+
+      spanElem = document.createElement("span");
+
+      textElem = document.createTextNode(
+        toCurrency(fromCurrency(gstPercentageVal[index] + "") / 2).replace(
+          /[\$]/g,
+          ""
+        )
+      );
+
+      spanElem.appendChild(textElem);
+
+      spanElem.style = "color:grey";
+
+      h4Elem.appendChild(aElem);
+
+      h4Elem.appendChild(spanElem);
+
+      divElem.appendChild(h4Elem);
+
+      document.querySelector(".gstContainer").append(divElem);
+    });
+  }
+
+  useEffect(() => {
+    const script11 = document.createElement("script");
+    script11.src = "/assets/js/jquery-3.6.0.min.js";
+    script11.async = false;
+
+    document.body.appendChild(script11);
+
+    const script8 = document.createElement("script");
+    script8.src = "/assets/plugins/moment/moment.min.js";
+    script8.async = false;
+
+    document.body.appendChild(script8);
+
+    const script10 = document.createElement("script");
+    script10.src = "/assets/js/bootstrap.bundle.min.js";
+    script10.async = false;
+
+    document.body.appendChild(script10); //can be uncommented
+
+    const script9 = document.createElement("script");
+    script9.src = "/assets/js/jquery.slimscroll.min.js";
+    script9.async = false;
+
+    document.body.appendChild(script9); //can be uncommented
+
+    const script7 = document.createElement("script");
+    script7.src = "/assets/js/bootstrap-datetimepicker.min.js";
+    script7.async = false;
+
+    document.body.appendChild(script7); //can be uncommented
+
+    const script6 = document.createElement("script");
+    script6.src = "/assets/js/jquery.dataTables.min.js";
+    script6.async = false;
+
+    document.body.appendChild(script6); //can be uncommented
+
+    const script5 = document.createElement("script");
+    script5.src = "/assets/js/dataTables.bootstrap4.min.js";
+    script5.async = false;
+
+    document.body.appendChild(script5); //can be uncommented
+
+    const script4 = document.createElement("script");
+    script4.src = "/assets/js/feather.min.js";
+    script4.async = false;
+
+    document.body.appendChild(script4); //can be uncommented
+
+    const script3 = document.createElement("script");
+    script3.src = "/assets/js/select2.min.js";
+    script3.async = false;
+
+    document.body.appendChild(script3); //can be uncommented
+
+    const script2 = document.createElement("script");
+    script2.src = "/assets/js/theme-settings.js";
+    script2.async = false;
+
+    document.body.appendChild(script2); //can be uncommented
+
+    const script = document.createElement("script");
+    script.src = "/assets/js/app.js";
+    script.async = false;
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+      document.body.removeChild(script2);
+      document.body.removeChild(script3);
+      document.body.removeChild(script4);
+      document.body.removeChild(script5);
+      document.body.removeChild(script6);
+      document.body.removeChild(script7);
+      document.body.removeChild(script8);
+      document.body.removeChild(script9);
+      document.body.removeChild(script10);
+      //   document.body.removeChild(script11);
+    };
+  }, []);
+
+  useEffect(() => {
+    var url = new URL(window.location.href);
+    let id1 = url.searchParams.get("id");
+    let action = url.searchParams.get("action");
+    let serviceChkT = url.searchParams.get("serviceChk");
+    setBillToAddrShow(serviceChkT);
+
+    if (!initilized.current) {
+      initilized.current = true;
+      axios
+        .get("http://localhost:8080/viewInvoice?invId=" + id1, header)
+        .then((res) => {
+          debugger;
+
+          setinvNo(res.data.invoiceNo);
+
+          setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
+
+          setPoDate(getFormattedDate(new Date(res.data.poDate)));
+
+          setServiceCheck(res.data.serviceCheck);
 
           let billingaddr = res.data.billingAddress;
-          if(billingaddr !=null && billingaddr != undefined && billingaddr != "")
-          setToAddr(billingaddr);
-          
+          if (
+            billingaddr != null &&
+            billingaddr != undefined &&
+            billingaddr != ""
+          )
+            setToAddr(billingaddr);
+
           let custName = res.data.customerName;
-          if(custName != null && custName != undefined && custName != "")
-          setcustName(custName);
-          
+          if (custName != null && custName != undefined && custName != "")
+            setcustName(custName);
+
+          let tempRemarks=res.data.remarks;
+          if(tempRemarks!=null && tempRemarks!=undefined && tempRemarks!=""){
+            setRemarks(tempRemarks);
+          }
+
+          let tempAdditionalTerms=res.data.additionalTerms;
+
+          if(tempAdditionalTerms && tempAdditionalTerms!=''){
+            setAdditionalTerms(tempAdditionalTerms)
+          }
+
           let fromaddr1 = res.data.shippingAddress;
-          if(fromaddr1 != null && fromaddr1 != undefined && fromaddr1 != "")
-          setfromAddr(fromaddr1);
-         
+          if (fromaddr1 != null && fromaddr1 != undefined && fromaddr1 != "")
+            setfromAddr(fromaddr1);
+
           let toCustName = res.data.shippingCustomerName;
-          if(toCustName != null && toCustName != undefined && toCustName != "")
-          setcmpName(toCustName);
+          if (toCustName != null && toCustName != undefined && toCustName != "")
+            setcmpName(toCustName);
 
           let ponum = res.data.poNumber;
-          if(ponum != null && ponum != undefined && ponum != "")
-          setpoNum(ponum);
+          if (ponum != null && ponum != undefined && ponum != "")
+            setpoNum(ponum);
 
           let tIssueDate = res.data.createdDate;
-          if(tIssueDate != null && tIssueDate != undefined && tIssueDate != "")
-          setissDt(formatDate(tIssueDate));
+          if (tIssueDate != null && tIssueDate != undefined && tIssueDate != "")
+            setissDt(formatDate(tIssueDate));
 
-          let tDueDt=res.data.dueDate;
-          if(tDueDt != null && tDueDt != undefined && tDueDt != "")
-          setDueDt(formatDate(tDueDt));
+          let tDueDt = res.data.dueDate;
+          if (tDueDt != null && tDueDt != undefined && tDueDt != "")
+            setDueDt(formatDate(tDueDt));
 
           let payTermT = res.data.paymentTerms;
-          if(payTermT != null && payTermT != undefined && payTermT != "")
-          setpayTerm(payTermT);
+          if (payTermT != null && payTermT != undefined && payTermT != "")
+            setpayTerm(payTermT);
 
-          let taxableT = res.data.taxableValue;
-          if(taxableT != null && taxableT != undefined && taxableT != "")
-          settaxable(taxableT);
+          let challanNo = res.data.challanNo;
+          if (challanNo != null && challanNo != undefined && challanNo != "")
+            setChallanNumber(challanNo);
 
-          let addchrgs = res.data.additionalCharges;
-          if(addchrgs != null && addchrgs != undefined && addchrgs != "")
-          setaddChrg(addchrgs);
+          let challanDt = res.data.challanDate;
 
-          let discnt = res.data.discount;
-          if(discnt != null && discnt != undefined && discnt != "")
-          setdiscount(discnt);
+          if (challanDt != null && challanDt != undefined && challanDt != "")
+            setChallanDate(getFormattedDate(new Date(challanDt)));
+
+          let transportMode = res.data.transportMode;
+
+          if (
+            transportMode != null &&
+            transportMode != undefined &&
+            transportMode != ""
+          )
+            setTransportMode(transportMode);
+
+          let vehicleNo = res.data.vehicleNo;
+          if (vehicleNo != null && vehicleNo != undefined && vehicleNo != "")
+            setVehicleNumber(vehicleNo);
+
+          // let taxableT = res.data.taxableValue;
+          // if(taxableT != null && taxableT != undefined && taxableT != "")
+          // settaxable(taxableT);
+
+          let addchrgs =
+            res.data.additionalCharges == null ||
+            res.data.additionalCharges == undefined
+              ? 0
+              : parseFloat(res.data.additionalCharges);
+          let transportCharge =
+            res.data.transportCharges == null ||
+            res.data.transportCharges == undefined
+              ? 0
+              : parseFloat(res.data.transportCharges);
+
+          setaddChrg(addchrgs + transportCharge);
+
+          let discnt =
+            res.data.discount == null || res.data.discount == undefined
+              ? 0
+              : parseFloat(res.data.discount);
+          let otherDiscount =
+            res.data.otherDiscount == null ||
+            res.data.otherDiscount == undefined
+              ? 0
+              : parseFloat(res.data.otherDiscount);
+          if (discnt != null && discnt != undefined && discnt != "")
+            setdiscount(discnt + otherDiscount);
 
           let tot = res.data.invoiceValue;
-          if(tot != null && tot != undefined && tot != "")
-          settotal(tot);
+          if (tot != null && tot != undefined && tot != "") settotal(tot);
 
-         res.data.invoiceProductDO.map(ele => {
+          let totalAmount = 0;
+          let tempGstPercentageArr = [];
+          let tempGstPercentageVal = [];
+          let tempGstCalculationVal = {};
 
-           let trEle = document.createElement("tr");
-           let tdEle = document.createElement("td");
-           let textEle = document.createTextNode(ele.productName);
-           tdEle.appendChild(textEle);
-           trEle.appendChild(tdEle);
+          res.data.invoiceProductDO.map((ele) => {
+            let trEle = document.createElement("tr");
+            let tdEle = document.createElement("td");
+            let textEle = document.createTextNode(ele.productName +" - "+ele.productDescription);
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
-           tdEle = document.createElement("td");
-           textEle = document.createTextNode(ele.productDescription);
-           tdEle.appendChild(textEle);
-           trEle.appendChild(tdEle);
+            // tdEle = document.createElement("td");
+            // textEle = document.createTextNode(ele.productDescription);
+            // tdEle.appendChild(textEle);
+            // trEle.appendChild(tdEle);
 
-           tdEle = document.createElement("td");
-           textEle = document.createTextNode("$"+ele.rate);
-           tdEle.appendChild(textEle);
-           trEle.appendChild(tdEle);
+            tdEle = document.createElement("td");
+            textEle = document.createTextNode(ele.hsnSac);
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
-           tdEle = document.createElement("td");
-           textEle = document.createTextNode(ele.quantity);
-           tdEle.appendChild(textEle);
-           trEle.appendChild(tdEle);
+            tdEle = document.createElement("td");
+            textEle = document.createTextNode(ele.quantity);
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
-           tdEle = document.createElement("td");
-           textEle = document.createTextNode(ele.discount+"%");
-           tdEle.appendChild(textEle);
-           trEle.appendChild(tdEle);
+            tdEle = document.createElement("td");
+            textEle = document.createTextNode(ele.unit);
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
-           tdEle = document.createElement("td");
-           tdEle.className = "text-end";
-           textEle = document.createTextNode("$"+ele.amount);
-           tdEle.appendChild(textEle);
-           trEle.appendChild(tdEle);
+            tdEle = document.createElement("td");
+            textEle = document.createTextNode("\u20B9" + ele.rate);
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
-           document.querySelector("#productTable").appendChild(trEle);
+            tdEle = document.createElement("td");
+            textEle = document.createTextNode(ele.discount + "%");
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
+            tdEle = document.createElement("td");
+            //  tdEle.className = "text-end";
+            textEle = document.createTextNode("\u20B9" + ele.amount);
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
+            totalAmount = totalAmount + parseFloat(ele.amount);
 
-         });
+            tdEle = document.createElement("td");
+            //  tdEle.className = "text-end";
+            textEle = document.createTextNode("GST @" + ele.tax + "%");
+            tdEle.appendChild(textEle);
+            trEle.appendChild(tdEle);
 
-         if(action == "download" && action != null && action != "" && action != undefined){
-            
+            document.querySelector("#productTable").appendChild(trEle);
+
+            let index = tempGstPercentageArr.indexOf(ele.tax);
+            if (index < 0) {
+              tempGstPercentageArr = [...tempGstPercentageArr, ele.tax];
+              tempGstPercentageVal = [
+                ...tempGstPercentageVal,
+                roundNum((ele.amount * ele.tax) / 100),
+              ];
+              var tempTax = ele.tax;
+              tempGstCalculationVal[tempTax] = ele.amount;
+            } else {
+              tempGstPercentageVal[index] =
+                tempGstPercentageVal[index] +
+                roundNum((ele.amount * ele.tax) / 100);
+              tempGstCalculationVal[ele.tax] =
+                tempGstCalculationVal[ele.tax] + ele.amount;
+            }
+          });
+          let transportChargesGst = res.data.transportGst;
+          let otherChargesGst = res.data.additionalChargesGst;
+
+          //adding transport charge to gst calsulation
+          var tempTransportGstRate = roundNum(transportChargesGst);
+          let index = tempGstPercentageArr.indexOf(tempTransportGstRate);
+          if (roundNum(transportCharge) > 0 && tempTransportGstRate > 0) {
+            if (index >= 0) {
+              tempGstPercentageVal[index] =
+                tempGstPercentageVal[index] +
+                roundNum(
+                  (roundNum(transportCharge) * roundNum(tempTransportGstRate)) /
+                    100
+                );
+              tempGstCalculationVal[tempTransportGstRate] =
+                tempGstCalculationVal[tempTransportGstRate] +
+                roundNum(transportCharge);
+            } else {
+              tempGstPercentageArr = [
+                ...tempGstPercentageArr,
+                tempTransportGstRate,
+              ];
+              tempGstPercentageVal = [
+                ...tempGstPercentageVal,
+                roundNum(
+                  (roundNum(transportCharge) * roundNum(tempTransportGstRate)) /
+                    100
+                ),
+              ];
+              tempGstCalculationVal[tempTransportGstRate] =
+                roundNum(transportCharge);
+            }
+          }
+
+          //adding other charge to gst
+          var tempOtherChargesGstRate = roundNum(otherChargesGst);
+          index = tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
+          if (roundNum(addchrgs) > 0 && tempOtherChargesGstRate > 0) {
+            if (index >= 0) {
+              tempGstPercentageVal[index] =
+                tempGstPercentageVal[index] +
+                roundNum(
+                  (roundNum(addchrgs) * roundNum(tempOtherChargesGstRate)) / 100
+                );
+              tempGstCalculationVal[tempOtherChargesGstRate] =
+                tempGstCalculationVal[tempOtherChargesGstRate] +
+                roundNum(addchrgs);
+            } else {
+              tempGstPercentageArr = [
+                ...tempGstPercentageArr,
+                tempOtherChargesGstRate,
+              ];
+              tempGstPercentageVal = [
+                ...tempGstPercentageVal,
+                roundNum(
+                  (roundNum(addchrgs) * roundNum(tempOtherChargesGstRate)) / 100
+                ),
+              ];
+              tempGstCalculationVal[tempOtherChargesGstRate] =
+                roundNum(addchrgs);
+            }
+          }
+
+          setGstPercentageVal(tempGstPercentageVal);
+
+          addGstElems(
+            tempGstPercentageArr,
+            tempGstPercentageVal,
+            tempGstCalculationVal
+          );
+
+          settaxable(totalAmount);
+
+          if (
+            action == "download" &&
+            action != null &&
+            action != "" &&
+            action != undefined
+          ) {
             setTimeout(function () {
               downloadpdf(res.data.invoiceNo);
-          }, 500);
-        }
-      
-        }).catch((e)=>{
-          console.log(e)
+            }, 500);
+          }
         })
-
-      }
-
-      });
-       
-      const invoicepdf = useRef(null);
-      // useEffect (() =>{
-     
-      //   if(initilized.current){
-     const downloadpdf = (invoiceNo) =>{
-          html2canvas(invoicepdf.current).then((canvas) => {
-					const imgData = canvas.toDataURL("image/png");
-					const pdf = new jsPDF();
-					pdf.addImage(imgData, "JPEG", 0, 0,210,310);
-					pdf.save(invoiceNo+".pdf");
-          
-				//   });
-        // }
-
-      });
-      
+        .catch((e) => {
+          console.log(e);
+        });
     }
+  });
 
-      const [invNo,setinvNo]=useState(null);
-  const [compName , setcmpName] = useState("");
-  const [fromAddr , setfromAddr] = useState("");
-  const [custName , setcustName] = useState("");
-  const [toAddr, setToAddr] = useState('');
-  const [poNum , setpoNum] = useState("");
-  const [issDt , setissDt] = useState("");
-  const [dueDt , setDueDt] = useState("");
-  const [dueAmt , setdueAmt] = useState("");
-  const [taxable , settaxable] = useState("");
-  const [addChrg , setaddChrg] = useState("");
-  const [discount , setdiscount] = useState("");
-  const [total , settotal] = useState("");
-  const [subTotal , setsubTotal] = useState("");
-  const [payTerm , setpayTerm] = useState("");
-  const [billToAddrShow , setBillToAddrShow] = useState(false);
+  const invoicepdf = useRef(null);
+  // useEffect (() =>{
 
-  const [serviceCheck,setServiceCheck]=useState("false")
+  //   if(initilized.current){
+  const downloadpdf = (invoiceNo) => {
+    html2canvas(invoicepdf.current).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF();
+      pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
+      pdf.save(invoiceNo + ".pdf");
+
+      //   });
+      // }
+    });
+  };
+
+  const [invNo, setinvNo] = useState(null);
+  const [compName, setcmpName] = useState("Shivansh infotech");
+  const [fromAddr, setfromAddr] = useState("");
+  const [custName, setcustName] = useState("");
+  const [toAddr, setToAddr] = useState("");
+  const [poNum, setpoNum] = useState("");
+  const [issDt, setissDt] = useState("");
+  const [dueDt, setDueDt] = useState("");
+  const [dueAmt, setdueAmt] = useState(0);
+  const [taxable, settaxable] = useState(0);
+  const [addChrg, setaddChrg] = useState(0);
+  const [discount, setdiscount] = useState(0);
+  const [total, settotal] = useState(0);
+  const [subTotal, setsubTotal] = useState(0);
+  const [payTerm, setpayTerm] = useState("");
+  const [billToAddrShow, setBillToAddrShow] = useState(false);
+  const [invoiceDate, setInvoiceDate] = useState("");
+  const [poDate, setPoDate] = useState("");
+
+  const [challanNumber, setChallanNumber] = useState("");
+
+  const [challanDate, setChallanDate] = useState("");
+  const [transportMode, setTransportMode] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
+
+  // const [gstPercentageArr,setGstPercentageArr]=useState([]);
+
+  const [gstPercentageVal, setGstPercentageVal] = useState([]);
+
+  // const [gstCalculationVal,setGstCalculationVal]=useState({})
+
+  const [serviceCheck, setServiceCheck] = useState("false");
+
+  const [additionalTerms,setAdditionalTerms]=useState("");
+
+  const [remarks,setRemarks]=useState("");
   
   return (
     <div>
-       <Navbar/>
-		<Sidebar />
-    <div class="page-wrapper" ref={invoicepdf}>
-			
-      
-              <div class="content container-fluid">
+      <Navbar />
+      <Sidebar />
+      <div class="page-wrapper" ref={invoicepdf}>
+        <div class="content container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-xl-12">
+              <div class="card invoice-info-card" style={{border:'1px solid black'}}>
+                <div class="card-body">
+                  <div class="invoice-item invoice-item-one" style={{borderBottom:'1px solid black'}}>
 
-                <div class="row justify-content-center">
-          <div class="col-xl-10">
-            <div class="card invoice-info-card">
-              <div class="card-body">
-                <div class="invoice-item invoice-item-one">
-                  <div class="row">
-                    <div class="col-md-8">
-                      <div class="invoice-logo">
-                        <img src="assets/img/logo.png" alt="logo"/>
-                      </div>
-                      <div class="invoice-head">
-                        <h2>Invoice</h2>
-                        <p>Invoice Number : {invNo}</p>
+                    <div class="row">
+                    <div class="col-md-12">
+                        <div class="invoice-info" style={{borderBottom:'1px solid black'}}>
+                          <strong class="customer-text-one" style={{textAlign:'center'}}>
+                           TAX INVOICE
+                          </strong>
+                        </div>
                       </div>
                     </div>
-                    {/* <div class="col-md-6">
-                      <div class="invoice-info">
-                        <strong class="customer-text-one">Invoice From</strong>
-                        <h6 class="invoice-name">Company Name : {compName}</h6>
-                        <p class="invoice-details"/>
-                         {fromAddr}
-                        <p/>
-                      </div>
-                    </div> */}
-                     
-                      <div class="col-md-4" style={{display:'flex',flexDirection:'column'}}>
-                        <div class="invoice-item-box">
-                          <p>Invoice No. : {payTerm}</p>
-                          <p class="mb-0">Invoice Date : {poNum}</p>
+
+
+                    <div class="row">
+                      <div class="col-md-8">
+                        <div class="invoice-logo">
+                          <img src="assets/img/logo.png" alt="logo" />
                         </div>
-              
+                        <div class="invoice-head">
+                        <div class="invoice-info">
+                          <h6 class="invoice-name">
+                           {compName}
+                          </h6>
+                          <p class="invoice-details" />
+                          {fromAddr}
+                          <p />
+                      </div>
+                        </div>
+                      </div>
+                      
+
+                      <div
+                        class="col-md-4"
+                        style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
+                      >
+                        <div class="invoice-item-box">
+                          <p>Invoice No. : {invNo}</p>
+                          <p class="mb-0">Invoice Date : {invoiceDate}</p>
+                        </div>
+
                         <div class="invoice-item-box">
                           <p>PO No. : {poNum}</p>
-                          <p class="mb-0">PO Date : {}</p>
+                          <p class="mb-0">PO Date : {poDate}</p>
                         </div>
-                       
-                        </div>
-                  </div>
-                </div>
-                
-               
-                <div class="invoice-item invoice-item-two">
-                  <div class="row">
-                   {serviceCheck=='false' &&<div class="col-md-6">
-                      <div class="invoice-info" style={billToAddrShow ? {display:"none"} : {display : "block"}}>
-                        <strong class="customer-text-one">Billed to</strong>
-                        <h6 class="invoice-name">Customer Name : {custName}</h6>
-                        <p class="invoice-details invoice-details-two"/>
-                         {toAddr}
-                        <p/>
                       </div>
-                    </div>}
-                    <div class={`col-md-${serviceCheck=='false'?6:12}`}>
-                      <div class="invoice-info invoice-info2">
-                        <strong class="customer-text-one">Payment Details</strong>
-                        <p class="invoice-details"/>
+                    </div>
+                  </div>
+
+                  <div class="invoice-item invoice-item-two" style={{borderBottom:'1px solid black',padding:'10px',marginBottom:'7px'}}>
+                    <div class="row">
+                        <div class={`col-md-${serviceCheck == "false" ? 6 : 12}`} >
+                          <div
+                            class="invoice-info"
+                          >
+                            <strong class="customer-text-one">Billing Address</strong>
+                            <h6 class="invoice-name" style={{margin:'0'}}>
+                              {custName}
+                            </h6>
+                            <p class="invoice-details invoice-details-two" style={{margin:'0'}}/>
+                            {toAddr}
+                            <p />
+                          </div>
+                        </div>
+                      {/* <div class={`col-md-${serviceCheck == "false" ? 6 : 12}`}> */}
+                        {/* <div class="invoice-info invoice-info2"> */}
+
+                          {/* <p class="invoice-details"/>
                           Debit Card <br/>
                           XXXXXXXXXXXX-2541 <br/>
                           HDFC Bank
-                        <p/>
-                        {/*
+                        <p/> */}
+                          {/*
                         check it again
                         <div class="invoice-item-box">
                           <p>Recurring : {payTerm}</p>
                           <p class="mb-0">PO Number : {poNum}</p>
                         </div> */}
-                      </div>
+
+                       
+                        {/* </div> */}
+
+                        
+                      {/* </div> */}
+
+                      {serviceCheck == "false" && (
+                        <div class="col-md-6" style={{borderLeft:'1px solid black'}}>
+                          <div
+                            class="invoice-info"
+                          >
+                            <strong class="customer-text-one">Shipping Address</strong>
+                            <h6 class="invoice-name" style={{margin:'0'}}>
+                              {custName}
+                            </h6>
+                            <p class="invoice-details invoice-details-two" style={{margin:'0'}}/>
+                            {toAddr}
+                            <p />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-               
-                <div class="invoice-issues-box">
+
+                  {/* <div class="invoice-issues-box">
                   <div class="row">
                     <div class="col-lg-4 col-md-4">
                       <div class="invoice-issues-date">
@@ -436,99 +785,256 @@ export default function ViewInvoice (){
                       </div>
                     </div>
                   </div>
-                </div>
-               
-                <div class="invoice-item invoice-table-wrap">
-                  <div class="row">
-                    <div class="col-md-12">
-                      <div class="table-responsive">
-                        <table class="invoice-table table table-center mb-0">
-                          <thead>
-                            <tr>
-                              <th>Description</th>
-                              <th>Category</th>
-                              <th>Rate/Item</th>
-                              <th>Quantity</th>
-                              <th>Discount (%)</th>
-                              <th class="text-end">Amount</th>
-                            </tr>
-                          </thead>
-                          <tbody id="productTable">
-                            {/* <tr>
+                </div> */}
+
+                  <div class="invoice-issues-box">
+                    <div class="row">
+                      <div class="col-lg-2 col-md-2">
+                        <div class="invoice-issues-date">
+                          <p>
+                            Challan No. <br /> {challanNumber}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-2 col-md-2">
+                        <div class="invoice-issues-date">
+                          <p>
+                            Challan Date <br /> {challanDate}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
+                        <div class="invoice-issues-date">
+                          <p>
+                            Payment Terms <br /> {payTerm}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-2 col-md-2">
+                        <div class="invoice-issues-date">
+                          <p>
+                            Due Date <br /> {dueDt}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
+                        <div class="invoice-issues-date">
+                          <p>
+                            Transport Mode <br /> {transportMode}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-2 col-md-2">
+                        <div class="invoice-issues-date">
+                          <p>
+                            Vehicle No. <br /> {vehicleNumber}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="invoice-item invoice-table-wrap">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="table-responsive">
+                          <table class="invoice-table table table-center mb-0">
+                            <thead>
+                              <tr>
+                                <th>Product Name/ Description</th>
+                                {/* <th>Description</th> */}
+                                <th>HSN/SAC</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Rate</th>
+                                <th>Dis (%)</th>
+                                <th>Amount</th>
+                                <th>GST Rate</th>
+                              </tr>
+                            </thead>
+                            <tbody id="productTable">
+                              {/* <tr>
                               <td>Apple Ipad</td>
                               <td>Ipad</td>
-                              <td>$11,500</td>
+                              <td>&#x20B9;11,500</td>
                               <td>1</td>
                               <td>10%</td>
-                              <td class="text-end">$11,000</td>
+                              <td class="text-end">&#x20B9;11,000</td>
                             </tr> */}
-                          </tbody>
-                        </table>
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                
 
-                <div class="row align-items-center justify-content-center">
-                  <div class="col-lg-6 col-md-6">
-                    <div class="invoice-terms">
-                      <h6>Notes:</h6>
-                      <p class="mb-0">Enter customer notes or any other details</p>
+                  <div class="row" >
+                    <div class="col-lg-8 col-md-8">
+                    {/* <div class={`col-md-${serviceCheck == "false" ? 6 : 12}`}> */}
+                        <div class="invoice-info invoice-info2">
+                          <strong class="customer-text-one">
+                            Bank Details
+                          </strong>
+                          {/* <p class="invoice-details"/>
+                          Debit Card <br/>
+                          XXXXXXXXXXXX-2541 <br/>
+                          HDFC Bank
+                        <p/> */}
+                          {/*
+                        check it again
+                        <div class="invoice-item-box">
+                          <p>Recurring : {payTerm}</p>
+                          <p class="mb-0">PO Number : {poNum}</p>
+                        </div> */}
+                        <table class="paymentDetailsTable">
+                          <tr>
+                            <td>A/C Holder's Name</td>
+                            <td>: Shivansh Infotech Solutions</td>
+                          </tr>
+
+                          <tr>
+                            <td>Bank Name</td>
+                            <td>: ICICI Bank Ltd</td>
+                          </tr>
+
+                          <tr>
+                            <td>A/C No</td>
+                            <td>: 098605500845</td>
+                          </tr>
+
+                          <tr>
+                            <td>IFSC Code</td>
+                            <td>: ICIC0000986</td>
+                          </tr>
+
+                          <tr>
+                            <td>Branch</td>
+                            <td>: Hinjewadi, Pune</td>
+                          </tr>
+                        </table>
+                        {/* </div> */}
+                      </div>
+                      <div class="invoice-terms">
+                        <h6>Remarks:</h6>
+                        <p class="mb-0"  style={{border:'1px solid black',padding:'20px'}}>
+                          {remarks||'Enter customer notes or any other details'}
+                        </p>
+                      </div>
+                      <div class="invoice-terms">
+                        <h6>Terms and Conditions:</h6>
+                        <p class="mb-0" style={{border:'1px solid black',padding:'20px'}}>
+                          {additionalTerms||"Enter customer notes or any other details"}
+                        </p>
+                      </div>
+                      <div>
+                        Amount In Words:
+                      </div>
                     </div>
-                    <div class="invoice-terms">
-                      <h6>Terms and Conditions:</h6>
-                      <p class="mb-0">Enter customer notes or any other details</p>
-                    </div>
-                  </div>
-                  <div class="col-lg-6 col-md-6">
-                    <div class="invoice-total-card">
-                      <div class="invoice-total-box">
-                        <div class="invoice-total-inner">
-                          <p>Taxable <span>${taxable}</span></p>
-                          <p>Additional Charges <span>${addChrg}</span></p>
-                          <p>Discount <span>${discount}</span></p>
-                          <p class="mb-0">Sub total <span>$3,300.00</span></p>
-                        </div>
-                        <div class="invoice-total-footer">
-                          <h4>Total Amount <span>${total}</span></h4>
+                    <div class="col-lg-4 col-md-4">
+                      <div class="invoice-total-card">
+                        <div class="invoice-total-box">
+                          <div class="invoice-total-inner">
+                            <p>
+                              Taxable <span>&#x20B9;{taxable}</span>
+                            </p>
+                            <p>
+                              Additional Charges <span>&#x20B9;{addChrg}</span>
+                            </p>
+                            <p>
+                              Discount <span>&#x20B9;{discount}</span>
+                            </p>
+                            <p class="mb-0">
+                              Sub total{" "}
+                              <span>
+                                &#x20B9;{taxable + addChrg + discount}
+                              </span>
+                            </p>
+                          </div>
+                          <div className="gstContainer"></div>
+                          <div class="invoice-total-footer">
+                            <h4>
+                              Total Amount{" "}
+                              <span>
+                                &#x20B9;
+                                {taxable +
+                                  addChrg +
+                                  discount +
+                                  (gstPercentageVal.length > 0
+                                    ? gstPercentageVal.reduce((x, y) => x + y)
+                                    : 0)}
+                              </span>
+                            </h4>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="invoice-sign text-end">
-                <h4>Company name here:</h4>
-                  <img class="img-fluid d-inline-block" src="assets/img/signature.png" alt="sign"/>
-                  <span class="d-block">Authorized Signatory</span>
+                  <div class="row">
+                    <div class="col-lg-8" style={{display:'flex',flexDirection:'column',justifyContent:'end'}}>
+                    <h4>Declaration:</h4>
+                    <p style={{margin:'0'}}>We Declare that this Invoice shows the actual price of the Goods/Services described and that all particular are true and correct</p>
+                    </div>
+                    <div class="col-lg-4">
+                  <div class="invoice-sign text-end">
+
+
+                    <h4>{compName}</h4>
+                    <img
+                      class="img-fluid d-inline-block"
+                      src="assets/img/signature.png"
+                      alt="sign"
+                    />
+                    <span class="d-block">Authorized Signatory</span>
+                  </div>
+                  </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        <div class="page-header invoices-page-header">
+          <div class="row">
+            <div class="col-lg-11 col-md-12">
+              <a style={{ color: "grey" }} />
+
+              <div class="form-group float-end mb-0">
+                <button
+                  onClick={printButtonClicked}
+                  class="btn btn-primary"
+                  id="submitButton"
+                  type="submit"
+                  value="Submit"
+                >
+                  Print
+                </button>
+
+                <button
+                  onClick={printButtonClicked}
+                  class="btn btn-primary"
+                  id="submitButton"
+                  type="submit"
+                  value="Submit"
+                  style={{margin:'0 0 0 5px'}}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <div class="page-header invoices-page-header">
-<div class="row align-items-center">
-<div class="col-lg-9 col-md-12"><a style={{color:'grey'}}/>
 
-<div class="form-group float-end mb-0">
-<button onClick={printButtonClicked} class="btn btn-primary"  id="submitButton" type="submit" value="Submit">Print</button>
-</div>
-
-</div>
-</div>
-</div>
-
-
-
-
-
-
+      <iframe
+        id="ifmcontentstoprint"
+        style={{ height: "0px", width: "0px", position: "absolute" }}
+      ></iframe>
     </div>
-
-    <iframe id="ifmcontentstoprint" style={{height: '0px', width: '0px', position: 'absolute'}}></iframe>
-
-   </div>
- );
+  );
 }

@@ -527,7 +527,7 @@ export default function InvoiceList () {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
-		 }else if(name == "View" || name == "Print Invoice"){
+		 }else if(name == "View" || name == "Print"){
 			navigate("/viewInvoice?id="+invt);
 		 }else if(name == "Delete"){
 			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
@@ -1044,12 +1044,12 @@ export default function InvoiceList () {
 			
 	
 			document.querySelector("#tableFooter").appendChild(trElem); 
-			if (document.querySelector('.datatable').length > 0) {
+			if (document.querySelector('.datatable') && document.querySelector('.datatable').length > 0) {
 				document.querySelector('.datatable').DataTable({
 					"bFilter": false,
 				});
 			}
-			if (document.querySelector('.datatables').length > 0) {
+			if (document.querySelector('.datatables') && document.querySelector('.datatables').length > 0) {
 				document.querySelector('.datatables').DataTable({
 					"bFilter": true,
 				});

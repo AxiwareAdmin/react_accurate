@@ -912,7 +912,8 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
 
   const [termsAndCondition, setTermsAndCondition]=useState("");
 
-  const [invoiceMode,setInvoiceMode]=useState("Auto")
+  const [invoiceMode,setInvoiceMode]=useState("Auto");
+  
 
   const navigate=useNavigate();
 useEffect(()=>{
@@ -1253,6 +1254,8 @@ const onDescriptionChange=(e)=>{
       serviceCheck:serviceCheck,
       shippingState:shippingState,
       termsAndCondition:termsAndCondition,
+      transportGstRate:transportGstRate,
+      otherChargesGstRate:otherChargesGstRate,
       financialYear:document.querySelector("#financialYear").value
     }
 
@@ -1438,7 +1441,7 @@ const onDescriptionChange=(e)=>{
               console.log("after got data"+res.data.invoiceNo);
               debugger;
 
-              if(res.data.invoiceId != null)
+              if(res.data.invoiceId != null && actionedit == "Edit")
                setInvoiceId(res.data.invoiceId);
               
               if(res.data.customerName != null){
@@ -2043,7 +2046,7 @@ const onDescriptionChange=(e)=>{
                                 <input
                                   id="hsnSac"
                                   type="text"
-                                  className="form-control quantity1 alignEnd"
+                                  className="form-control hsnSac1 alignEnd"
                                 />
                               </td>
                               <td>

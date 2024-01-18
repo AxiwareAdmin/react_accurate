@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import userEvent from "@testing-library/user-event";
 
 export default function ViewInvoice() {
   var token = localStorage.getItem("token");
@@ -14,6 +15,51 @@ export default function ViewInvoice() {
       Authorization: "Bearer " + token,
     },
   };
+
+  
+  const [invNo, setinvNo] = useState(null);
+  const [compName, setcmpName] = useState("Shivansh infotech");
+  const [fromAddr, setfromAddr] = useState("");
+  const [custName, setcustName] = useState(null);
+  const [toAddr, setToAddr] = useState("");
+  const [poNum, setpoNum] = useState("");
+  const [issDt, setissDt] = useState("");
+  const [dueDt, setDueDt] = useState("");
+  const [dueAmt, setdueAmt] = useState(0);
+  const [taxable, settaxable] = useState(0);
+  const [addChrg, setaddChrg] = useState(0);
+  const [discount, setdiscount] = useState(0);
+  const [total, settotal] = useState(0);
+  const [subTotal, setsubTotal] = useState(0);
+  const [payTerm, setpayTerm] = useState("");
+  const [billToAddrShow, setBillToAddrShow] = useState(false);
+  const [invoiceDate, setInvoiceDate] = useState("");
+  const [poDate, setPoDate] = useState("");
+  const [invoiceDetails,setInvoiceDetails]=useState({})
+
+  const [challanNumber, setChallanNumber] = useState("");
+
+  const [challanDate, setChallanDate] = useState("");
+  const [transportMode, setTransportMode] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("");
+
+  const [clientDetails,setClientDetails]=useState({});
+
+  const [customerDetails,setCustomerDetails]=useState({});
+
+  const [userDetails,setUserDetails]=useState({});
+
+  // const [gstPercentageArr,setGstPercentageArr]=useState([]);
+
+  const [gstPercentageVal, setGstPercentageVal] = useState([]);
+
+  // const [gstCalculationVal,setGstCalculationVal]=useState({})
+
+  const [serviceCheck, setServiceCheck] = useState("false");
+
+  const [additionalTerms,setAdditionalTerms]=useState("");
+
+  const [remarks,setRemarks]=useState("");
 
   const initilized = useRef(false);
 
@@ -232,6 +278,7 @@ export default function ViewInvoice() {
     });
   }
 
+
   useEffect(() => {
     const script11 = document.createElement("script");
     script11.src = "/assets/js/jquery-3.6.0.min.js";
@@ -328,6 +375,8 @@ export default function ViewInvoice() {
         .then((res) => {
           debugger;
 
+          setInvoiceDetails(res.data);
+
           setinvNo(res.data.invoiceNo);
 
           setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
@@ -344,9 +393,9 @@ export default function ViewInvoice() {
           )
             setToAddr(billingaddr);
 
-          let custName = res.data.customerName;
-          if (custName != null && custName != undefined && custName != "")
-            setcustName(custName);
+          let tempCustName = res.data.customerName;
+          if (tempCustName != null && tempCustName != undefined && tempCustName != "")
+            setcustName(tempCustName);
 
           let tempRemarks=res.data.remarks;
           if(tempRemarks!=null && tempRemarks!=undefined && tempRemarks!=""){
@@ -599,8 +648,38 @@ export default function ViewInvoice() {
         .catch((e) => {
           console.log(e);
         });
+
+        axios.get("http://localhost:8080/getClientDOForUser",header)
+        .then((res)=>{
+          if(res.data!='client not found'){
+            setClientDetails(res.data);
+          }
+        })
+
+        axios.get("http://localhost:8080/user",header)
+        .then((res)=>{
+            setUserDetails(res.data);
+        }).catch((error)=>{
+          console.log(error)
+        })
+
+
+
     }
-  });
+  },[]);
+
+
+  useEffect(()=>{
+      if(custName==null) return;
+
+      axios.get(`http://localhost:8080/customer/custname/${custName}`,header).then((res)=>{
+          if(res!='Customers not found'){
+            setCustomerDetails(res.data);
+          }
+      })
+
+
+  },[custName])
 
   const invoicepdf = useRef(null);
   // useEffect (() =>{
@@ -618,42 +697,6 @@ export default function ViewInvoice() {
     });
   };
 
-  const [invNo, setinvNo] = useState(null);
-  const [compName, setcmpName] = useState("Shivansh infotech");
-  const [fromAddr, setfromAddr] = useState("");
-  const [custName, setcustName] = useState("");
-  const [toAddr, setToAddr] = useState("");
-  const [poNum, setpoNum] = useState("");
-  const [issDt, setissDt] = useState("");
-  const [dueDt, setDueDt] = useState("");
-  const [dueAmt, setdueAmt] = useState(0);
-  const [taxable, settaxable] = useState(0);
-  const [addChrg, setaddChrg] = useState(0);
-  const [discount, setdiscount] = useState(0);
-  const [total, settotal] = useState(0);
-  const [subTotal, setsubTotal] = useState(0);
-  const [payTerm, setpayTerm] = useState("");
-  const [billToAddrShow, setBillToAddrShow] = useState(false);
-  const [invoiceDate, setInvoiceDate] = useState("");
-  const [poDate, setPoDate] = useState("");
-
-  const [challanNumber, setChallanNumber] = useState("");
-
-  const [challanDate, setChallanDate] = useState("");
-  const [transportMode, setTransportMode] = useState("");
-  const [vehicleNumber, setVehicleNumber] = useState("");
-
-  // const [gstPercentageArr,setGstPercentageArr]=useState([]);
-
-  const [gstPercentageVal, setGstPercentageVal] = useState([]);
-
-  // const [gstCalculationVal,setGstCalculationVal]=useState({})
-
-  const [serviceCheck, setServiceCheck] = useState("false");
-
-  const [additionalTerms,setAdditionalTerms]=useState("");
-
-  const [remarks,setRemarks]=useState("");
   
   return (
     <div>
@@ -686,10 +729,15 @@ export default function ViewInvoice() {
                         <div class="invoice-head">
                         <div class="invoice-info">
                           <h6 class="invoice-name">
-                           {compName}
+                           {clientDetails.companyName}
                           </h6>
                           <p class="invoice-details" />
-                          {fromAddr}
+                          {clientDetails.address1},{clientDetails.address2},<br/>
+                          {clientDetails.city},{clientDetails.state}-{clientDetails.pinCode},<br/>
+                          GST No.{clientDetails.gstNo}<br/>
+                          Email : {clientDetails.email}<br/>
+                          conact : {clientDetails.mobile}<br/>
+                          {clientDetails.website}
                           <p />
                       </div>
                         </div>
@@ -724,7 +772,13 @@ export default function ViewInvoice() {
                               {custName}
                             </h6>
                             <p class="invoice-details invoice-details-two" style={{margin:'0'}}/>
-                            {toAddr}
+                            {customerDetails.address1},{customerDetails.address2}<br/>
+                            {customerDetails.city} {customerDetails.pincode}<br/>
+                            State: {customerDetails.state}, Code-{customerDetails.stateCode}<br/>
+                            GST No. {customerDetails.gstNo}<br/>
+                            Contact person: {customerDetails.contactPerson}
+                            Contact No. {customerDetails.contactNumber}
+
                             <p />
                           </div>
                         </div>
@@ -759,7 +813,12 @@ export default function ViewInvoice() {
                               {custName}
                             </h6>
                             <p class="invoice-details invoice-details-two" style={{margin:'0'}}/>
-                            {toAddr}
+                             {customerDetails.shippingAddress1},{customerDetails.shippingAddress2}<br/>
+                            {customerDetails.shippingCity} {customerDetails.shippingPinCode}<br/>
+                            State: {customerDetails.shippingState}, Code-{customerDetails.shippingStateCode}<br/>
+                            GST No. {customerDetails.shippingGstNo}<br/>
+                            Contact person: {customerDetails.shippingContactPerson}<br/>
+                            Contact No. {customerDetails.shippingContactNumber}
                             <p />
                           </div>
                         </div>
@@ -894,27 +953,27 @@ export default function ViewInvoice() {
                         <table class="paymentDetailsTable">
                           <tr>
                             <td>A/C Holder's Name</td>
-                            <td>: Shivansh Infotech Solutions</td>
+                            <td>: {userDetails.userName}</td>
                           </tr>
 
                           <tr>
                             <td>Bank Name</td>
-                            <td>: ICICI Bank Ltd</td>
+                            <td>: {userDetails.bankName}</td>
                           </tr>
 
                           <tr>
                             <td>A/C No</td>
-                            <td>: 098605500845</td>
+                            <td>: {userDetails.accountNumber}</td>
                           </tr>
 
                           <tr>
                             <td>IFSC Code</td>
-                            <td>: ICIC0000986</td>
+                            <td>: {userDetails.ifscCode}</td>
                           </tr>
 
                           <tr>
                             <td>Branch</td>
-                            <td>: Hinjewadi, Pune</td>
+                            <td>: {userDetails.branch}</td>
                           </tr>
                         </table>
                         {/* </div> */}
@@ -983,7 +1042,7 @@ export default function ViewInvoice() {
                   <div class="invoice-sign text-end">
 
 
-                    <h4>{compName}</h4>
+                    <h4>{clientDetails.companyName}</h4>
                     <img
                       class="img-fluid d-inline-block"
                       src="assets/img/signature.png"

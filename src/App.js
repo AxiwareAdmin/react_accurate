@@ -8,6 +8,7 @@ import InvoiceList from "./components/invoiceList";
 import Alert from "./components/alert";
 import { BrowserRouter } from "react-router-dom";
 import ViewInvoice from "./components/view-Invoice";
+import ViewInvoiceTriplet from "./components/ViewInvoiceTriplet";
 import SalesRegister from "./components/salesRegister";
 import InvoicesPaid from "./components/InvoicesPaid";
 import InvoicesOverDue from "./components/InvoicesOverDue";
@@ -76,7 +77,7 @@ function App() {
           <Route  path="/add-purchase" element={<PurchaseCreate/>} />
           <Route path="/invoiceList" element={<InvoiceList/>}/>
           <Route path="/purchaseList" element={<PurchaseList/>}/>
-          <Route path="/viewInvoice" element={<ViewInvoice/>}/>
+          <Route path="/viewInvoice" element={<ViewInvoiceTriplet/>}/>
           <Route path="/viewPurchase" element={<ViewPurchase/>}/>
           <Route path="/salesRegister" element={<SalesRegister/>} />
           <Route path="/purchaseRegister" element={<PurchaseRegister/>} />

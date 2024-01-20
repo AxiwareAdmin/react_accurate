@@ -7,6 +7,100 @@ import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 
 export default function ViewInvoiceTriplet() {
+
+    const invoicepdf = useRef(null);
+    // useEffect (() =>{
+  
+    //   if(initilized.current){
+    const downloadpdf = (invoiceNo) => {
+      html2canvas(invoicepdf.current).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF();
+        pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
+        pdf.save(invoiceNo + ".pdf");
+  
+        //   });
+        // }
+      });
+    };
+
+    const printButtonClicked = (e) => {
+        var nodeList=document.querySelectorAll(".page-wrapper");
+        for(let i=0;i<nodeList.length;i++){
+            nodeList[i].style='margin:0;'
+        }
+        console.log(invoicepdf.current)
+        debugger;
+        html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
+          const imgData = canvas.toDataURL('image/png');
+  
+          const printWindow = window.open('', '_blank');
+          printWindow.document.open();
+          printWindow.document.write('<html><head><title>Print</title>\
+          <style>\
+                @media print {\
+                  body {\
+                    margin: 0; /* Reset margin to avoid blank page */\
+                  }\
+                  body * {\
+                    visibility: hidden;\
+                  }\
+                  #printImage, #printImage * {\
+                    visibility: visible;\
+                  }\
+                }\
+              </style>\
+          \
+          </head><body>');
+          printWindow.document.write(`<img id="printImage" src="${imgData}" style="width: 100%; height: auto;" onload="window.print()" />`);
+          printWindow.document.write('</body></html>');
+          printWindow.document.close();
+          // printWindow.print();
+        });
+    
+        // html2canvas(data) // useCORS is optional if your images are externally hosted somewhere like s3
+        // .then(canvas => {
+        //   const contentDataURL = canvas.toDataURL('image/png')
+        //   let pdf = new jsPDF('p', 'mm',[canvas.width,canvas.height]);
+        //   var pdfWidth = pdf.internal.pageSize.getWidth();
+        //   var pdfHeight = pdf.internal.pageSize.getHeight();
+        //   pdf.addImage(contentDataURL, 'PNG', 0, 5,pdfWidth, pdfHeight);
+        //   //  pdf.save('new-file.pdf');
+        //   window.open(pdf.output('bloburl', { filename: 'new-file.pdf' }), '_blank');
+        // });
+
+
+        // html2canvas(invoicepdf.current,{scrollY: -window.screenY,scale:1}).then((canvas) => {
+        //   const myImage = canvas.toDataURL("image/png");
+    
+        //   var nWindow = window.open("");
+
+        //   const pdf=new jsPDF(
+        //     'p',
+        //     'pt',
+        //     [canvas.width,canvas.height]
+        //   )
+
+        //   const imgProps=pdf.getImageProperties(myImage);
+        //   const pdfWidth=pdf.internal.pageSize.getWidth();
+        //   const pdfHeight=pdf.internal.pageSize.getHeight();
+
+        //   pdf.addImage(myImage,'PNG',pdfWidth,pdfHeight);
+
+          
+
+          
+    
+        //   // append the canvas to the body
+        //   nWindow.open(pdf.output('bloburl',{filename:'new.pdf'}),'_blank');
+    
+        //   // focus on the window
+        //   // nWindow.focus();
+    
+        //   // print the window
+        //   // nWindow.print();
+        // });
+      };
     const fetchId=()=>{
         var url = new URL(window.location.href);
       let id1 = url.searchParams.get("id");
@@ -15,14 +109,49 @@ export default function ViewInvoiceTriplet() {
     }
   return (
     <div>
-      <ViewInvoice id={fetchId()}/>
-      <ViewInvoice id={fetchId()}/>
-      <ViewInvoice id={fetchId()}/>
+        <Navbar />
+        <Sidebar />
+    <div ref={invoicepdf}>
+      <ViewInvoice id={fetchId()} productTableId="productTable1" gstContainerId="gstContainer1" label="Original"/>
+      <ViewInvoice id={fetchId()} productTableId="productTable2" gstContainerId="gstContainer2" label="Duplicate"/>
+      <ViewInvoice id={fetchId()} productTableId="productTable3" gstContainerId="gstContainer3" label="Tripicate"/>
+     
+      <div class="page-header invoices-page-header">
+            <div class="row">
+              <div class="col-lg-11 col-md-12">
+                <a style={{ color: "grey" }} />
+  
+                <div class="form-group float-end mb-0">
+                  <button
+                    onClick={printButtonClicked}
+                    class="btn btn-primary"
+                    id="submitButton"
+                    type="submit"
+                    value="Submit"
+                  >
+                    Print
+                  </button>
+  
+                  <button
+                    onClick={printButtonClicked}
+                    class="btn btn-primary"
+                    id="submitButton"
+                    type="submit"
+                    value="Submit"
+                    style={{margin:'0 0 0 5px'}}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+            </div>
+    </div>
     </div>
   )
 }
 
-    function ViewInvoice(props) {
+function ViewInvoice(props) {
     var token = localStorage.getItem("token");
     var header = {
       headers: {
@@ -30,6 +159,50 @@ export default function ViewInvoiceTriplet() {
         Authorization: "Bearer " + token,
       },
     };
+  
+    const [invNo, setinvNo] = useState(null);
+    const [compName, setcmpName] = useState("Shivansh infotech");
+    const [fromAddr, setfromAddr] = useState("");
+    const [custName, setcustName] = useState(null);
+    const [toAddr, setToAddr] = useState("");
+    const [poNum, setpoNum] = useState("");
+    const [issDt, setissDt] = useState("");
+    const [dueDt, setDueDt] = useState("");
+    const [dueAmt, setdueAmt] = useState(0);
+    const [taxable, settaxable] = useState(0);
+    const [addChrg, setaddChrg] = useState(0);
+    const [discount, setdiscount] = useState(0);
+    const [total, settotal] = useState(0);
+    const [subTotal, setsubTotal] = useState(0);
+    const [payTerm, setpayTerm] = useState("");
+    const [billToAddrShow, setBillToAddrShow] = useState(false);
+    const [invoiceDate, setInvoiceDate] = useState("");
+    const [poDate, setPoDate] = useState("");
+    const [invoiceDetails,setInvoiceDetails]=useState({})
+  
+    const [challanNumber, setChallanNumber] = useState("");
+  
+    const [challanDate, setChallanDate] = useState("");
+    const [transportMode, setTransportMode] = useState("");
+    const [vehicleNumber, setVehicleNumber] = useState("");
+  
+    const [clientDetails,setClientDetails]=useState({});
+  
+    const [customerDetails,setCustomerDetails]=useState({});
+  
+    const [userDetails,setUserDetails]=useState({});
+  
+    // const [gstPercentageArr,setGstPercentageArr]=useState([]);
+  
+    const [gstPercentageVal, setGstPercentageVal] = useState([]);
+  
+    // const [gstCalculationVal,setGstCalculationVal]=useState({})
+  
+    const [serviceCheck, setServiceCheck] = useState("false");
+  
+    const [additionalTerms,setAdditionalTerms]=useState("");
+  
+    const [remarks,setRemarks]=useState("");
   
     const initilized = useRef(false);
   
@@ -45,40 +218,7 @@ export default function ViewInvoiceTriplet() {
       return [day, month, year].join("-");
     }
   
-    const printButtonClicked = (e) => {
-      // var content = document.getElementsByClassName("page-wrapper")[0];
-      // var pri = document.getElementById("ifmcontentstoprint").contentWindow;
-      // pri.document.open();
-      // pri.document.write(content.innerHTML);
-      // pri.document.close();
-      // pri.focus();
-      // pri.print();
-  
-      // var panel = document.getElementsByClassName("page-wrapper")[0];
-      // var printWindow = window.open();
-  
-      // printWindow.document.write(panel.innerHTML);
-  
-      // printWindow.document.close();
-      // setTimeout(function () {
-      //     printWindow.print();
-      // }, 500);
-  
-      html2canvas(invoicepdf.current).then((canvas) => {
-        const myImage = canvas.toDataURL("image/png");
-  
-        var nWindow = window.open("");
-  
-        // append the canvas to the body
-        nWindow.document.body.appendChild(canvas);
-  
-        // focus on the window
-        nWindow.focus();
-  
-        // print the window
-        nWindow.print();
-      });
-    };
+
   
     function ImageSourcetoPrint(source) {
       return (
@@ -195,7 +335,7 @@ export default function ViewInvoiceTriplet() {
   
         divElem.appendChild(h4Elem);
   
-        document.querySelector(".gstContainer").append(divElem);
+        document.querySelector("."+props.gstContainerId).append(divElem);
   
         divElem = document.createElement("div");
         divElem.className = "invoice-total-footer";
@@ -244,9 +384,10 @@ export default function ViewInvoiceTriplet() {
   
         divElem.appendChild(h4Elem);
   
-        document.querySelector(".gstContainer").append(divElem);
+        document.querySelector("."+props.gstContainerId).append(divElem);
       });
     }
+  
   
     useEffect(() => {
       const script11 = document.createElement("script");
@@ -344,6 +485,8 @@ export default function ViewInvoiceTriplet() {
           .then((res) => {
             debugger;
   
+            setInvoiceDetails(res.data);
+  
             setinvNo(res.data.invoiceNo);
   
             setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
@@ -360,9 +503,9 @@ export default function ViewInvoiceTriplet() {
             )
               setToAddr(billingaddr);
   
-            let custName = res.data.customerName;
-            if (custName != null && custName != undefined && custName != "")
-              setcustName(custName);
+            let tempCustName = res.data.customerName;
+            if (tempCustName != null && tempCustName != undefined && tempCustName != "")
+              setcustName(tempCustName);
   
             let tempRemarks=res.data.remarks;
             if(tempRemarks!=null && tempRemarks!=undefined && tempRemarks!=""){
@@ -461,14 +604,14 @@ export default function ViewInvoiceTriplet() {
             res.data.invoiceProductDO.map((ele) => {
               let trEle = document.createElement("tr");
               let tdEle = document.createElement("td");
-              let textEle = document.createTextNode(ele.productName);
+              let textEle = document.createTextNode(ele.productName +" - "+ele.productDescription);
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
   
-              tdEle = document.createElement("td");
-              textEle = document.createTextNode(ele.productDescription);
-              tdEle.appendChild(textEle);
-              trEle.appendChild(tdEle);
+              // tdEle = document.createElement("td");
+              // textEle = document.createTextNode(ele.productDescription);
+              // tdEle.appendChild(textEle);
+              // trEle.appendChild(tdEle);
   
               tdEle = document.createElement("td");
               textEle = document.createTextNode(ele.hsnSac);
@@ -505,11 +648,11 @@ export default function ViewInvoiceTriplet() {
   
               tdEle = document.createElement("td");
               //  tdEle.className = "text-end";
-              textEle = document.createTextNode("\u20B9" + ele.tax + "%");
+              textEle = document.createTextNode("GST @" + ele.tax + "%");
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
   
-              document.querySelector("#productTable").appendChild(trEle);
+              document.querySelector("#"+props.productTableId).appendChild(trEle);
   
               let index = tempGstPercentageArr.indexOf(ele.tax);
               if (index < 0) {
@@ -601,114 +744,103 @@ export default function ViewInvoiceTriplet() {
   
             settaxable(totalAmount);
   
-            if (
-              action == "download" &&
-              action != null &&
-              action != "" &&
-              action != undefined
-            ) {
-              setTimeout(function () {
-                downloadpdf(res.data.invoiceNo);
-              }, 500);
-            }
+          
           })
           .catch((e) => {
             console.log(e);
           });
+  
+          axios.get("http://localhost:8080/getClientDOForUser",header)
+          .then((res)=>{
+            if(res.data!='client not found'){
+              setClientDetails(res.data);
+            }
+          })
+  
+          axios.get("http://localhost:8080/user",header)
+          .then((res)=>{
+              setUserDetails(res.data);
+          }).catch((error)=>{
+            console.log(error)
+          })
+  
+  
+  
       }
-    });
+    },[]);
   
-    const invoicepdf = useRef(null);
-    // useEffect (() =>{
   
-    //   if(initilized.current){
-    const downloadpdf = (invoiceNo) => {
-      html2canvas(invoicepdf.current).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
-        pdf.save(invoiceNo + ".pdf");
+    useEffect(()=>{
+        if(custName==null) return;
   
-        //   });
-        // }
-      });
-    };
+        axios.get(`http://localhost:8080/customer/custname/${custName}`,header).then((res)=>{
+            if(res!='Customers not found'){
+              setCustomerDetails(res.data);
+            }
+        })
   
-    const [invNo, setinvNo] = useState(null);
-    const [compName, setcmpName] = useState("Shivansh infotech");
-    const [fromAddr, setfromAddr] = useState("");
-    const [custName, setcustName] = useState("");
-    const [toAddr, setToAddr] = useState("");
-    const [poNum, setpoNum] = useState("");
-    const [issDt, setissDt] = useState("");
-    const [dueDt, setDueDt] = useState("");
-    const [dueAmt, setdueAmt] = useState(0);
-    const [taxable, settaxable] = useState(0);
-    const [addChrg, setaddChrg] = useState(0);
-    const [discount, setdiscount] = useState(0);
-    const [total, settotal] = useState(0);
-    const [subTotal, setsubTotal] = useState(0);
-    const [payTerm, setpayTerm] = useState("");
-    const [billToAddrShow, setBillToAddrShow] = useState(false);
-    const [invoiceDate, setInvoiceDate] = useState("");
-    const [poDate, setPoDate] = useState("");
   
-    const [challanNumber, setChallanNumber] = useState("");
+    },[custName])
   
-    const [challanDate, setChallanDate] = useState("");
-    const [transportMode, setTransportMode] = useState("");
-    const [vehicleNumber, setVehicleNumber] = useState("");
+   
   
-    // const [gstPercentageArr,setGstPercentageArr]=useState([]);
-  
-    const [gstPercentageVal, setGstPercentageVal] = useState([]);
-  
-    // const [gstCalculationVal,setGstCalculationVal]=useState({})
-  
-    const [serviceCheck, setServiceCheck] = useState("false");
-  
-    const [additionalTerms,setAdditionalTerms]=useState("");
-  
-    const [remarks,setRemarks]=useState("");
     
     return (
       <div>
-        <Navbar />
-        <Sidebar />
-        <div class="page-wrapper" ref={invoicepdf}>
+       
+        <div class="page-wrapper">
           <div class="content container-fluid">
             <div class="row justify-content-center">
-              <div class="col-xl-10">
-                <div class="card invoice-info-card">
+              <div class="col-xl-12">
+                <div class="card invoice-info-card" style={{border:'1px solid black'}}>
                   <div class="card-body">
-                    <div class="invoice-item invoice-item-one">
+                    <div class="invoice-item invoice-item-one" style={{borderBottom:'1px solid black'}}>
+  
                       <div class="row">
-                        <div class="col-md-4">
+                      <div class="col-md-12">
+                          <div class="invoice-info" style={{borderBottom:'1px solid black',display:'flex'}}>
+                            <strong class="customer-text-one" style={{textAlign:'center',flexGrow:'1'}}>
+                             TAX INVOICE
+                            </strong>
+
+                            {/* <strong class="customer-text-one" style={{textAlign:'end'}}>
+                            {props.label}
+                            </strong> */}
+                            <p>
+                            {props.label}
+                            </p>
+
+                          </div>
+                        </div>
+                      </div>
+  
+  
+                      <div class="row">
+                        <div class="col-md-8">
                           <div class="invoice-logo">
                             <img src="assets/img/logo.png" alt="logo" />
                           </div>
                           <div class="invoice-head">
-                            <h2>Invoice</h2>
-                            <p>Invoice Number : {invNo}</p>
-                          </div>
-                        </div>
-                        <div class="col-md-4">
                           <div class="invoice-info">
-                            <strong class="customer-text-one">
-                              Invoice From
-                            </strong>
                             <h6 class="invoice-name">
-                              Company Name : {compName}
+                             {clientDetails.companyName}
                             </h6>
                             <p class="invoice-details" />
-                            {fromAddr}
+                            {clientDetails.address1},{clientDetails.address2},<br/>
+                            {clientDetails.city},{clientDetails.state}-{clientDetails.pinCode},<br/>
+                            GST No.{clientDetails.gstNo}<br/>
+                            Email : {clientDetails.email}<br/>
+                            conact : {clientDetails.mobile}<br/>
+                            {clientDetails.website}
                             <p />
+                        </div>
                           </div>
                         </div>
+                        
   
                         <div
                           class="col-md-4"
-                          style={{ display: "flex", flexDirection: "column" }}
+                          style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                         >
                           <div class="invoice-item-box">
                             <p>Invoice No. : {invNo}</p>
@@ -723,18 +855,24 @@ export default function ViewInvoiceTriplet() {
                       </div>
                     </div>
   
-                    <div class="invoice-item invoice-item-two">
+                    <div class="invoice-item invoice-item-two" style={{borderBottom:'1px solid black',padding:'10px',marginBottom:'7px'}}>
                       <div class="row">
-                          <div class={`col-md-${serviceCheck == "false" ? 6 : 12}`}>
+                          <div class={`col-md-${serviceCheck == "false" ? 6 : 12}`} >
                             <div
                               class="invoice-info"
                             >
-                              <strong class="customer-text-one">Billed to</strong>
-                              <h6 class="invoice-name">
-                                Customer Name : {custName}
+                              <strong class="customer-text-one">Billing Address</strong>
+                              <h6 class="invoice-name" style={{margin:'0'}}>
+                                {custName}
                               </h6>
-                              <p class="invoice-details invoice-details-two" />
-                              {toAddr}
+                              <p class="invoice-details invoice-details-two" style={{margin:'0'}}/>
+                              {customerDetails.address1},{customerDetails.address2}<br/>
+                              {customerDetails.city} {customerDetails.pincode}<br/>
+                              State: {customerDetails.state}, Code-{customerDetails.stateCode}<br/>
+                              GST No. {customerDetails.gstNo}<br/>
+                              Contact person: {customerDetails.contactPerson}
+                              Contact No. {customerDetails.contactNumber}
+  
                               <p />
                             </div>
                           </div>
@@ -760,16 +898,21 @@ export default function ViewInvoiceTriplet() {
                         {/* </div> */}
   
                         {serviceCheck == "false" && (
-                          <div class="col-md-6">
+                          <div class="col-md-6" style={{borderLeft:'1px solid black'}}>
                             <div
                               class="invoice-info"
                             >
-                              <strong class="customer-text-one">Shipping to</strong>
-                              <h6 class="invoice-name">
-                                Customer Name : {custName}
+                              <strong class="customer-text-one">Shipping Address</strong>
+                              <h6 class="invoice-name" style={{margin:'0'}}>
+                                {custName}
                               </h6>
-                              <p class="invoice-details invoice-details-two" />
-                              {toAddr}
+                              <p class="invoice-details invoice-details-two" style={{margin:'0'}}/>
+                               {customerDetails.shippingAddress1},{customerDetails.shippingAddress2}<br/>
+                              {customerDetails.shippingCity} {customerDetails.shippingPinCode}<br/>
+                              State: {customerDetails.shippingState}, Code-{customerDetails.shippingStateCode}<br/>
+                              GST No. {customerDetails.shippingGstNo}<br/>
+                              Contact person: {customerDetails.shippingContactPerson}<br/>
+                              Contact No. {customerDetails.shippingContactNumber}
                               <p />
                             </div>
                           </div>
@@ -815,7 +958,7 @@ export default function ViewInvoiceTriplet() {
                           </div>
                         </div>
   
-                        <div class="col-lg-2 col-md-2">
+                        <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
                           <div class="invoice-issues-date">
                             <p>
                               Payment Terms <br /> {payTerm}
@@ -831,7 +974,7 @@ export default function ViewInvoiceTriplet() {
                           </div>
                         </div>
   
-                        <div class="col-lg-2 col-md-2">
+                        <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
                           <div class="invoice-issues-date">
                             <p>
                               Transport Mode <br /> {transportMode}
@@ -856,18 +999,18 @@ export default function ViewInvoiceTriplet() {
                             <table class="invoice-table table table-center mb-0">
                               <thead>
                                 <tr>
-                                  <th>Category</th>
-                                  <th>Description</th>
+                                  <th>Product Name/ Description</th>
+                                  {/* <th>Description</th> */}
                                   <th>HSN/SAC</th>
                                   <th>Quantity</th>
                                   <th>Unit</th>
-                                  <th>Rate/Item</th>
-                                  <th>Discount (%)</th>
+                                  <th>Rate</th>
+                                  <th>Dis (%)</th>
                                   <th>Amount</th>
-                                  <th>Gst Rate</th>
+                                  <th>GST Rate</th>
                                 </tr>
                               </thead>
-                              <tbody id="productTable">
+                              <tbody id={props.productTableId}>
                                 {/* <tr>
                                 <td>Apple Ipad</td>
                                 <td>Ipad</td>
@@ -883,12 +1026,12 @@ export default function ViewInvoiceTriplet() {
                       </div>
                     </div>
   
-                    <div class="row">
-                      <div class="col-lg-6 col-md-6">
+                    <div class="row" >
+                      <div class="col-lg-8 col-md-8">
                       {/* <div class={`col-md-${serviceCheck == "false" ? 6 : 12}`}> */}
                           <div class="invoice-info invoice-info2">
                             <strong class="customer-text-one">
-                              Payment Details
+                              Bank Details
                             </strong>
                             {/* <p class="invoice-details"/>
                             Debit Card <br/>
@@ -904,45 +1047,48 @@ export default function ViewInvoiceTriplet() {
                           <table class="paymentDetailsTable">
                             <tr>
                               <td>A/C Holder's Name</td>
-                              <td>: Shivansh Infotech Solutions</td>
+                              <td>: {userDetails.userName}</td>
                             </tr>
   
                             <tr>
                               <td>Bank Name</td>
-                              <td>: ICICI Bank Ltd</td>
+                              <td>: {userDetails.bankName}</td>
                             </tr>
   
                             <tr>
                               <td>A/C No</td>
-                              <td>: 098605500845</td>
+                              <td>: {userDetails.accountNumber}</td>
                             </tr>
   
                             <tr>
                               <td>IFSC Code</td>
-                              <td>: ICIC0000986</td>
+                              <td>: {userDetails.ifscCode}</td>
                             </tr>
   
                             <tr>
                               <td>Branch</td>
-                              <td>: Hinjewadi, Pune</td>
+                              <td>: {userDetails.branch}</td>
                             </tr>
                           </table>
                           {/* </div> */}
                         </div>
                         <div class="invoice-terms">
-                          <h6>Notes:</h6>
-                          <p class="mb-0">
+                          <h6>Remarks:</h6>
+                          <p class="mb-0"  style={{border:'1px solid black',padding:'20px'}}>
                             {remarks||'Enter customer notes or any other details'}
                           </p>
                         </div>
                         <div class="invoice-terms">
                           <h6>Terms and Conditions:</h6>
-                          <p class="mb-0">
+                          <p class="mb-0" style={{border:'1px solid black',padding:'20px'}}>
                             {additionalTerms||"Enter customer notes or any other details"}
                           </p>
                         </div>
+                        <div>
+                          Amount In Words:
+                        </div>
                       </div>
-                      <div class="col-lg-6 col-md-6">
+                      <div class="col-lg-4 col-md-4">
                         <div class="invoice-total-card">
                           <div class="invoice-total-box">
                             <div class="invoice-total-inner">
@@ -962,7 +1108,7 @@ export default function ViewInvoiceTriplet() {
                                 </span>
                               </p>
                             </div>
-                            <div className="gstContainer"></div>
+                            <div className={props.gstContainerId}></div>
                             <div class="invoice-total-footer">
                               <h4>
                                 Total Amount{" "}
@@ -981,8 +1127,16 @@ export default function ViewInvoiceTriplet() {
                         </div>
                       </div>
                     </div>
+                    <div class="row">
+                      <div class="col-lg-8" style={{display:'flex',flexDirection:'column',justifyContent:'end'}}>
+                      <h4>Declaration:</h4>
+                      <p style={{margin:'0'}}>We Declare that this Invoice shows the actual price of the Goods/Services described and that all particular are true and correct</p>
+                      </div>
+                      <div class="col-lg-4">
                     <div class="invoice-sign text-end">
-                      <h4>{compName}</h4>
+  
+  
+                      <h4>{clientDetails.companyName}</h4>
                       <img
                         class="img-fluid d-inline-block"
                         src="assets/img/signature.png"
@@ -990,31 +1144,15 @@ export default function ViewInvoiceTriplet() {
                       />
                       <span class="d-block">Authorized Signatory</span>
                     </div>
+                    </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
   
-          <div class="page-header invoices-page-header">
-            <div class="row align-items-center">
-              <div class="col-lg-9 col-md-12">
-                <a style={{ color: "grey" }} />
-  
-                <div class="form-group float-end mb-0">
-                  <button
-                    onClick={printButtonClicked}
-                    class="btn btn-primary"
-                    id="submitButton"
-                    type="submit"
-                    value="Submit"
-                  >
-                    Print
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          
         </div>
   
         <iframe

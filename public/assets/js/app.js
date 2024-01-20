@@ -1033,6 +1033,11 @@ $('#customer').select2();
 
 $("#user").select2();
 
+$("#user").on('change',(e)=>{
+    e.preventDefault();
+    window.onUserChange(e)
+})
+
 $('.prodListSelect1').on('change',(event)=>{
  var td=event.target.parentElement;
 

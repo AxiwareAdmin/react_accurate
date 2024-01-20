@@ -2104,7 +2104,7 @@ const onDescriptionChange=(e)=>{
                                   <i className="fas fa-plus-circle"></i>
                                 </a>
                                 <a href="#" className="copy-btn me-2">
-                                <i className="fas fa-copy" onClick={AddProductDetails}></i>
+                                <i className="fas fa-cart-plus" style={{color:'navy'}} onClick={AddProductDetails}></i>
                                 </a>
                                 <a
                                   href="javascript:void(0);"

@@ -177,6 +177,7 @@ export default function SalesRegister () {
               trEle.appendChild(tdEle);
 
               tdEle = document.createElement("td");
+              tdEle.className='textAlignEnd'
               aEle = document.createElement("a");
               aEle.href = "invoiceList";
             //   aEle.setAttribute(data-bs-toggle,"modal");
@@ -193,6 +194,7 @@ export default function SalesRegister () {
               totalAmt=totalAmt+fromCurrency(toCurrency(obj.amount));
 
               tdEle = document.createElement("td");
+              tdEle.className='textAlignEnd'
               textEle = document.createTextNode(tempAmt);
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
@@ -202,6 +204,7 @@ export default function SalesRegister () {
               closingBal=closingBal+fromCurrency(toCurrency(obj.amount));
 
               tdEle = document.createElement("td");
+              tdEle.className='textAlignEnd'
               textEle = document.createTextNode(toCurrency(closingBal).replace(/[\$]/g,''));
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
@@ -234,18 +237,21 @@ export default function SalesRegister () {
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.className='textAlignEnd'
         tdElem.style='color: #ffffff;font-weight:bold'
          textElem=document.createTextNode(toCurrency(totaInvoiceVal).replace(/[\$]/g,''));
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.className='textAlignEnd'
         tdElem.style='color: #ffffff;font-weight:bold'
         textElem=document.createTextNode(toCurrency(totalAmt).replace(/[\$]/g,''));
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.className='textAlignEnd'
         tdElem.style='color: #ffffff;font-weight:bold'
          textElem=document.createTextNode(toCurrency(closingBal).replace(/[\$]/g,''));
          tdElem.appendChild(textElem);

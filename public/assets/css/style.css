@@ -9451,9 +9451,13 @@ textarea.form-control {
     margin-bottom: 20px;
     display: block;
 }
-.invoice-add-table th {
-    background: #F8F9FA;
+.invoice-add-table thead tr {
+    background: linear-gradient(90deg, rgb(117 132 138) 25%, rgb(62 55 64) 100%);
 	padding: 20px;
+}
+
+.invoice-add-table thead tr th{
+	color:white;
 }
 .table>:not(:first-child) {
     border-top: 0;
@@ -13407,8 +13411,17 @@ width: fit-content;
 }
 
 
-#price,#discount,#quantity{
+#price{
 	width: 120px;
+}
+
+#quantity{
+	width:100px;
+}
+
+#discount
+{
+	width: 80px;
 }
 
 #amount{
@@ -13438,4 +13451,13 @@ width: fit-content;
 .paymentDetailsTable tr td{
 	font-size:1.2em;
 	font-weight: 450;
+}
+
+.textAlignEnd{
+	text-align: end;
+}
+
+.invoice-add-table>thead>tr>th
+{
+	background: linear-gradient(90deg, rgb(67, 203, 255) 25%, rgb(151, 8, 204) 100%);
 }

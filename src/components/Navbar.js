@@ -49,7 +49,7 @@ export default function Navbar() {
 				
 
                 <div className="page-title-box" style={{display:'flex'}}>
-					<div className="top-nav-search">
+					<div className="top-nav-search" style={{display:'none'}}>
 							<a href="javascript:void(0);" className="responsive-search">
 								<i className="fa fa-search"></i>
 						   </a>

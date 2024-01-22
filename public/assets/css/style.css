@@ -9346,7 +9346,7 @@ textarea.form-control {
 }
 .invoice-total-footer {
     border-top: 1px solid #E5E5E5;
-    padding: 15px;
+    padding: 8px;
 }
 .invoice-total-footer h4 {
     font-size: 20px;
@@ -9451,9 +9451,13 @@ textarea.form-control {
     margin-bottom: 20px;
     display: block;
 }
-.invoice-add-table th {
-    background: #F8F9FA;
+.invoice-add-table thead tr {
+    background: linear-gradient(90deg, rgb(117 132 138) 25%, rgb(62 55 64) 100%);
 	padding: 20px;
+}
+
+.invoice-add-table thead tr th{
+	color:white;
 }
 .table>:not(:first-child) {
     border-top: 0;
@@ -9573,7 +9577,7 @@ td.add-remove {
     padding-bottom: 30px;
 }
 .invoice-item .invoice-logo {
-    margin-bottom: 30px;
+    margin-bottom: 1px;
 }
 .invoice-item .invoice-logo img {
     width: auto;
@@ -9609,7 +9613,8 @@ td.add-remove {
 	margin-bottom: 0;
 }
 .invoice-info.invoice-info2 {
-    text-align: right;
+    /* text-align: right; commented by nadim*/
+	text-align: left;
 }
 .invoice-item .customer-text {
 	font-size: 20px;
@@ -9675,7 +9680,7 @@ td.add-remove {
 }
 .invoice-item-one .invoice-info {
 	margin-bottom: 30px;
-	text-align: right;
+	/* text-align: right; commented by nadim */
 }
 .customer-text-one {
 	font-size: 20px;
@@ -9696,7 +9701,7 @@ td.add-remove {
 }
 .invoice-head h2 {
 	font-weight: 600;
-	font-size: 28px;
+	font-size: 1.5em;
 	color: #1B2559;
 	text-transform: uppercase;
 	margin-bottom: 0;
@@ -9706,7 +9711,7 @@ td.add-remove {
 }
 .invoice-head p {
 	font-weight: 400;
-	font-size: 20px;
+	font-size: 1em;
 	color: #1B2559;	
 	margin-bottom: 0;
 }
@@ -9724,18 +9729,20 @@ td.add-remove {
     padding: 15px;
     width: 200px;
     float: right;
-    margin-top: 20px;
+    margin-bottom: 10px;
 }
 .invoice-item-box p {
 	color: #1B2559;
 	font-weight: 400;
+	 font-size:0.9em;/*added by nadim */
 	margin-bottom: 10px;
 }
 .invoice-issues-box {
-	background: #9a55ff;
+	/* background: #9a55ff;commented by nadim */
+	background: #cacdcf;
 	border-radius: 10px;
 	text-align: center;
-	padding: 10px;
+	/* padding: 10px; commented by nadim*/
 	margin-bottom: 30px;
 }
 .invoice-issues-date {
@@ -9744,24 +9751,37 @@ td.add-remove {
 }
 .invoice-issues-date p {
 	font-weight: 600;
-	font-size: 16px;
-	color: #FFFFFF;
+	font-size: 14px;
+	/* color: #FFFFFF; */
 	margin-bottom: 0;
 }
 .invoice-table-wrap {
 	margin-bottom: 30px;
 }
+
+.invoice-table > thead > tr>th,.invoice-table > tbody > tr>td{
+	text-align: center;
+} 
+
+.invoice-table > thead{
+	/* background: linear-gradient(90deg, rgb(67, 203, 255) 25%, rgb(151, 8, 204) 100%); commented by nadim*/
+	background: #cacdcf;
+}
+
 .invoice-table > thead > tr > th {
-	background: #F5F7FF;
-    border-top: 0;
-    font-weight: 500;
-	font-size: 16px;
-	color: #1B2559;
+	border:1px solid black;
+	/* background: #F5F7FF; commented by nadim*/
+    /* border-top: 0; */
+    font-weight: 700;
+	font-size: 13px;
+	/* color: #1B2559; commented by nadim*/
+	color:black;
 }
 .invoice-table > tbody > tr > td {
+	border:1px solid black;
     font-weight: 400;
 	color: #1B2559;
-	padding: 15px 20px;
+	padding: 7px 10px;
 }
 .invoice-terms {
 	margin-bottom: 30px;
@@ -13336,6 +13356,7 @@ a.comment-btn:hover {
 		text-align: left;
 	}
 	.invoice-info.invoice-info2 {
+		/* text-align: right; commented by nadim*/
 		text-align: left;
 	}
 	.invoice-total-footer h4 {
@@ -13390,8 +13411,17 @@ width: fit-content;
 }
 
 
-#price,#discount,#quantity{
+#price{
 	width: 120px;
+}
+
+#quantity{
+	width:100px;
+}
+
+#discount
+{
+	width: 80px;
 }
 
 #amount{
@@ -13416,4 +13446,18 @@ width: fit-content;
 
 .invoicelisttable thead tr{
 	line-height: 2;
+}
+
+.paymentDetailsTable tr td{
+	font-size:1.2em;
+	font-weight: 450;
+}
+
+.textAlignEnd{
+	text-align: end;
+}
+
+.invoice-add-table>thead>tr>th
+{
+	background: linear-gradient(90deg, rgb(67, 203, 255) 25%, rgb(151, 8, 204) 100%);
 }

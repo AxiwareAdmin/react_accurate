@@ -190,7 +190,7 @@ const prodData = (data) => {
         debugger;
         let tempProdUnits = [];
 
-        var index=2;
+        var index=1;
 
         dataArr.map((data,ind)=>{
           var productId = index;
@@ -430,7 +430,7 @@ const prodData = (data) => {
     var token=localStorage.getItem("token")
     //it was GET method earlier
 
-    axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
+  /*  axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -469,18 +469,13 @@ const prodData = (data) => {
           
           let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
           console.log("invoice:" + invoiceNum);
-          setInvoiceNumber(invoiceNum);
+          // setInvoiceNumber(invoiceNum);
         }).catch((e)=>{
           console.log(e)
         })
 
-    })
+    })*/
  
-    
-
-    
-    var token=localStorage.getItem("token")
-
 
     axios
       .get(BACKEND_SERVER+"/customer/" + customerId,{
@@ -648,8 +643,14 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       return;
     } 
 
-    
+    debugger;
 
+    var url=new URL(window.location.href);
+    let actionedit = url.searchParams.get("action");
+
+    if(actionedit!=undefined && actionedit!=null && actionedit=='Edit') return;
+    
+    
     var series=res.data.series;
 
     var adder=parseInt(series);
@@ -670,6 +671,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       
       let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
       console.log("invoice:" + invoiceNum);
+      debugger;
       setInvoiceNumber(invoiceNum);
     }).catch((e)=>{
       console.log(e)
@@ -910,7 +912,8 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
 
   const [termsAndCondition, setTermsAndCondition]=useState("");
 
-  const [invoiceMode,setInvoiceMode]=useState("Auto")
+  const [invoiceMode,setInvoiceMode]=useState("Auto");
+  
 
   const navigate=useNavigate();
 useEffect(()=>{
@@ -1251,6 +1254,8 @@ const onDescriptionChange=(e)=>{
       serviceCheck:serviceCheck,
       shippingState:shippingState,
       termsAndCondition:termsAndCondition,
+      transportGstRate:transportGstRate,
+      otherChargesGstRate:otherChargesGstRate,
       financialYear:document.querySelector("#financialYear").value
     }
 
@@ -1436,7 +1441,7 @@ const onDescriptionChange=(e)=>{
               console.log("after got data"+res.data.invoiceNo);
               debugger;
 
-              if(res.data.invoiceId != null)
+              if(res.data.invoiceId != null && actionedit == "Edit")
                setInvoiceId(res.data.invoiceId);
               
               if(res.data.customerName != null){
@@ -1453,13 +1458,17 @@ const onDescriptionChange=(e)=>{
                          $select.dispatchEvent(event);
               }
               
-              // if(res.data.invoiceNo != null)
-              // setInvoiceNumber(res.data.invoiceNo);
+              if(res.data.invoiceNo != null && actionedit == "Edit")
+              setInvoiceNumber(res.data.invoiceNo);
 
               if(res.data.poNumber != null)
               setPoNumber(res.data.poNumber);
 
-              if(res.data.invoiceDate != null){
+              if(res.data.invoiceDate != null && actionedit == "Edit"){
+                let finvdate = getFormattedDate(new Date(res.data.invoiceDate));
+                onInvoiceDateChangeForCopyProduct(finvdate);
+              }
+              else if(res.data.invoiceDate != null){
                 let finvdate = getFormattedDate(new Date());
                 onInvoiceDateChangeForCopyProduct(finvdate);
               }
@@ -2037,7 +2046,7 @@ const onDescriptionChange=(e)=>{
                                 <input
                                   id="hsnSac"
                                   type="text"
-                                  className="form-control quantity1 alignEnd"
+                                  className="form-control hsnSac1 alignEnd"
                                 />
                               </td>
                               <td>
@@ -2095,7 +2104,7 @@ const onDescriptionChange=(e)=>{
                                   <i className="fas fa-plus-circle"></i>
                                 </a>
                                 <a href="#" className="copy-btn me-2">
-                                <i className="fas fa-copy" onClick={AddProductDetails}></i>
+                                <i className="fas fa-cart-plus" style={{color:'navy'}} onClick={AddProductDetails}></i>
                                 </a>
                                 <a
                                   href="javascript:void(0);"

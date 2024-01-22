@@ -742,6 +742,7 @@ console.log("error")
 
          td=td.parentElement;
          var description=td.querySelector("#description");
+         description.addEventListener('change',(e)=>{window.onDescriptionChange(e)});
          var hsnSac=td.querySelector("#hsnSac");
          hsnSac.style="text-align:end;"
          var tax=td.querySelector("#tax");
@@ -1032,6 +1033,11 @@ $('#customer').select2();
 
 $("#user").select2();
 
+$("#user").on('change',(e)=>{
+    e.preventDefault();
+    window.onUserChange(e)
+})
+
 $('.prodListSelect1').on('change',(event)=>{
  var td=event.target.parentElement;
 
@@ -1041,6 +1047,7 @@ $('.prodListSelect1').on('change',(event)=>{
 
  td=td.parentElement;
  var description=td.querySelector("#description");
+ description.addEventListener('change',(e)=>{window.onDescriptionChange(e)});
  var hsnSac=td.querySelector("#hsnSac");
  var tax=td.querySelector("#tax")
  var quantity=td.querySelector("#quantity");
@@ -1447,6 +1454,9 @@ console.log("error")
 
          td=td.parentElement;
          var description=td.querySelector("#description");
+
+         description.addEventListener('change',(e)=>{window.onDescriptionChange(e)});
+
          var hsnSac=td.querySelector("#hsnSac");
          hsnSac.style="text-align:end;"
          var tax=td.querySelector("#tax");

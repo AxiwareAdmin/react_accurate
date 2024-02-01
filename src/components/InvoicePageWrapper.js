@@ -15,6 +15,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import AddCustomer from "./Manage/AddCustomer";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function InvoicePageWrapper(props) {
 
@@ -57,10 +59,7 @@ const custData = (data) => {
   if(data.flag != null && data.flag != "undefined"){
     setIsOpenCustomer(data.flag);
   }
-  console.log("In parent got data from child "+data.flag);
-  console.log("In parent got data from child "+data.custId);
-  console.log("In parent got data from child "+data.custName);
-  console.log("In parent got data from child "+data);
+  
 }
 
 const prodData = (data) => {
@@ -84,12 +83,6 @@ const prodData = (data) => {
   if(data.flag != null && data.flag != "undefined"){
     setIsOpenAddProduct(data.flag);
   }
-
-  console.log("In parent got data from child "+data.flag);
-  console.log("In parent got data from child "+data.prodId);
-  console.log("In parent got data from child "+data.prodName);
-  console.log("In parent got data from child "+data);
-
 }
 
 
@@ -1274,23 +1267,39 @@ const onDescriptionChange=(e)=>{
       if(response!=null && response.data.res=='success'){
       // setAlertMsg("Invoice created successfully!!")
 
-      Swal.fire(
-        '',
-        'Invoice created successfully!',
-        'success'
-      )
+      // Swal.fire(
+      //   '',
+      //   'Invoice created successfully!',
+      //   'success'
+      // )
+      toast("Invoice created successfully!",{
+        position: "top-center",
+        theme:"colored",
+        type:"success"
+       });
 
       setIsSaved(1);
 
-      setTimeout(()=>{
-        setAlertMsg(null)
-      },2000)
+      // setTimeout(()=>{
+      //   setAlertMsg(null)
+      // },2000)
 
       }
-      else
-        alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
+      else{
+        toast("There is some issue in creating invoice. kindly check whether all the data is entered or not.",{
+          position: "top-center",
+          theme:"colored",
+          type:"error"
+         });
+      }
+        
     })
     .catch(function (error) {
+      toast("There is some issue in creating invoice.",{
+        position: "top-center",
+        theme:"colored",
+        type:"error"
+       });
       console.log(error);
     });
   }
@@ -1579,6 +1588,7 @@ const onDescriptionChange=(e)=>{
   return (
     <>
     <Navbar/>
+    <ToastContainer />
     <Alert msg={alertMsg}/>
     <div>
       <Sidebar />

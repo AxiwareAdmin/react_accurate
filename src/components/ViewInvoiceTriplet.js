@@ -4,16 +4,21 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
+import Loader from "./Loader";
 import Navbar from "./Navbar";
 
 export default function ViewInvoiceTriplet() {
 
     const invoicepdf = useRef(null);
+    const navigate=useNavigate();
+
+    const [invoiceNumber,setInvoiceNumber]=useState("");
+    const [displayFlag,setDisplayFlag]=useState(null)
     // useEffect (() =>{
   
     //   if(initilized.current){
-    const downloadpdf = (invoiceNo) => {
-      html2canvas(invoicepdf.current).then((canvas) => {
+    const downloadpdfold = (invoiceNo) => {
+      html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
         const pdf = new jsPDF();
         pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
@@ -23,6 +28,51 @@ export default function ViewInvoiceTriplet() {
         // }
       });
     };
+    
+    
+
+    const downloadpdf = () => {
+      const { clientWidth, clientHeight } = invoicepdf.current;
+      // debugger;
+  
+      var nodeList=document.querySelectorAll(".page-wrapper");
+      for(let i=0;i<nodeList.length;i++){
+          nodeList[i].style='margin:0;'
+      }
+      setDisplayFlag("true");
+      html2canvas(invoicepdf.current).then((canvas) => {
+        var imgData = canvas.toDataURL('image/png');
+
+        /*
+        Here are the numbers (paper width and height) that I found to work. 
+        It still creates a little overlap part between the pages, but good enough for me.
+        if you can find an official number from jsPDF, use them.
+        */
+        var imgWidth = 210; 
+        var pageHeight = 295;  
+        var imgHeight = canvas.height * imgWidth / canvas.width;
+        var heightLeft = imgHeight;
+  
+        var doc = new jsPDF('p', 'mm');
+        var position = 0;
+  
+        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+  
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          doc.addPage();
+          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+        doc.save(`${invoiceNumber}.pdf`);﻿
+
+        
+        setDisplayFlag(null)
+      });
+
+  nodeList.forEach(elem=>elem.style='margin-left:230px')
+  }
 
     const printButtonClicked = (e) => {
         var nodeList=document.querySelectorAll(".page-wrapper");
@@ -30,10 +80,14 @@ export default function ViewInvoiceTriplet() {
             nodeList[i].style='margin:0;'
         }
         console.log(invoicepdf.current)
-        debugger;
+
+        invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem=>elem.style.display='none');
+        // debugger;
         html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
           const imgData = canvas.toDataURL('image/png');
-  
+
+          // debugger;
+          
           const printWindow = window.open('', '_blank');
           printWindow.document.open();
           printWindow.document.write('<html><head><title>Print</title>\
@@ -58,6 +112,8 @@ export default function ViewInvoiceTriplet() {
           // printWindow.print();
         });
     
+        nodeList.forEach(elem=>elem.style='margin-left:230px')
+          invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem=>elem.style.display='block');
         // html2canvas(data) // useCORS is optional if your images are externally hosted somewhere like s3
         // .then(canvas => {
         //   const contentDataURL = canvas.toDataURL('image/png')
@@ -111,8 +167,9 @@ export default function ViewInvoiceTriplet() {
     <div>
         <Navbar />
         <Sidebar />
+        <Loader display={displayFlag}/>
     <div ref={invoicepdf}>
-      <ViewInvoice id={fetchId()} productTableId="productTable1" gstContainerId="gstContainer1" label="Original"/>
+      <ViewInvoice id={fetchId()} setInvoiceNumber={setInvoiceNumber} productTableId="productTable1" gstContainerId="gstContainer1" label="Original"/>
       <ViewInvoice id={fetchId()} productTableId="productTable2" gstContainerId="gstContainer2" label="Duplicate"/>
       <ViewInvoice id={fetchId()} productTableId="productTable3" gstContainerId="gstContainer3" label="Tripicate"/>
      
@@ -131,9 +188,21 @@ export default function ViewInvoiceTriplet() {
                   >
                     Print
                   </button>
+
+                  <button
+                    onClick={()=>downloadpdf("123")}
+                    class="btn btn-primary"
+                    id="submitButton"
+                    type="submit"
+                    value="Submit"
+                    style={{margin:'0 0 0 5px'}}
+                  >
+                    Download
+                  </button>
+                  
   
                   <button
-                    onClick={printButtonClicked}
+                    onClick={()=>navigate(-2)}
                     class="btn btn-primary"
                     id="submitButton"
                     type="submit"
@@ -159,7 +228,10 @@ function ViewInvoice(props) {
         Authorization: "Bearer " + token,
       },
     };
+
+
   
+   
     const [invNo, setinvNo] = useState(null);
     const [compName, setcmpName] = useState("Shivansh infotech");
     const [fromAddr, setfromAddr] = useState("");
@@ -488,6 +560,8 @@ function ViewInvoice(props) {
             setInvoiceDetails(res.data);
   
             setinvNo(res.data.invoiceNo);
+
+            props.setInvoiceNumber && props.setInvoiceNumber(res.data.invoiceNo)
   
             setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
   
@@ -744,6 +818,7 @@ function ViewInvoice(props) {
   
             settaxable(totalAmount);
   
+            
           
           })
           .catch((e) => {
@@ -870,7 +945,7 @@ function ViewInvoice(props) {
                               {customerDetails.city} {customerDetails.pincode}<br/>
                               State: {customerDetails.state}, Code-{customerDetails.stateCode}<br/>
                               GST No. {customerDetails.gstNo}<br/>
-                              Contact person: {customerDetails.contactPerson}
+                              Contact person: {customerDetails.contactPerson}<br/>
                               Contact No. {customerDetails.contactNumber}
   
                               <p />
@@ -1137,12 +1212,14 @@ function ViewInvoice(props) {
   
   
                       <h4>{clientDetails.companyName}</h4>
+                      <div class="signatureContainer">
                       <img
                         class="img-fluid d-inline-block"
                         src="assets/img/signature.png"
                         alt="sign"
                       />
                       <span class="d-block">Authorized Signatory</span>
+                      </div>
                     </div>
                     </div>
                     </div>

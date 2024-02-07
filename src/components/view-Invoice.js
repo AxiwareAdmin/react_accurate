@@ -16,7 +16,7 @@ export default function ViewInvoice() {
     },
   };
 
-  
+  const navigate=useNavigate();
   const [invNo, setinvNo] = useState(null);
   const [compName, setcmpName] = useState("Shivansh infotech");
   const [fromAddr, setfromAddr] = useState("");
@@ -76,6 +76,88 @@ export default function ViewInvoice() {
   }
 
   const printButtonClicked = (e) => {
+    // var nodeList=document.querySelectorAll(".page-wrapper");
+    // for(let i=0;i<nodeList.length;i++){
+    //     nodeList[i].style='margin:0;'
+    // }
+    console.log(invoicepdf.current)
+    invoicepdf.current.querySelector("#signatureContainer").style.display='none'
+    debugger;
+    html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+
+      invoicepdf.current.querySelector("#signatureContainer").style.display='block'
+      
+      const printWindow = window.open('', '_blank');
+      printWindow.document.open();
+      
+      printWindow.document.write('<html><head><title>Print</title>\
+      <style>\
+            @media print {\
+              body {\
+                margin: 0; /* Reset margin to avoid blank page */\
+              }\
+              body * {\
+                visibility: hidden;\
+              }\
+              #printImage, #printImage * {\
+                visibility: visible;\
+              }\
+            }\
+          </style>\
+      \
+      </head><body>');
+      printWindow.document.write(`<img id="printImage" src="${imgData}" style="width: 100%; height: auto;" onload="window.print()" />`);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      // printWindow.print();
+    });
+
+    // html2canvas(data) // useCORS is optional if your images are externally hosted somewhere like s3
+    // .then(canvas => {
+    //   const contentDataURL = canvas.toDataURL('image/png')
+    //   let pdf = new jsPDF('p', 'mm',[canvas.width,canvas.height]);
+    //   var pdfWidth = pdf.internal.pageSize.getWidth();
+    //   var pdfHeight = pdf.internal.pageSize.getHeight();
+    //   pdf.addImage(contentDataURL, 'PNG', 0, 5,pdfWidth, pdfHeight);
+    //   //  pdf.save('new-file.pdf');
+    //   window.open(pdf.output('bloburl', { filename: 'new-file.pdf' }), '_blank');
+    // });
+
+
+    // html2canvas(invoicepdf.current,{scrollY: -window.screenY,scale:1}).then((canvas) => {
+    //   const myImage = canvas.toDataURL("image/png");
+
+    //   var nWindow = window.open("");
+
+    //   const pdf=new jsPDF(
+    //     'p',
+    //     'pt',
+    //     [canvas.width,canvas.height]
+    //   )
+
+    //   const imgProps=pdf.getImageProperties(myImage);
+    //   const pdfWidth=pdf.internal.pageSize.getWidth();
+    //   const pdfHeight=pdf.internal.pageSize.getHeight();
+
+    //   pdf.addImage(myImage,'PNG',pdfWidth,pdfHeight);
+
+      
+
+      
+
+    //   // append the canvas to the body
+    //   nWindow.open(pdf.output('bloburl',{filename:'new.pdf'}),'_blank');
+
+    //   // focus on the window
+    //   // nWindow.focus();
+
+    //   // print the window
+    //   // nWindow.print();
+    // });
+  };
+
+  const printButtonClickedOld = (e) => {
     // var content = document.getElementsByClassName("page-wrapper")[0];
     // var pri = document.getElementById("ifmcontentstoprint").contentWindow;
     // pri.document.open();
@@ -122,6 +204,7 @@ export default function ViewInvoice() {
       "' /></body></html>"
     );
   }
+
 
   function toCurrency(value) {
     try {
@@ -685,7 +768,7 @@ export default function ViewInvoice() {
   // useEffect (() =>{
 
   //   if(initilized.current){
-  const downloadpdf = (invoiceNo) => {
+  const downloadpdf= (invoiceNo) => {
     html2canvas(invoicepdf.current).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF();
@@ -696,6 +779,8 @@ export default function ViewInvoice() {
       // }
     });
   };
+
+ 
 
   
   return (
@@ -776,7 +861,7 @@ export default function ViewInvoice() {
                             {customerDetails.city} {customerDetails.pincode}<br/>
                             State: {customerDetails.state}, Code-{customerDetails.stateCode}<br/>
                             GST No. {customerDetails.gstNo}<br/>
-                            Contact person: {customerDetails.contactPerson}
+                            Contact person: {customerDetails.contactPerson}<br/>
                             Contact No. {customerDetails.contactNumber}
 
                             <p />
@@ -1043,12 +1128,14 @@ export default function ViewInvoice() {
 
 
                     <h4>{clientDetails.companyName}</h4>
+                    <div id="signatureContainer">
                     <img
                       class="img-fluid d-inline-block"
                       src="assets/img/signature.png"
                       alt="sign"
                     />
                     <span class="d-block">Authorized Signatory</span>
+                    </div>
                   </div>
                   </div>
                   </div>
@@ -1075,7 +1162,7 @@ export default function ViewInvoice() {
                 </button>
 
                 <button
-                  onClick={printButtonClicked}
+                  onClick={()=>navigate(-2)}
                   class="btn btn-primary"
                   id="submitButton"
                   type="submit"

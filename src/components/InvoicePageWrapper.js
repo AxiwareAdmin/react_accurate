@@ -16,8 +16,13 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import AddCustomer from "./Manage/AddCustomer";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 export default function InvoicePageWrapper(props) {
 
+
+ 
   const addProductForCopy=window.addProductForCopy;
   const BACKEND_SERVER="http://localhost:8080";
   const editref = useRef(true);
@@ -32,26 +37,33 @@ export default function InvoicePageWrapper(props) {
  }
 
  const AddProductDetails = (e) => {
-  e.preventDefault();
+  e.preventDefault()
+  console.log("add product clicked")
   setIsOpenAddProduct(true);
 
 }
 
 const custData = (data) => {
-  var custId = "";
-  var custName = "";
+  var custId = null;
+  var custName = null;
   if(data.custId != null && data.custId != "undefined"){
     custId = data.custId;
   }
   if(data.custName != null && data.custName != "undefined"){
     custName = data.custName;
   }
-
+  debugger;
   if( custId != null && custName != null){
   var option = document.createElement("option");
   option.value = custId;
   option.append(document.createTextNode(custName));
   document.querySelector("#customer").append(option);
+
+  toast.success("Customer created successfully!",{
+    position: "top-center",
+    theme:"colored",
+    autoClose: 500
+   });
   }
 
   if(data.flag != null && data.flag != "undefined"){
@@ -65,8 +77,9 @@ const custData = (data) => {
 
 const prodData = (data) => {
 
-  var prodId = "";
-  var prodName = "";
+  var prodId = null;
+  var prodName = null;
+
   if(data.prodId != null && data.prodId != "undefined"){
     prodId = data.prodId;
   }
@@ -79,6 +92,12 @@ const prodData = (data) => {
     option.value = prodId;
     option.append(document.createTextNode(prodName));
     document.querySelector(".prodListSelect").append(option);
+    
+    toast.success("Product created successfully!",{
+      position: "top-center",
+      theme:"colored",
+      autoClose: 500
+     });
   }
 
   if(data.flag != null && data.flag != "undefined"){
@@ -541,6 +560,7 @@ const prodData = (data) => {
   }
 
   useEffect(() => {
+
     debugger;
     console.log("produnit changed" + productUnits);
     setTotalAmt(calculateTotalAmt());
@@ -555,7 +575,9 @@ const prodData = (data) => {
 
 
   useEffect(() => {
-
+   window.AddProductDetails=(e)=>{
+    AddProductDetails(e);
+   }
 
 window.onPaymentTermsChange=(e)=>{
   onPaymentTermsChange(e);
@@ -1578,6 +1600,7 @@ const onDescriptionChange=(e)=>{
 
   return (
     <>
+  <ToastContainer />
     <Navbar/>
     <Alert msg={alertMsg}/>
     <div>
@@ -1644,8 +1667,8 @@ const onDescriptionChange=(e)=>{
                             <option value="-1">Select Customer</option>
                           </select>
 
-                          <button class="btn btn-primary" onClick={handleClickOpenCustomer}>
-                           Add Customer
+                          <button class="btn btn-primary" style={{fontSize:'12px',marginTop:'5px'}} onClick={handleClickOpenCustomer}>
+                           Create Customer
                            </button>
                           {/* <div className="form-group"> */}
                           {/* <label>Customer Name</label> */}

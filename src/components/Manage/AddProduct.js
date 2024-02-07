@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
 
 
 export default function AddProduct(props) {
 
     //const [customerId , setCustomerId] = useState();
+    const [alertMsg,setAlertMsg]=useState(null);
     const [productName, setProductName] = useState();
     const [productDescription, setProductDescription] = useState();
     const [productType, setProductType] = useState("Food");
@@ -16,6 +21,10 @@ export default function AddProduct(props) {
     const [category, setCategory] = useState();
     const [applicableTax, setApplicableTax] = useState();
     const [openingStock, setOpeningStock] = useState();
+    const [taxoption , setTaxOption] = useState([{key:"0",val:"-Select Tax-"},{key:"28",val:"GST@28%"},
+    {key:"18",val:"GST@18%"},{key:"12",val:"GST@12%"},{key:"11",val:"GST@11%"},{key:"3",val:"GST@3%"},
+    {key:"0",val:"GST@0%(Nill rated)"},{key:"1",val:"Exempt GST"}]);
+    
 
 
     const BACKEND_SERVER = "http://localhost:8080";
@@ -53,18 +62,32 @@ export default function AddProduct(props) {
                 console.log("In customer pop up all invoice data" + res.data);
 
                 if (res != null && res.data.res != "failure") {
-                    alert("saved success");
+
                     //props.sendToParent(false);
                     props.sendToParent({prodId : res.data.res,flag : false,prodName : productName});
+                    return;
 
                 } else {
-                    alert("something is wrong");
+                    debugger;
+                   // alert("something is wrong");
+                   toast("something is wrong!",{
+                    position: "top-center",
+                    theme:"colored",
+                    type:"error",
+                    autoClose:500
+                   });
                     props.sendToParent(true);
+                    return;
                 }
 
 
             }).catch(function (error) {
-                debugger;
+               
+                toast("something is wrong! ",{
+                    position: "top-center",
+                    theme:"colored",
+                    type:"error"
+                   });
                 props.sendToParent(true);
             });
 
@@ -103,110 +126,66 @@ export default function AddProduct(props) {
 
 
     return (
-        <div >
-            <div class="modal-content">
-                <div class="modal-header" style={{backgroundColor: "#eee", padding: "10px"}}>
-                    <h5 class="modal-title">Create Product</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" onClick={() => {props.sendToParent({prodId : null,flag : false,prodName : null})}}>×</span>
-                    </button>
-                </div>
+        <div>
+           <div class="modal-dialog modal-dialog-centered modal-md" style={{width:"auto"}}>
+                <div class="modal-content" style={{marginTop :"-30px"}}>
+                    <div class="modal-header" >
+                        <div class="form-header text-start mb-0">
+                            <h4 class="mb-0 text-dark fw-bold">Create Product</h4>
+                        </div>
+                        <button type="button" class="close" onClick={() => {props.sendToParent({prodId : null,flag : false,prodName : null})}}>
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
                 <div class="modal-body">
-                    <div class="container side">
-
-
-                        {/* <div class="row">
-                            <div class="col-md-12">
-                                <img src="images/non-inventory.png" style={{width: "30px", height: "30px"}}/>&nbsp;&nbsp;<span>Inventory</span>
-                            </div>
-                        </div> */}
-
-                        <div class="row">
-                           <div class="col-md-12">
-                                <label>Product Name</label>
-                                <input  type="text" onChange={e => setProductName(e.target.value)}  class="form-control" placeholder="Product Name"/>
-                            </div>
-                            <div class="col-md-12">
-                                <label>Product Description</label>
-                                <input  type="text" onChange={e => setProductDescription(e.target.value)}  class="form-control" placeholder="Product Description"/>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Part Code</label>
-                                <input type="text" onChange={e => setPartCode(e.target.value)} class="form-control" placeholder="Optional"/>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label>HSN Code</label>
-                                <input  type="text" onChange={e => setHsnCode(e.target.value)}  class="form-control" placeholder="Enter a valid HSN Code" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
-                            </div>
-                            <div class="col-md-6">
-                                <label>Unit</label>
-                                <select onChange={selectUnit} class="form-control">
-                                    <option value="0">--Select Unit--</option>
-                                    <option value="nos">NOS</option>
-                                    <option value="bag">BAG</option>
-                                    <option value="bkl">BKL</option>
-                                    <option value="btk">BTL</option>
-                                    {/* <option value="10">CBM</option>
-                                    <option value="11">CTN</option>
-                                    <option value="12">GGK</option>
-                                    <option value="13">GYD</option>
-                                    <option value="14">KME</option>
-                                    <option value="15">MTR</option>
-                                    <option value="16">OTH</option>
-                                    <option value="17">PRS</option>
-                                    <option value="18">SET</option>
-                                    <option value="19">SQY</option>
-                                    <option value="20">THD</option>
-                                    <option value="21">UGS</option>
-                                    <option value="22">BAL</option>
-                                    <option value="23">BOU</option>
-                                    <option value="24">BUN</option>
-                                    <option value="25">CCM</option>
-                                    <option value="26">DOZ</option>
-                                    <option value="27">GMS</option>
-                                    <option value="28">KGS</option>
-                                    <option value="29">LTR</option>
-                                    <option value="30">MTS</option>
-                                    <option value="31">PAC</option>
-                                    <option value="32">QTL</option>
-                                    <option value="33">SQF</option>
-                                    <option value="34">TBS</option>
-                                    <option value="35">TON</option>
-                                    <option value="36">UNT</option>
-                                    <option value="37">BDL</option>
-                                    <option value="38">BOX</option>
-                                    <option value="39">CAN</option>
-                                    <option value="40">CMS</option>
-                                    <option value="41">DRM</option>
-                                    <option value="42">GRS</option>
-                                    <option value="43">KLR</option>
-                                    <option value="44">MLT</option>
-                                    <option value="45">JOB</option>
-                                    <option value="46">PCS</option>
-                                    <option value="47">ROL</option>
-                                    <option value="48">SQM</option>
-                                    <option value="49">TGM</option>
-                                    <option value="50">TUB</option>
-                                    <option value="51">YDS</option>
-                                    <option value="53">Hrs</option>
-                                    <option value="54">Inch</option>
-                                    <option value="55">MM</option>
-                                    <option value="56">FT</option>
-                                    <option value="57">RFT</option>
-                                    <option value="58">LOT</option>
-                                    <option value="59">RMT</option> */}
-
-                                </select>
-
-                            </div>
-                            <div class="col-md-6">
-                                <label>Rate</label>
-                                <input type="text" onChange={e => setRate(e.target.value)} class="form-control" placeholder="Rate" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
-                            </div>
-                            <div class="col-md-12">
-                                <label>Category</label>
-                                <select onChange={selectCategory} class="form-control">
+                        <div class="bank-inner-details">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+                                        <label>Product Name</label>
+                                        <input type="text" onChange={e => setProductName(e.target.value)} class="form-control" placeholder="Product Name" />
+                                    </div>
+                                </div>
+                                </div>
+                                <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Part Code</label>
+                                        <input type="text" onChange={e => setPartCode(e.target.value)} class="form-control" placeholder="Part Code" />
+                                    </div>
+                                </div>
+                                 <div class="col-lg-6 col-md-6">
+                                        <div class="form-group">
+                                        <label>HSN Code</label>
+                                        <input type="text" onChange={e => setHsnCode(e.target.value)} class="form-control" placeholder="HSN Code" />
+                                        </div>
+                                </div>
+                             </div>
+                             <div class="row">
+                             <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Unit</label>
+                                    <select onChange={selectUnit} class="form-control">
+                                        <option value="0">--Select Unit--</option>
+                                         <option value="nos">NOS</option>
+                                        <option value="bag">BAG</option>
+                                         <option value="bkl">BKL</option>
+                                        <option value="btk">BTL</option>
+                                    </select>
+                                     </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <div class="form-group">
+                                        <label>Rate</label>
+                                        <input type="text" onChange={e => setRate(e.target.value)} class="form-control" placeholder="Rate" />
+                                     </div>
+                                </div>
+                                </div>
+                                <div class="row">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+                                    <label>Category</label>
+                                    <select onChange={selectCategory} class="form-control">
                                     <option value="--Select--">--Select--</option>
                                     <option value="Finished Product">Finished Product</option>
                                     <option value="Raw Material">Raw Material</option>
@@ -217,47 +196,67 @@ export default function AddProduct(props) {
                                     <option value="Others">Others</option>
 
                                 </select>
+                                     </div>
+                                </div>
+                                
+                                </div>
 
-                            </div>
-                            <div class="col-md-12">
-                                <label></label>
-                                <br/>
-                            </div>
-                            <div class="col-md-12">
+                                <div class="row">
+                                
+                                <div class="col-lg-12 col-md-12">
                                 <label>Applicable Tax</label>
                                 <select onChange={selectAppTax} class="form-control">
-                                    <option value="0">-Select Tax-</option>
+                                 {taxoption.map((val,key) => {
+                                     return (<option value={val.key}>{val.val}</option>)
+                                 })}
+                                    {/* <option value="0">-Select Tax-</option>
                                     <option value="28">GST@28%</option>
                                     <option value="18">GST@18%</option>
                                     <option value="12">GST@12%</option>
                                     <option value="11">GST@5%</option>
                                     <option value="3">GST@3%</option>
                                     <option value="0">GST@0%(Nill rated)</option>
-                                    <option value="1">Exempt GST</option>
+                                    <option value="1">Exempt GST</option> */}
 
                                 </select>
-                            </div>
+                                </div>
+                                </div>
+                             <div class="row">
+                             <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+                                        <label>opening Stock</label>
+                                        <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="opening Stock" />
+                                     </div>
+                                </div>
+                                </div>
+                                                                 
+                                <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                {/* <div class="row">
+                                        <div class="col-md-8">
+                                            <input  type="text" onChange={} class="form-control" placeholder="Opening Balance" />
+                                        </div>
 
-                            <div class="col-md-12">
-                                <label>Opening Stock</label>
-                                <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="Quantity" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"/>
-                            </div>
+                                        <div class="col-md-4">
+                                            <select onChange={selectPaymentTern} class="form-control">
+                                                <option value="Dr">Dr</option>
+                                                <option value="Cr">Cr</option>
 
+                                            </select>
+                                         </div>
+                                    </div> */}
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                <button type="button" onClick={saveProduct}  class="btn btn-success" style={{marginLeft:"60px"}}> Save </button>
+                                <button type="button"  class="btn btn-danger" onClick={() => {props.sendToParent({prodId : null,flag : false,prodName : null})}} style={{float: "right"}}>Close</button>
+                                </div>
+                               </div>         
+                     </div>
+                     </div>
+                     </div>
+                 </div>
+ 
 
-
-                        </div>
-
-                        <br/>
-
-
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" onClick={() => {props.sendToParent({prodId : null,flag : false,prodName : null})}} class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <input type="submit" value="Save" onClick={saveProduct}  class="btn btn-success" style={{float: "right"}}/>
-                </div>
-            </div>
         </div>
     )
 }
-

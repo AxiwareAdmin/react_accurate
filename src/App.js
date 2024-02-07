@@ -77,7 +77,8 @@ function App() {
           <Route  path="/add-purchase" element={<PurchaseCreate/>} />
           <Route path="/invoiceList" element={<InvoiceList/>}/>
           <Route path="/purchaseList" element={<PurchaseList/>}/>
-          <Route path="/viewInvoice" element={<ViewInvoiceTriplet/>}/>
+          <Route path="/viewInvoiceTriplet" element={<ViewInvoiceTriplet/>}/>
+          <Route path="/viewInvoice" element={<ViewInvoice/>}/>
           <Route path="/viewPurchase" element={<ViewPurchase/>}/>
           <Route path="/salesRegister" element={<SalesRegister/>} />
           <Route path="/purchaseRegister" element={<PurchaseRegister/>} />

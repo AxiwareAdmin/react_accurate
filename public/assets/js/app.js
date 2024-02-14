@@ -464,11 +464,13 @@ $(".add-table-items").on('click','.remove-btn', function (e) {
      '</td>' +
          '<td class="add-remove text-end">' +
          ' <a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
-         ' <a href="#" class="copy-btn me-2"><i class="fas fa-copy"></i></a>' +
+         '<a href="#" className="copy-btn me-2"><i className="fas fa-cart-plus" style={{color:"navy"}} onClick="(e)=>{window.AddProductDetails(e)}"></i></a>'+
          '<a href="javascript:void(0);" class="remove-btn"><i class="fa fa-trash-alt"></i></a>' +
          '</td>' +
      '</tr>';
      
+
+
      $(".add-table-items").append(experiencecontent);
      return false;
  });
@@ -725,7 +727,7 @@ console.log("error")
     
      '<td class="add-remove text-end">' +
          '<a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
-         '<a href="#" class="copy-btn me-2"><i class="fas fa-copy"></i></a>' +
+         '<a href="#" class="copy-btn me-2"><i class="fas fa-cart-plus" style="color:navy" onClick="window.AddProductDetails(event)"></i></a>'+
          '<a href="javascript:void(0);" class="remove-btn"><i class="fa fa-trash-alt"></i></a>' +
      '</td>' +
  '</tr>';
@@ -797,6 +799,10 @@ console.log("error")
  },1)
  return false;
 });
+
+// function AddProductDetails(e){
+//     window.AddProductDetails(e);
+// }
 
 function toCurrency(value) {
  try {
@@ -1423,7 +1429,7 @@ console.log("error")
     
      '<td class="add-remove text-end">' +
          '<a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
-         '<a href="#" class="copy-btn me-2"><i class="fas fa-copy"></i></a>' +
+         '<a href="#" className="copy-btn me-2"><i className="fas fa-cart-plus" style={{color:"navy"}} onClick="(e)=>{window.AddProductDetails(e)}"></i></a>'+
          '<a href="javascript:void(0);" class="remove-btn"><i class="fa fa-trash-alt"></i></a>' +
      '</td>' +
  '</tr>';

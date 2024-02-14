@@ -28,14 +28,49 @@ export default function Sidebar() {
 								<span>Main</span>
 							</li>
 							<li className="submenu">
-								<a href="#"><i className="feather-home"></i> <span> Dashboard</span> <span className="menu-arrow"></span></a>
-								<ul className="sub-menus">
+							<Link to="/dashboard" className="active"><i className="feather-home"></i> <span> Dashboard</span> </Link>
+							
+								{/* <ul className="sub-menus">
 									<li><Link to="/dashboard" className="active">Deals Dashboard</Link></li>
 									<li><a href="projects-dashboard.html">Projects Dashboard</a></li>
 									<li><a href="leads-dashboard.html">Leads Dashboard</a></li>
+								</ul> */}
+							</li>
+
+
+							<li className="submenu">
+								<a href="#"><i className="feather-clipboard"></i> <span>  Banking </span> <span className="menu-arrow"></span></a>
+								<ul className="sub-menus">
+									<li><Link to="/salesRegister">Bank Transactions</Link></li>
+									<li><a href="invoice-grid.html" >Bank Entry</a></li>
+									<li><Link to="/add-invoice">Bank Reconciliation</Link></li>
 								</ul>
 							</li>
+
+
+							<li className="submenu">
+								<a href="#"><i className="feather-clipboard"></i> <span>  Cash Book </span> <span className="menu-arrow"></span></a>
+								<ul className="sub-menus">
+									<li><Link to="/salesRegister">Cash Transactions</Link></li>
+									<li><a href="invoice-grid.html" >Cash Entry</a></li>
+								</ul>
+							</li>
+
+							<li className="submenu">
+								<a href="#"><i className="feather-clipboard"></i> <span>  Accounting </span> <span className="menu-arrow"></span></a>
+								<ul className="sub-menus">
+									<li><Link to="/salesRegister">Journal Voucher</Link></li>
+									<li><a href="invoice-grid.html" >Debit Note</a></li>
+									<li><Link to="/add-invoice">Credit Note</Link></li>
+								</ul>
+							</li>
+
+
 							
+							
+
+						
+{/* 							
 							<li> 
 								<a href="tasks.html"><i className="feather-check-square"></i> <span>Tasks</span></a>
 							</li>
@@ -60,7 +95,24 @@ export default function Sidebar() {
 							</li>
 							<li> 
 								<a href="activities.html"><i className="feather-calendar"></i> <span>Activities</span></a>
-							</li>	
+							</li>	 */}
+							
+							<li className="submenu">
+								<a href="#"><i className="feather-clipboard"></i> <span>  Sales </span> <span className="menu-arrow"></span></a>
+								<ul className="sub-menus">
+									<li><Link to="/salesRegister">GST Sale</Link></li>
+									<li><Link to="/salesRegister">Cash Sale</Link></li>
+									<li><Link to="/salesRegister">Proforma Invoice</Link></li>
+									<li><Link to="/add-invoice">Create Invoice</Link></li>
+									<li><a href="edit-invoice.html">Create Customer</a></li>
+									<li><a href="edit-invoice.html">Create Product and Services</a></li>
+									<li><a href="edit-invoice.html">Create E-Way Bill</a></li>
+									<li><a href="view-invoice.html">Create E-Invoice</a></li>
+									<li><a href="invoices-settings.html">Invoices Settings</a></li>
+								</ul>
+							</li>
+
+
 							<li class="submenu">
 								<a href="#"><i class="feather-grid"></i> <span> Purchase</span>
 									<span class="menu-arrow"></span>
@@ -72,37 +124,71 @@ export default function Sidebar() {
 									<li><a href="invoice.html">Products And Services</a></li>
 								</ul>
 							</li>
-							<li className="submenu">
-								<a href="#"><i className="feather-clipboard"></i> <span>  Invoices </span> <span className="menu-arrow"></span></a>
-								<ul className="sub-menus">
-									<li><Link to="/salesRegister">Invoices List</Link></li>
-									<li><a href="invoice-grid.html" >Invoices Grid</a></li>
-									<li><Link to="/add-invoice">Add Invoices</Link></li>
-									<li><a href="edit-invoice.html">Edit Invoices</a></li>
-									<li><a href="view-invoice.html">Invoices Details</a></li>
-									<li><a href="invoices-settings.html">Invoices Settings</a></li>
+
+							<li class="submenu">
+								<a href="#"><i class="feather-grid"></i> <span> Quotation</span>
+									<span class="menu-arrow"></span>
+								</a>
+								<ul class="sub-menus">
+									<li><a href="/purchaseRegister" >Customer Quotation</a></li>
+									<li><a href="/add-purchase">Supplier Quotation</a></li>
+									<li><a href="invoice.html">Create Customer</a></li>
+									<li><a href="invoice.html">Create Supplier</a></li>
+									<li><a href="invoice.html">Products And Services</a></li>
 								</ul>
 							</li>
-							<li> 
+
+							<li class="submenu">
+								<a href="#"><i class="feather-grid"></i> <span> Purchase Order</span>
+									<span class="menu-arrow"></span>
+								</a>
+								<ul class="sub-menus">
+									<li><a href="/purchaseRegister" >Customer Purchase Order</a></li>
+									<li><a href="/add-purchase">Supplier Purchase Order</a></li>
+									<li><a href="invoice.html">Create Customer</a></li>
+									<li><a href="invoice.html">Create Supplier</a></li>
+									<li><a href="invoice.html">Products And Services</a></li>
+								</ul>
+							</li>
+
+							<li class="submenu">
+								<a href="#"><i class="feather-grid"></i> <span>Inventory</span>
+									<span class="menu-arrow"></span>
+								</a>
+								<ul class="sub-menus">
+									<li><a href="/purchaseRegister" >Material Inward</a></li>
+									<li><a href="/add-purchase">Material Outward</a></li>
+									<li><a href="invoice.html">Material Transfer</a></li>
+									<li><a href="invoice.html">Products And Services</a></li>
+								</ul>
+							</li>
+
+
+							<li class="submenu">
+								<a href="#"><i class="feather-grid"></i> <span>Reports</span>
+								</a>
+							</li>
+
+							{/* <li> 
 								<a href="email.html"><i className="feather-mail"></i> <span>Email</span></a>
-							</li>
-							<li> 
+							</li> */}
+							{/* <li> 
 								<a href="settings.html"><i className="feather-settings"></i> <span>Settings</span></a>
-							</li>
+							</li> */}
 							
-							<li className="menu-title"> 
+							{/* <li className="menu-title"> 
 								<span>Pages</span>
-							</li>
+							</li> */}
 							
-							<li className="submenu">
+							{/* <li className="submenu">
 								<a href="#"><i className="feather-alert-triangle"></i> <span> Error Pages </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
 									<li><a href="error-404.html">404 Error </a></li>
 									<li><a href="error-500.html">500 Error </a></li>
 								</ul>
-							</li>
+							</li> */}
 							
-							<li className="submenu">
+							{/* <li className="submenu">
 								<a href="#"><i className="feather-list"></i> <span> Pages </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
 									<li><a href="faq.html"> FAQ </a></li>
@@ -110,8 +196,8 @@ export default function Sidebar() {
 									<li><a href="privacy-policy.html"> Privacy Policy </a></li>
 									<li><a href="blank-page.html"> Blank Page </a></li>
 								</ul>
-							</li>
-							<li className="menu-title"> 
+							</li> */}
+							{/* <li className="menu-title"> 
 								<span>UI Interface</span>
 							</li>
 							<li> 
@@ -210,7 +296,7 @@ export default function Sidebar() {
 										<a href="javascript:void(0);"> <span>Level 1</span></a>
 									</li>
 								</ul>
-							</li>
+							</li> */}
 							{/* added manage menu code start */}
 
 							<li class="submenu">

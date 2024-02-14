@@ -2,11 +2,13 @@
 import React,{useState,useEffect} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 
 
 export default function SalesRegister () {
+
+  const navigate=useNavigate();
 
     var token=localStorage.getItem("token")
 	var header={
@@ -41,6 +43,10 @@ export default function SalesRegister () {
         const script11 = document.createElement("script");
         script11.src = "/assets/js/jquery-3.6.0.min.js";
         script11.async = false;
+
+        const script5 = document.createElement("script");
+        script5.src = "/assets/js/dataTables.bootstrap4.min.js";
+        script5.async = false;
     
         document.body.appendChild(script11);
     
@@ -74,9 +80,7 @@ export default function SalesRegister () {
     
         document.body.appendChild(script6); //can be uncommented
     
-        const script5 = document.createElement("script");
-        script5.src = "/assets/js/dataTables.bootstrap4.min.js";
-        script5.async = false;
+       
     
         document.body.appendChild(script5); //can be uncommented
     
@@ -143,6 +147,10 @@ export default function SalesRegister () {
             let obj = JSON.parse(ele);
               console.log("map value"+obj.month);
               let trEle = document.createElement("tr");
+              trEle.style='cursor:pointer;'
+              trEle.addEventListener('click',()=>{
+                navigate("/invoiceList?month="+obj.month);
+              })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");
               aEle.className="text-decoration-none";

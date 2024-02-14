@@ -88,15 +88,16 @@ export default function InvoiceList () {
 
 		  if(searchText!=null && searchText.length>0){
 			  tempInvoiceDo=tempInvoiceDo.filter(elem=>{
-				  console.log(elem.customerName.toString().toLowerCase()+" "+searchText)
-				  return (elem.igstValue && elem.igstValue.toString().toLowerCase().includes(searchText))
-			  || (elem.invoiceDate && elem.invoiceDate.toString().toLowerCase().includes(searchText))
-			  || (elem.customerName && elem.customerName.toString().toLowerCase().includes(searchText))
-			  || (elem.invoiceValue && elem.invoiceValue.toString().toLowerCase().includes(searchText))
-			  || (elem.taxableValue && elem.taxableValue.toString().toLowerCase().includes(searchText))
-			  || (elem.cgstValue && elem.cgstValue.toString().toLowerCase().includes(searchText))
-			  || (elem.sgstValue && elem.sgstValue.toString().toLowerCase().includes(searchText))
-			  || (elem.invoiceStatus && elem.invoiceStatus.toString().toLowerCase().includes(searchText))
+				  console.log(elem.customerName.toString().toLowerCase()+" "+searchText.toLowerCase())
+				  return (elem.igstValue && elem.igstValue.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.invoiceDate && formatDate(elem.invoiceDate).toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.customerName && elem.customerName.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.invoiceValue && elem.invoiceValue.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.taxableValue && elem.taxableValue.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.cgstValue && elem.cgstValue.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.sgstValue && elem.sgstValue.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.invoiceStatus && elem.invoiceStatus.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  ||(elem.invoiceNo && elem.invoiceNo.toString().toLowerCase().includes(searchText.toLowerCase()))
 		  });
 		}
 	
@@ -174,11 +175,11 @@ const exportToExcel = async () => {
 	let rowCount=1;
 
 	
-	let finalRow=['','','','',allInvVal,subTotal,cgst,sgst,igst,'']
+	let finalRow=['Total','','','',allInvVal,subTotal,cgst,sgst,igst,'']
 
     filteredInvoiceList.forEach(row => {
 		debugger;
-		tempRow=[rowCount++,row['invoiceNo'], row['invoiceDate'],row['customerName'],row['invoiceValue'],row['taxableValue'],
+		tempRow=[rowCount++,row['invoiceNo'], formatDate(row['invoiceDate']),row['customerName'],row['invoiceValue'],row['taxableValue'],
 		row['cgstValue'],
 		row['sgstValue'],
 		row['igstValue'],
@@ -189,6 +190,28 @@ const exportToExcel = async () => {
 
 	finalRow=worksheet.addRow(finalRow);
 	finalRow.font = { bold: true };
+
+	worksheet.eachRow(row => {
+		row.eachCell(cell => {
+		  cell.border = {
+			top: { style: 'thin' },
+			bottom: { style: 'thin' },
+			left: { style: 'thin' },
+			right: { style: 'thin' },
+		  };
+		});
+	  });
+
+	
+
+	  worksheet.columns.forEach(column => {
+		column.eachCell({ includeEmpty: true }, cell => {
+		  const cellContentLength = cell.value ? cell.value.toString().length : 10; // Default width for empty cells
+		  column.width = Math.max(column.width || 0, cellContentLength + 2); // Set minimum width for better visibility
+		});
+		console.log("column width:"+column.width);
+	  });
+  
 
     // Save the workbook
     const buffer = await workbook.xlsx.writeBuffer();
@@ -335,7 +358,7 @@ const exportToExcel = async () => {
 
 		let aElem=document.createElement("a"); 
 		aElem.className="invoice-link";
-		aElem.href="/viewInvoice?id="+elem.invoiceId;
+		aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
 		tdElem.appendChild(aElem);
 		trElem.appendChild(tdElem);
@@ -728,7 +751,7 @@ const exportToExcel = async () => {
 
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
-		    aElem.href="/viewInvoice?id="+elem.invoiceId;
+		    aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
             trElem.appendChild(tdElem);
@@ -988,7 +1011,7 @@ const exportToExcel = async () => {
 		 if(name == "Edit"){
 			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
-			navigate("/viewInvoice?id="+invt);
+			navigate("/viewInvoiceTriplet?id="+invt);
 		 }else if(name == "Delete"){
 			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
 		    console.log(res.data);
@@ -1307,7 +1330,7 @@ const exportToExcel = async () => {
           //  tdElem.appendChild(labelElem);
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
-		    aElem.href="/viewInvoice?id="+elem.invoiceId;
+		    aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
             trElem.appendChild(tdElem);

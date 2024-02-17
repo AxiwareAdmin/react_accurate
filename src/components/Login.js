@@ -18,7 +18,7 @@ function Login() {
         }
       }
 
-  const BACKEND_SERVER="http://localhost:8080";
+  const BACKEND_SERVER="http://localhost:8081";
 
   const [alertMsg,setAlertMsg]=useState("");
 

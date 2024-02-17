@@ -5,6 +5,8 @@ import Navbar from "../Navbar";
 import axios from "axios";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function DocumentSequence() {
 
     const navigate=useNavigate();
@@ -340,6 +342,16 @@ export default function DocumentSequence() {
 
     function save(){
 
+        if(documentName == null || documentName == "" || documentName == undefined){
+             validations("Please Enter Document Name.");
+        }else if(prefix1 == null || prefix1 == "" || prefix1 == undefined){
+            validations("Please Enter prefix1");
+        }else if(prefix2 == null || prefix2 == "" || prefix2 == undefined ){
+            validations("Please Enter prefix2");
+        }else if(series == null || series == "" || series == undefined){
+            validations("Please Enter series");
+        }else{
+
         let documentdata = {
             DocumentId : documentId,
             DocumentName : documentName,
@@ -353,7 +365,7 @@ export default function DocumentSequence() {
        
     
 
-    axios.post('http://localhost:8080/saveDocMaster', documentdata,{
+    axios.post('http://localhost:8081/saveDocMaster', documentdata,{
         headers:headers
       })
       .then(function (response) {
@@ -364,8 +376,13 @@ export default function DocumentSequence() {
         // setTimeout(()=>{
         //   props.onAlertChange(null)
         // },2000)
-        alert("Document master created or Updated successfully!!");
-debugger;
+        //alert("Document master created or Updated successfully!!");
+        toast("Document sequence Created Sucessfully.",{
+            position: "top-center",
+            theme:"colored",
+            type:"sucess",
+            autoClose:500
+           });
         document.querySelector("#spandocumentName"+selectedIndex).innerText=documentName;
         document.querySelector("#spanprefix1"+selectedIndex).innerText=prefix1;
         document.querySelector("#spanprefix2"+selectedIndex).innerText=prefix2;
@@ -384,13 +401,36 @@ debugger;
         document.querySelector("#rating_1"+selectedIndex).value=status;
 
         }
-        else
-          alert("There is some issue created or Updated document master. kindly check wherether all the data is entered or not.")
+        else{
+            toast("something is wrong.",{
+                position: "top-center",
+                theme:"colored",
+                type:"error",
+                autoClose:500
+               });
+        }
+         // alert("There is some issue created or Updated document master. kindly check wherether all the data is entered or not.")
       })
       .catch(function (error) {
+        toast("something is wrong.",{
+            position: "top-center",
+            theme:"colored",
+            type:"error",
+            autoClose:500
+           });
         console.log(error);
       });
     }
+ }
+
+ function validations(msg){
+    toast(msg,{
+        position: "top-center",
+        theme:"colored",
+        type:"error",
+        autoClose:500
+       });
+ }
 
     function setDocIdForDel(tempDocId){
         console.log("before set doc id ::"+tempDocId);
@@ -404,15 +444,27 @@ debugger;
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
                 // setTimeout(()=>{
-                    alert("Document deleted successfully!!");
+                   // alert("Document deleted successfully!!");
                 //   },2000)
+                toast("Document deleted successfully!",{
+                    position: "top-center",
+                    theme:"colored",
+                    type:"success",
+                    autoClose:500
+                   });
 						  
 				}
 				else
                 {
                     // setTimeout(()=>{
-                        alert("There is some issue delete Document.");
+                        //alert("There is some issue delete Document.");
                     //   },2000)
+                    toast("There is some issue delete Document",{
+                        position: "top-center",
+                        theme:"colored",
+                        type:"error",
+                        autoClose:500
+                       });
                 }
 				 		   
 		    });

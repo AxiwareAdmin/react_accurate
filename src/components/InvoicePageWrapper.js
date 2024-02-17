@@ -24,7 +24,7 @@ export default function InvoicePageWrapper(props) {
 
  
   const addProductForCopy=window.addProductForCopy;
-  const BACKEND_SERVER="http://localhost:8080";
+  const BACKEND_SERVER="http://localhost:8081";
   const editref = useRef(true);
 
   const [isOpenCustomer, setIsOpenCustomer] = React.useState(false);
@@ -1285,7 +1285,7 @@ const onDescriptionChange=(e)=>{
 
     var token=localStorage.getItem("token");
 
-    axios.post('http://localhost:8080/saveInvoice', invoiceData,{
+    axios.post('http://localhost:8081/saveInvoice', invoiceData,{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1454,7 +1454,7 @@ const onDescriptionChange=(e)=>{
        document.querySelector("#prodtable").innerHTML=''
             debugger;
 
-            axios.get("http://localhost:8080/viewInvoice?invId="+invNoEdit,{
+            axios.get("http://localhost:8081/viewInvoice?invId="+invNoEdit,{
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token

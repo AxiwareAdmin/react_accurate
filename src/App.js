@@ -28,7 +28,7 @@ import axios from "axios";
 
 function App() {
 
-  const BACKEND_SERVER="http://localhost:8080"
+  const BACKEND_SERVER="http://localhost:8081"
 
   function checkJwtTokenValidity(){
     debugger;

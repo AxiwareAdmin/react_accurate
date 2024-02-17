@@ -16,7 +16,7 @@ export default function AddProduct(props) {
     const [partCode, setPartCode] = useState();
     const [hsnCode, setHsnCode] = useState();
     const [unit, setUnit] = useState();
-    const [unitVarchar, setUnitVarchar] = useState("ss");
+    const [unitVarchar, setUnitVarchar] = useState();
     const [rate, setRate] = useState();
     const [category, setCategory] = useState();
     const [applicableTax, setApplicableTax] = useState();
@@ -27,11 +27,30 @@ export default function AddProduct(props) {
     
 
 
-    const BACKEND_SERVER = "http://localhost:8080";
+    const BACKEND_SERVER = "http://localhost:8081";
 
 
     function saveProduct(e) {
         e.preventDefault();
+
+        
+        if(productName == null || productName == undefined || productName == ""){
+           validations("Please Enter Product Name");
+        }else if(partCode == null || partCode == undefined || partCode == ""){
+           validations("Please Enter partCode");
+        }else if(hsnCode == null || hsnCode == undefined || hsnCode == ""){
+           validations("Please Enter hsnCode");
+        }else if(unitVarchar == null || unitVarchar == undefined || unitVarchar == "0"){
+           validations("Please Select  unit");
+        }else if(rate == null || rate == undefined || rate == ""){
+           validations("Please Enter rate");
+        }else if(category == null || category == undefined || category =="--Select--"){
+           validations("Please select  category");
+        }else if(applicableTax == null || applicableTax == undefined || applicableTax == "0"){
+           validations("Please select  applicableTax");
+        }else if(openingStock == null || openingStock == undefined || openingStock == ""){
+            validations("Please Enter openingStock");
+        }else{
 
         let productData = {
 
@@ -64,11 +83,17 @@ export default function AddProduct(props) {
                 if (res != null && res.data.res != "failure") {
 
                     //props.sendToParent(false);
+                    toast("Product Created Sucessfully.",{
+                        position: "top-center",
+                        theme:"colored",
+                        type:"sucess",
+                        autoClose:500
+                       });
                     props.sendToParent({prodId : res.data.res,flag : false,prodName : productName});
                     return;
 
                 } else {
-                    debugger;
+                    
                    // alert("something is wrong");
                    toast("something is wrong!",{
                     position: "top-center",
@@ -90,7 +115,7 @@ export default function AddProduct(props) {
                    });
                 props.sendToParent(true);
             });
-
+        }
     }
 
     useEffect (() => {
@@ -106,6 +131,15 @@ export default function AddProduct(props) {
             selectAppTax(e);
         }
     });
+
+    function validations(msg){
+        toast(msg,{
+            position: "top-center",
+            theme:"colored",
+            type:"error",
+            autoClose:500
+           });
+    }
 
     function selectCategory (e) {
         console.log("category"+e +" cc"+e.target.value);

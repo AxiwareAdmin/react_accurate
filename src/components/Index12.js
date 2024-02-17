@@ -5,6 +5,12 @@ export default function Index1() {
 
  useEffect(() => {
 
+  const script11 = document.createElement("script");
+  script11.src = "/assets/js/jquery-3.6.0.min.js";
+  script11.async = false;
+
+  document.body.appendChild(script11);
+
         const script10 = document.createElement('script');
         script10.src = "/assets/js/bootstrap.bundle.min.js";
         script10.async = false;
@@ -75,9 +81,10 @@ export default function Index1() {
 	
 		
 	  return () => {
+      document.body.removeChild(script11);
 		document.body.removeChild(script9);
 		document.body.removeChild(script10);
-		// document.body.removeChild(script11);
+		document.body.removeChild(script5);
 		  document.body.removeChild(script);
 		  document.body.removeChild(script1);
 		  document.body.removeChild(script4);

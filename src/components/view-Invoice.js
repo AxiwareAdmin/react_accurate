@@ -16,7 +16,14 @@ export default function ViewInvoice() {
     },
   };
 
+  const fetchInvoiceType=()=>{
+    var url = new URL(window.location.href);
+    let id1 = url.searchParams.get("invoiceType");
+    return id1;
+  }
+
   const navigate=useNavigate();
+  const [invoiceType,setInvoiceType]=useState(fetchInvoiceType());
   const [invNo, setinvNo] = useState(null);
   const [compName, setcmpName] = useState("Shivansh infotech");
   const [fromAddr, setfromAddr] = useState("");
@@ -454,7 +461,7 @@ export default function ViewInvoice() {
     if (!initilized.current) {
       initilized.current = true;
       axios
-        .get("http://localhost:8080/viewInvoice?invId=" + id1, header)
+        .get(`http://localhost:8080/${invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=` + id1, header)
         .then((res) => {
           debugger;
 

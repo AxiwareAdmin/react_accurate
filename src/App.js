@@ -24,6 +24,8 @@ import DocumentSequence from "./components/Manage/DocumentSequence";
 import PurchaseCreate from "./components/PurchaceCreate"
 import { useNavigate,Navigate } from "react-router-dom";
 import axios from "axios";
+import SalesCashRegister from "./components/SalesCashRegister";
+import CashInvoiceList from "./components/CashInvoiceList";
 
 
 function App() {
@@ -76,11 +78,13 @@ function App() {
           <Route  path="/add-invoice" element={<InvoicePageWrapper/>} />
           <Route  path="/add-purchase" element={<PurchaseCreate/>} />
           <Route path="/invoiceList" element={<InvoiceList/>}/>
+          <Route path="/cashInvoices" element={<CashInvoiceList/>}/>
           <Route path="/purchaseList" element={<PurchaseList/>}/>
           <Route path="/viewInvoiceTriplet" element={<ViewInvoiceTriplet/>}/>
           <Route path="/viewInvoice" element={<ViewInvoice/>}/>
           <Route path="/viewPurchase" element={<ViewPurchase/>}/>
           <Route path="/salesRegister" element={<SalesRegister/>} />
+          <Route path="/salesCashRegister" element={<SalesCashRegister/>} />
           <Route path="/purchaseRegister" element={<PurchaseRegister/>} />
           <Route path="/InvoicesPaid" element={<InvoicesPaid/>} />
           <Route path="/InvoicesOverDue" element={<InvoicesOverDue/>} />
@@ -91,7 +95,6 @@ function App() {
           <Route  path="/register" element={<Register/>} />
 	        <Route path="/DocumentSequence" element={<DocumentSequence/>} />
           <Route  path="/" element={<Login/>} />
-       
         </Routes>
         )
         :

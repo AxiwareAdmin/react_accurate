@@ -9,8 +9,20 @@ import Navbar from "./Navbar";
 
 export default function ViewInvoiceTriplet() {
 
+  
+  // const location=useLocation();
+
     const invoicepdf = useRef(null);
     const navigate=useNavigate();
+
+    // const [invoiceType,setInvoiceType]=useState(null);
+
+    // useEffect(()=>{
+    //   if(location.state.invoiceType)
+    //   setInvoiceType(location.state.invoiceType)
+    // },[])
+
+    // if(location.state && location.state.invoiceType!=null) setInvoiceType(location.state.invoiceType);
 
     const [invoiceNumber,setInvoiceNumber]=useState("");
     const [displayFlag,setDisplayFlag]=useState(null)
@@ -163,15 +175,22 @@ export default function ViewInvoiceTriplet() {
         console.log("id:"+id1);
       return id1;
     }
+
+    const fetchInvoiceType=()=>{
+      var url = new URL(window.location.href);
+    let id1 = url.searchParams.get("invoiceType");
+    return id1;
+  }
   return (
     <div>
         <Navbar />
         <Sidebar />
         <Loader display={displayFlag}/>
     <div ref={invoicepdf}>
-      <ViewInvoice id={fetchId()} setInvoiceNumber={setInvoiceNumber} productTableId="productTable1" gstContainerId="gstContainer1" label="Original"/>
-      <ViewInvoice id={fetchId()} productTableId="productTable2" gstContainerId="gstContainer2" label="Duplicate"/>
-      <ViewInvoice id={fetchId()} productTableId="productTable3" gstContainerId="gstContainer3" label="Tripicate"/>
+      
+      <ViewInvoice invoiceType={fetchInvoiceType()} id={fetchId()} setInvoiceNumber={setInvoiceNumber} productTableId="productTable1" gstContainerId="gstContainer1" label="Original"/>
+      <ViewInvoice invoiceType={fetchInvoiceType()} id={fetchId()} productTableId="productTable2" gstContainerId="gstContainer2" label="Duplicate"/>
+      <ViewInvoice invoiceType={fetchInvoiceType()} id={fetchId()} productTableId="productTable3" gstContainerId="gstContainer3" label="Tripicate"/>
      
       <div class="page-header invoices-page-header">
             <div class="row">
@@ -217,10 +236,12 @@ export default function ViewInvoiceTriplet() {
             </div>
     </div>
     </div>
+    
   )
 }
 
 function ViewInvoice(props) {
+   console.log("viewInvoicce:invoieType::"+props.invoiceType)
     var token = localStorage.getItem("token");
     var header = {
       headers: {
@@ -547,13 +568,11 @@ function ViewInvoice(props) {
       var url = new URL(window.location.href);
       let id1 = props.id;
       let action = url.searchParams.get("action");
-      let serviceChkT = url.searchParams.get("serviceChk");
-      setBillToAddrShow(serviceChkT);
   
       if (!initilized.current) {
         initilized.current = true;
         axios
-          .get("http://localhost:8080/viewInvoice?invId=" + id1, header)
+          .get(`http://localhost:8080/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=` + id1, header)
           .then((res) => {
             debugger;
   
@@ -809,8 +828,8 @@ function ViewInvoice(props) {
             }
   
             setGstPercentageVal(tempGstPercentageVal);
-  
-            addGstElems(
+            
+            props.invoiceType.toLowerCase()!='cash' && addGstElems(
               tempGstPercentageArr,
               tempGstPercentageVal,
               tempGstCalculationVal
@@ -849,6 +868,7 @@ function ViewInvoice(props) {
         if(custName==null) return;
   
         axios.get(`http://localhost:8080/customer/custname/${custName}`,header).then((res)=>{
+          debugger;
             if(res!='Customers not found'){
               setCustomerDetails(res.data);
             }
@@ -1179,7 +1199,7 @@ function ViewInvoice(props) {
                               <p class="mb-0">
                                 Sub total{" "}
                                 <span>
-                                  &#x20B9;{taxable + addChrg + discount}
+                                  &#x20B9;{taxable + addChrg - discount}
                                 </span>
                               </p>
                             </div>
@@ -1190,7 +1210,7 @@ function ViewInvoice(props) {
                                 <span>
                                   &#x20B9;
                                   {taxable +
-                                    addChrg +
+                                    addChrg -
                                     discount +
                                     (gstPercentageVal.length > 0
                                       ? gstPercentageVal.reduce((x, y) => x + y)

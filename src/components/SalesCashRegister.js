@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 
 
-export default function SalesRegister () {
+export default function SalesCashRegister () {
 
   const navigate=useNavigate();
 
@@ -129,7 +129,7 @@ export default function SalesRegister () {
         var closingBal=0;
 
         var tempTotal=0;
-        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
+        axios.get("http://localhost:8080/viewSalesCashReg",header).then((res) =>{
             res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
                 let obj = JSON.parse(ele);
@@ -140,7 +140,7 @@ export default function SalesRegister () {
             )
 
         }).finally(()=>{
-        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
+        axios.get("http://localhost:8080/viewSalesCashReg",header).then((res) =>{
             
           res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -149,12 +149,12 @@ export default function SalesRegister () {
               let trEle = document.createElement("tr");
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
-                navigate("/invoiceList?month="+obj.month);
+                navigate("/cashInvoices?month="+obj.month);
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");
               aEle.className="text-decoration-none";
-              aEle.href = "/invoiceList?month="+obj.month;
+              aEle.href = "/cashInvoices?month="+obj.month;
               let iEle = document.createElement("i");
               iEle.className = "fa fa-star";
               iEle.ariaHidden = "true";
@@ -187,7 +187,7 @@ export default function SalesRegister () {
               tdEle = document.createElement("td");
               tdEle.className='textAlignEnd'
               aEle = document.createElement("a");
-              aEle.href = "invoiceList";
+              aEle.href = "cashInvoices";
             //   aEle.setAttribute(data-bs-toggle,"modal");
             //   aEle.setAttribute(data-bs-target,"#system-user");
             let tempTotInvoiceVal=toCurrency(fromCurrency(obj.totalInv)).replace(/[\$]/g,'');

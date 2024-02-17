@@ -14,7 +14,7 @@ import { render } from "react-dom";
 import ExcelJS from 'exceljs';
 
 
-export default function InvoiceList () {
+export default function CashInvoiceList () {
 
 	var token=localStorage.getItem("token")
 	var header={
@@ -358,11 +358,12 @@ const exportToExcel = async () => {
 
 		let aElem=document.createElement("a"); 
 		aElem.className="invoice-link";
-		aElem.addEventListener('click',()=>{
-
-			navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
-		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
+
+        aElem.addEventListener('click',()=>{
+
+            navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`);
+        })
 		aElem.appendChild(textElem); 
 		tdElem.appendChild(aElem);
 		trElem.appendChild(tdElem);
@@ -596,7 +597,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
+        axios.get("http://localhost:8080/cashInvoices/"+month1,header).then((res) => {
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -675,9 +676,9 @@ const exportToExcel = async () => {
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
-			aElem.addEventListener('click',()=>{
+            aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`);
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1030,9 +1031,7 @@ const exportToExcel = async () => {
 		 if(name == "Edit"){
 			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
-			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
-
-                navigate(`/viewInvoiceTriplet?id=${invt}&invoiceType=GST`);
+			navigate(`/viewInvoiceTriplet?id=${invt}&invoiceType=cash`);
 		 }else if(name == "Delete"){
 			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
 		    console.log(res.data);
@@ -1351,11 +1350,10 @@ const exportToExcel = async () => {
           //  tdElem.appendChild(labelElem);
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
-			aElem.addEventListener('click',()=>{
+            aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`);
             })
-		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
             trElem.appendChild(tdElem);

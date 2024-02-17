@@ -27,8 +27,8 @@ export default function Sidebar() {
 							<li className="menu-title"> 
 								<span>Main</span>
 							</li>
-							<li className="submenu">
-							<Link to="/dashboard" className="active"><i className="feather-home"></i> <span> Dashboard</span> </Link>
+							<li>
+							<Link to="/dashboard" className="active"><i className="fa fa-th-large"></i> <span> Dashboard</span> </Link>
 							
 								{/* <ul className="sub-menus">
 									<li><Link to="/dashboard" className="active">Deals Dashboard</Link></li>
@@ -39,7 +39,7 @@ export default function Sidebar() {
 
 
 							<li className="submenu">
-								<a href="#"><i className="feather-clipboard"></i> <span>  Banking </span> <span className="menu-arrow"></span></a>
+								<a href="#"><i className="fa fa-university"></i> <span>  Banking </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
 									<li><Link to="/salesRegister">Bank Transactions</Link></li>
 									<li><a href="invoice-grid.html" >Bank Entry</a></li>
@@ -49,7 +49,7 @@ export default function Sidebar() {
 
 
 							<li className="submenu">
-								<a href="#"><i className="feather-clipboard"></i> <span>  Cash Book </span> <span className="menu-arrow"></span></a>
+								<a href="#"><i className="feather-book"></i> <span>  Cash Book </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
 									<li><Link to="/salesRegister">Cash Transactions</Link></li>
 									<li><a href="invoice-grid.html" >Cash Entry</a></li>
@@ -57,7 +57,7 @@ export default function Sidebar() {
 							</li>
 
 							<li className="submenu">
-								<a href="#"><i className="feather-clipboard"></i> <span>  Accounting </span> <span className="menu-arrow"></span></a>
+								<a href="#"><i className="fa fa-calculator"></i> <span>  Accounting </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
 									<li><Link to="/salesRegister">Journal Voucher</Link></li>
 									<li><a href="invoice-grid.html" >Debit Note</a></li>
@@ -98,10 +98,10 @@ export default function Sidebar() {
 							</li>	 */}
 							
 							<li className="submenu">
-								<a href="#"><i className="feather-clipboard"></i> <span>  Sales </span> <span className="menu-arrow"></span></a>
+								<a href="#"><i className="feather-file-text"></i> <span>  Sales </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
 									<li><Link to="/salesRegister">GST Sale</Link></li>
-									<li><Link to="/salesRegister">Cash Sale</Link></li>
+									<li><Link to="/salesCashRegister">Cash Sale</Link></li>
 									<li><Link to="/salesRegister">Proforma Invoice</Link></li>
 									<li><Link to="/add-invoice">Create Invoice</Link></li>
 									<li><a href="edit-invoice.html">Create Customer</a></li>
@@ -114,7 +114,7 @@ export default function Sidebar() {
 
 
 							<li class="submenu">
-								<a href="#"><i class="feather-grid"></i> <span> Purchase</span>
+								<a href="#"><i class="fa fa-cart-arrow-down"></i> <span> Purchase</span>
 									<span class="menu-arrow"></span>
 								</a>
 								<ul class="sub-menus">
@@ -126,7 +126,7 @@ export default function Sidebar() {
 							</li>
 
 							<li class="submenu">
-								<a href="#"><i class="feather-grid"></i> <span> Quotation</span>
+								<a href="#"><i class="feather-clipboard"></i> <span> Quotation</span>
 									<span class="menu-arrow"></span>
 								</a>
 								<ul class="sub-menus">
@@ -139,7 +139,7 @@ export default function Sidebar() {
 							</li>
 
 							<li class="submenu">
-								<a href="#"><i class="feather-grid"></i> <span> Purchase Order</span>
+								<a href="#"><i class="fa fa-cart-plus"></i> <span> Purchase Order</span>
 									<span class="menu-arrow"></span>
 								</a>
 								<ul class="sub-menus">
@@ -152,7 +152,7 @@ export default function Sidebar() {
 							</li>
 
 							<li class="submenu">
-								<a href="#"><i class="feather-grid"></i> <span>Inventory</span>
+								<a href="#"><i class="feather-clipboard"></i> <span>Inventory</span>
 									<span class="menu-arrow"></span>
 								</a>
 								<ul class="sub-menus">
@@ -165,7 +165,7 @@ export default function Sidebar() {
 
 
 							<li class="submenu">
-								<a href="#"><i class="feather-grid"></i> <span>Reports</span>
+								<a href="#"><i class="feather-bar-chart-2"></i> <span>Reports</span>
 								</a>
 							</li>
 

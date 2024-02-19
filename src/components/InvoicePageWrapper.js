@@ -1286,7 +1286,7 @@ const onDescriptionChange=(e)=>{
     validations("Please Enter vehicleNumber.");
    }else  if(productUnits != null || productUnits != "" || productUnits != undefined){
     productUnits.map((prodUnit) => {
-      if(prodUnit.id == null || prodUnit.id == "--Select--" || prodUnit.id == undefined || prodUnit.id==1){
+      if(prodUnit.productName == null || prodUnit.productName == "" || prodUnit.productName == undefined){
         validations("Please select at least one product.");
       }
     });   

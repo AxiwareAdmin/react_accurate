@@ -30,6 +30,16 @@ export default function InvoicePageWrapper(props) {
   const [isOpenCustomer, setIsOpenCustomer] = React.useState(false);
   const [isOpenAddProduct, setIsOpenAddProduct] = React.useState(false);
 
+
+  const fetchInvoiceType=()=>{
+    var url = new URL(window.location.href);
+    let id1 = url.searchParams.get("invoiceType");
+    return id1;
+  }
+  const [invoiceType , setInvoiceType] = useState(fetchInvoiceType());
+
+  
+
  const handleClickOpenCustomer = (e) => {
        e.preventDefault();
        setIsOpenCustomer(true);
@@ -665,10 +675,11 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
       return;
     } 
 
-    debugger;
+    
 
     var url=new URL(window.location.href);
     let actionedit = url.searchParams.get("action");
+    
 
     if(actionedit!=undefined && actionedit!=null && actionedit=='Edit') return;
     
@@ -1235,6 +1246,14 @@ const onDescriptionChange=(e)=>{
     return fiscalyear;
   }
 
+  function validations(msg){
+    toast(msg,{
+        position: "top-center",
+        theme:"colored",
+        type:"error"
+       });
+}
+
   const saveInvoice=(e)=>{
     e.preventDefault();
     let totalSgst=0;
@@ -1244,6 +1263,34 @@ const onDescriptionChange=(e)=>{
       totalSgst=roundNum(totalSgst+roundNum(parseFloat(elem)/2));
       totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
     })
+
+    if(document.querySelector("#customer option:checked").innerText == null 
+    || document.querySelector("#customer option:checked").innerText == "Select Customer"
+     || document.querySelector("#customer option:checked").innerText == undefined){
+      validations("Please select Customer Name.");
+   }else if(invoiceNumber == null || invoiceNumber == "" || invoiceNumber == undefined){
+    validations("Please Enter Invoice NO.");
+   }else if(invoiceDate == null || invoiceDate == "" || invoiceDate == undefined){
+    validations("Please Enter Invoice Date.");
+   }else if(poNumber == null || poNumber == "" || poNumber == undefined){
+    validations("Please Enter poNumber.");
+   }else if(poDate == null || poDate == "" || poDate == undefined){
+    validations("Please Enter poDate.");
+   }else  if(challanNumber == null || challanNumber == "" || challanNumber == undefined){
+    validations("Please Enter challanNumber.");
+   }else  if(challanDate == null || challanDate == "" || challanDate == undefined){
+    validations("Please Enter challanDate.");
+   }else  if(dueDate == null || dueDate == "" || dueDate == undefined){
+    validations("Please Enter dueDate.");
+   }else  if(vehicleNumber == null || vehicleNumber == "" || vehicleNumber == undefined){
+    validations("Please Enter vehicleNumber.");
+   }else  if(productUnits != null || productUnits != "" || productUnits != undefined){
+    productUnits.map((prodUnit) => {
+      if(prodUnit.id == null || prodUnit.id == "--Select--" || prodUnit.id == undefined || prodUnit.id==1){
+        validations("Please select at least one product.");
+      }
+    });   
+   }else{
 
     let invoiceData={
       invoiceProducts:productUnits,
@@ -1285,7 +1332,7 @@ const onDescriptionChange=(e)=>{
 
     var token=localStorage.getItem("token");
 
-    axios.post('http://localhost:8080/saveInvoice', invoiceData,{
+    axios.post(`http://localhost:8080/saveInvoice?invoiceType=${invoiceType}`, invoiceData,{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1315,6 +1362,7 @@ const onDescriptionChange=(e)=>{
     .catch(function (error) {
       console.log(error);
     });
+   }
   }
 
   const onInvoiceDateChange=(e)=>{
@@ -1447,6 +1495,7 @@ const onDescriptionChange=(e)=>{
      var url=new URL(window.location.href);
      let invNoEdit=url.searchParams.get("InvNo");
      let actionedit = url.searchParams.get("action");
+    
      
      var token=localStorage.getItem('token')
      if(actionedit == "Edit" || actionedit == "Clone"){
@@ -1454,7 +1503,7 @@ const onDescriptionChange=(e)=>{
        document.querySelector("#prodtable").innerHTML=''
             debugger;
 
-            axios.get("http://localhost:8080/viewInvoice?invId="+invNoEdit,{
+            axios.get(`http://localhost:8080/viewInvoice?invId=${invNoEdit}&invoiceType=${invoiceType}`,{
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token

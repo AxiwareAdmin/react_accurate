@@ -4,11 +4,35 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import { useRef } from "react";
 
 
 export default function SalesRegister () {
 
+  const [type , setType] = useState("Invoice");
+  const [actionName , setActionName] = useState("viewSalesReg");
+  const [pageType , setPageType] = useState("");
+
   const navigate=useNavigate();
+  var url=new URL(window.location.href);
+  let pageType1 = url.searchParams.get("Type");
+  const editref = useRef(true);
+  if(editref.current){
+  if(pageType1 == "ProformaInvoice"){
+     //setActionName("viewSalesRegProforma");
+     setActionName(process.env.REACT_APP_ProformaInvoices_VIEW_ACTION);
+     setType("Proforma Invoice");
+     setPageType(pageType1)
+  }else{
+     //setActionName("viewSalesReg");
+     setActionName(process.env.REACT_APP_INVOICE_VIEW_ACTION);
+     setType("Invoice")
+     setPageType(pageType1)
+  }
+  editref.current = false;
+}
+
+  console.log("page Type = "+pageType);
 
     var token=localStorage.getItem("token")
 	var header={
@@ -129,7 +153,7 @@ export default function SalesRegister () {
         var closingBal=0;
 
         var tempTotal=0;
-        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
+        axios.get(`http://localhost:8080/${pageType == process.env.REACT_APP_INVOICE_VIEW_ACTION?"viewSalesReg":"viewSalesRegProforma"}`,header).then((res) =>{
             res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
                 let obj = JSON.parse(ele);
@@ -139,8 +163,10 @@ export default function SalesRegister () {
             }
             )
 
+        }).catch((e)=>{
+          console.log(e)
         }).finally(()=>{
-        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
+        axios.get(`http://localhost:8080/${pageType == process.env.REACT_APP_INVOICE_VIEW_ACTION?"viewSalesReg":"viewSalesRegProforma"}`,header).then((res) =>{
             
           res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -149,12 +175,12 @@ export default function SalesRegister () {
               let trEle = document.createElement("tr");
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
-                navigate("/invoiceList?month="+obj.month);
+                navigate("/invoiceList?Type="+pageType+"&month="+obj.month);
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");
               aEle.className="text-decoration-none";
-              aEle.href = "/invoiceList?month="+obj.month;
+              aEle.href = "/invoiceList?Type="+pageType+"&month="+obj.month;
               let iEle = document.createElement("i");
               iEle.className = "fa fa-star";
               iEle.ariaHidden = "true";
@@ -317,7 +343,7 @@ export default function SalesRegister () {
                                     </div>
                                 </li>
                                 <li class="list-inline-item">
-                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to="/add-invoice">Create Invoice</Link>
+                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to="/add-invoice">Create {type}</Link>
                                 </li>
                             </ul>
                         </div>

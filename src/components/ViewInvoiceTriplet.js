@@ -26,6 +26,7 @@ export default function ViewInvoiceTriplet() {
 
     const [invoiceNumber,setInvoiceNumber]=useState("");
     const [displayFlag,setDisplayFlag]=useState(null)
+   
     // useEffect (() =>{
   
     //   if(initilized.current){
@@ -179,6 +180,7 @@ export default function ViewInvoiceTriplet() {
     const fetchInvoiceType=()=>{
       var url = new URL(window.location.href);
     let id1 = url.searchParams.get("invoiceType");
+   
     return id1;
   }
   return (
@@ -568,11 +570,12 @@ function ViewInvoice(props) {
       var url = new URL(window.location.href);
       let id1 = props.id;
       let action = url.searchParams.get("action");
+      let invoiceType = url.searchParams.get("invoiceType");
   
       if (!initilized.current) {
         initilized.current = true;
         axios
-          .get(`http://localhost:8080/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=` + id1, header)
+          .get(`http://localhost:8080/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=${id1}&invoiceType=${invoiceType}`, header)
           .then((res) => {
             debugger;
   
@@ -849,6 +852,8 @@ function ViewInvoice(props) {
             if(res.data!='client not found'){
               setClientDetails(res.data);
             }
+          }).catch((error)=>{
+            console.log(error)
           })
   
           axios.get("http://localhost:8080/user",header)
@@ -872,6 +877,8 @@ function ViewInvoice(props) {
             if(res!='Customers not found'){
               setCustomerDetails(res.data);
             }
+        }).catch((error)=>{
+          console.log(error)
         })
   
   
@@ -895,7 +902,7 @@ function ViewInvoice(props) {
                       <div class="col-md-12">
                           <div class="invoice-info" style={{borderBottom:'1px solid black',display:'flex'}}>
                             <strong class="customer-text-one" style={{textAlign:'center',flexGrow:'1'}}>
-                             TAX INVOICE
+                             {props.invoiceType == process.env.REACT_APP_ProformaInvoices_VIEW_ACTION?"TAX PROFORMA INVOICE":"TAX INVOICE"}
                             </strong>
 
                             {/* <strong class="customer-text-one" style={{textAlign:'end'}}>
@@ -938,8 +945,8 @@ function ViewInvoice(props) {
                           style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                         >
                           <div class="invoice-item-box">
-                            <p>Invoice No. : {invNo}</p>
-                            <p class="mb-0">Invoice Date : {invoiceDate}</p>
+                            <p>{props.invoiceType ==process.env.REACT_APP_ProformaInvoices_VIEW_ACTION?"PI":"Invoice"} No. : {invNo}</p>
+                            <p class="mb-0">{props.invoiceType ==process.env.REACT_APP_ProformaInvoices_VIEW_ACTION?"PI":"Invoice"} Date : {invoiceDate}</p>
                           </div>
   
                           <div class="invoice-item-box">

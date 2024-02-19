@@ -35,6 +35,41 @@ export default function AddCustomer(props) {
      function saveCustomer(e){
          e.preventDefault();
 
+         if(customerName == null || customerName == "" || customerName == undefined){
+            validations("Please Enter Billing Customer Name.");
+         }else if(gstNo == null || gstNo == "" || gstNo == undefined){
+            validations("Please Enter Billing GST_NO");
+         }else if(address1 == null || address1 == "" || address1 == undefined){
+            validations("Please Enter Billing Address.");
+         }else if(city == null || city == "" || city == undefined){
+            validations("Please Enter Billing city.");
+         }else if(pincode == null || pincode == "" || pincode == undefined){
+            validations("Please Enter Billing pincode.");
+         }else if(state == null || state == "--Select State--" || state == undefined){
+            validations("Please select Billing State.");
+         }else if(country == null || country == "" || country == undefined){
+            validations("Please Enter Billing country.");
+         }else if(shippingCustomerName == null || shippingCustomerName == "" || shippingCustomerName == undefined){
+            validations("Please Enter Shipping Customer Name.");
+         }else if(shippingGstNo == null || shippingGstNo == "" || shippingGstNo == undefined){
+            validations("Please Enter Shipping GST_NO");
+         }else if(shippingAddress1 == null || shippingAddress1 == "" || shippingAddress1 == undefined){
+            validations("Please Enter Shipping Address.");
+         }else if(shippingCity == null || shippingCity == "" || shippingCity == undefined){
+            validations("Please Enter Shipping city.");
+         }else if(shippingPincode == null || shippingPincode == "" || shippingPincode == undefined){
+            validations("Please Enter Shipping pincode.");
+         }else if(shippingState == null || shippingState == "--Select State--" || shippingState == undefined){
+            validations("Please select Shipping State.");
+         }else if(shippingCountry == null || shippingCountry == "" || shippingCountry == undefined){
+            validations("Please Enter Shipping country.");
+         }else if(contactNo == null || contactNo == "" || contactNo == undefined){
+            validations("Please Enter Contact No.");
+         }else if(email == null || email == "" || email == undefined){
+            validations("Please Enter Email id.");
+         }else{
+
+
          let customerData={
 
             customerName : customerName,
@@ -89,7 +124,7 @@ export default function AddCustomer(props) {
 
             return;
         }
-
+    
 
       }).catch(function (error) {
         toast("Something is wrong!",{
@@ -100,7 +135,7 @@ export default function AddCustomer(props) {
         props.sendToParent(true);
       });
 
-
+      }
         }
 
         useEffect (() => {
@@ -119,6 +154,14 @@ export default function AddCustomer(props) {
 
 
         });
+
+        function validations(msg){
+            toast(msg,{
+                position: "top-center",
+                theme:"colored",
+                type:"error"
+               });
+        }
 
         const selectPaymentTern = (e) => {
             setPaymentTerms(e.target.value);

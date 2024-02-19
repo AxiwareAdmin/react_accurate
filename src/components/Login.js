@@ -10,6 +10,8 @@ import { Navigate } from 'react-router-dom';
 
 function Login() {
 
+  console.log(process.env.REACT_APP_INVOICE_VIEW_ACTION)
+
   var token=localStorage.getItem("token")
 	var header={
         headers:{

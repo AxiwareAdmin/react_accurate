@@ -102,7 +102,7 @@ export default function Sidebar() {
 								<ul className="sub-menus">
 									<li><Link to="/salesRegister">GST Sale</Link></li>
 									<li><Link to="/salesCashRegister">Cash Sale</Link></li>
-									<li><Link to="/salesRegister">Proforma Invoice</Link></li>
+									<li><Link to="/salesRegister?Type=ProformaInvoice">Proforma Invoice</Link></li>
 									<li><Link to="/add-invoice">Create Invoice</Link></li>
 									<li><a href="edit-invoice.html">Create Customer</a></li>
 									<li><a href="edit-invoice.html">Create Product and Services</a></li>

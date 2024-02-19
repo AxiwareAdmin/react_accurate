@@ -33,7 +33,7 @@ function App() {
   const BACKEND_SERVER="http://localhost:8080"
 
   function checkJwtTokenValidity(){
-    debugger;
+    
     var token=localStorage.getItem("token");
 
     if(token==null || token==undefined){
@@ -84,6 +84,7 @@ function App() {
           <Route path="/viewInvoice" element={<ViewInvoice/>}/>
           <Route path="/viewPurchase" element={<ViewPurchase/>}/>
           <Route path="/salesRegister" element={<SalesRegister/>} />
+          <Route path="//salesRegister?Type=ProformaInvoice" element={<SalesRegister/>} />
           <Route path="/salesCashRegister" element={<SalesCashRegister/>} />
           <Route path="/purchaseRegister" element={<PurchaseRegister/>} />
           <Route path="/InvoicesPaid" element={<InvoicesPaid/>} />

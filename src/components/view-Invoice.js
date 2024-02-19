@@ -460,8 +460,9 @@ export default function ViewInvoice() {
 
     if (!initilized.current) {
       initilized.current = true;
+      debugger;
       axios
-        .get(`http://localhost:8080/${invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=` + id1, header)
+        .get(`http://localhost:8080/${invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=${id1}&invoiceType=${invoiceType}`, header)
         .then((res) => {
           debugger;
 
@@ -744,7 +745,9 @@ export default function ViewInvoice() {
           if(res.data!='client not found'){
             setClientDetails(res.data);
           }
-        })
+        }).catch((e) => {
+          console.log(e);
+        });
 
         axios.get("http://localhost:8080/user",header)
         .then((res)=>{
@@ -766,7 +769,9 @@ export default function ViewInvoice() {
           if(res!='Customers not found'){
             setCustomerDetails(res.data);
           }
-      })
+      }).catch((e) => {
+        console.log(e);
+      });
 
 
   },[custName])
@@ -806,7 +811,7 @@ export default function ViewInvoice() {
                     <div class="col-md-12">
                         <div class="invoice-info" style={{borderBottom:'1px solid black'}}>
                           <strong class="customer-text-one" style={{textAlign:'center'}}>
-                           TAX INVOICE
+                          {invoiceType == process.env.REACT_APP_ProformaInvoices_VIEW_ACTION?"TAX PROFORMA INVOICE":"TAX INVOICE"}
                           </strong>
                         </div>
                       </div>
@@ -841,8 +846,8 @@ export default function ViewInvoice() {
                         style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                       >
                         <div class="invoice-item-box">
-                          <p>Invoice No. : {invNo}</p>
-                          <p class="mb-0">Invoice Date : {invoiceDate}</p>
+                          <p>{invoiceType == process.env.REACT_APP_ProformaInvoices_VIEW_ACTION?"PI":"Invoice"} No. : {invNo}</p>
+                          <p class="mb-0">{invoiceType == process.env.REACT_APP_ProformaInvoices_VIEW_ACTION?"PI":"Invoice"} Date : {invoiceDate}</p>
                         </div>
 
                         <div class="invoice-item-box">

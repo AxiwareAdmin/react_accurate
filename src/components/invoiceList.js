@@ -14,6 +14,7 @@ import { render } from "react-dom";
 import ExcelJS from 'exceljs';
 
 
+
 export default function InvoiceList () {
 
 	var token=localStorage.getItem("token")
@@ -57,6 +58,29 @@ export default function InvoiceList () {
 	const [currentUserId,setCurrentUserId]=useState(null);
 
 	const[firstTimePageLoad,setFirstTimePageLoad]=useState("true");
+	const[pageType , setPageType] = useState("");
+	//const[actionName,setActionName] = useState("");
+	const[type , setType] = useState("");
+    const editref = useRef(true);
+
+	var url=new URL(window.location.href);
+    let pageType1 = url.searchParams.get("Type");
+	if(editref.current){
+
+		if(pageType1 == "ProformaInvoice"){
+			//setActionName("ProformaInvoices");
+			setType("Prof Invoice");
+			setPageType(process.env.REACT_APP_ProformaInvoices_VIEW_ACTION);
+		 }else{
+			//setActionName("invoices");
+			setType("Invoice")
+			setPageType(process.env.REACT_APP_INVOICE_VIEW_ACTION);
+		 }
+
+		editref.current  = false;
+
+	}
+	
 
 	useEffect(()=>{
 		// if(currentUserId==null) return;
@@ -360,7 +384,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+			navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=`+pageType);
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -596,7 +620,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
+        axios.get(`http://localhost:8080/${pageType==process.env.REACT_APP_INVOICE_VIEW_ACTION?"invoices":"ProformaInvoices"}/${month1}`,header).then((res) => {
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -677,7 +701,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=`+pageType);
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -866,6 +890,8 @@ const exportToExcel = async () => {
 	
 			document.querySelector("#tableFooter").appendChild(trElem); 
 
+		  }).catch((e)=>{
+			console.log(e)
 		  })
 
 		axios.get("http://localhost:8080/customers",header).then((res) => {
@@ -899,7 +925,10 @@ const exportToExcel = async () => {
           if(res.data!='client not found'){
             setClientDetails(res.data);
           }
-        })
+        }).catch((e)=>{
+			console.log(e)
+		  })
+
 
 	// },3000)	
 		
@@ -908,7 +937,7 @@ const exportToExcel = async () => {
 	  useEffect(()=>{
 
 		
-		debugger;
+		
 	    const script11 = document.createElement("script");
         script11.src = "/assets/js/jquery-3.6.0.min.js";
         script11.async = false;
@@ -1028,13 +1057,13 @@ const exportToExcel = async () => {
 	  function rendercommon(e,name , invt) {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
-			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
+			navigate(`/add-invoice?InvNo=${invt}&action=Edit&invoiceType=${pageType}`);
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/viewInvoiceTriplet?id=${invt}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${invt}&invoiceType=`+pageType);
 		 }else if(name == "Delete"){
-			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
+			axios.get("http://localhost:8080/deleteInv?invNo="+invt+"&pageType="+pageType,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1061,7 +1090,7 @@ const exportToExcel = async () => {
 			
 			//new code
 			console.log(e)
-			axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
+			axios.post("http://localhost:8080/cancelInvoice/"+invt+"/"+pageType,{},header).then((res)=>{
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
@@ -1098,7 +1127,7 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-					axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
+					axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries&actionName="+pageType,header).then((res) => {
 					console.log(res.data);
 					if(res!=null && res.data.res=='sucess'){
 						// alert("Invoice mail send successfully!!");	
@@ -1122,7 +1151,7 @@ const exportToExcel = async () => {
 					console.log(error);
 				});
 		 } else if(name == "Copy"){
-			 navigate("/add-invoice?InvNo="+invt+"&action=Clone");
+			 navigate(`/add-invoice?InvNo=${invt}&action=Clone&invoiceType=${pageType}`);
 			 //comented temporarily	  
 		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
@@ -1149,7 +1178,7 @@ const exportToExcel = async () => {
 				});*/
 		 }else if(name == "Download"){
 			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt+"&action=download");
+			navigate(`/viewInvoice?id=${invt}&action=download&invoiceType=${pageType}`);
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
 			// 	document.body.appendChild(canvas);  
@@ -1214,7 +1243,7 @@ const exportToExcel = async () => {
 			status,
 			category
 		}
-		axios.post('http://localhost:8080/excel/invoices', data,{
+		axios.post('http://localhost:8080/excel/invoices?actionName='+pageType, data,{
 			method: 'GET',
 			responseType: 'blob', // important
 			...header
@@ -1353,7 +1382,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=`+pageType);
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
@@ -1887,7 +1916,7 @@ const exportToExcel = async () => {
 										<div class="invoices-tabs">
 											<ul>
 												
-												<li><a href="#" class="active">All Invoice</a></li>
+												<li><a href="#" class="active">All {type}</a></li>
 												{/* <li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
 												<li><a href="#" onClick={rendertoInvOverDue}>Overdue</a></li>		
 												<li><a href="#" onClick={rendertoInvDraft}>Draft</a></li>	
@@ -1901,8 +1930,9 @@ const exportToExcel = async () => {
 											<a href="invoices-settings.html" class="invoices-settings-icon">
 												<i data-feather="settings"></i>
 											</a>
-											<a href="/add-invoice" class="btn">
-												<i data-feather="plus-circle"></i> New Invoice
+											<a href={pageType == process.env.REACT_APP_ProformaInvoices_VIEW_ACTION?
+											"/add-invoice?invoiceType=ProformaInvoice":"/add-invoice?invoiceType=INVOICE"} class="btn">
+												<i data-feather="plus-circle"></i> New {type}
 											</a>
 										</div>
 									</div>
@@ -1922,7 +1952,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(allInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>All Invoices <div style={{fontSize:'15px'}}>{accountingFormat(allInv)}</div></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>All {type} <div style={{fontSize:'15px'}}>{accountingFormat(allInv)}</div></p>
 								</div>
 							</div>
 						</div>
@@ -1937,7 +1967,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(paidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Paid Invoices <span style={{fontSize:'15px'}}>{accountingFormat(paidInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Paid {type} <span style={{fontSize:'15px'}}>{accountingFormat(paidInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1952,7 +1982,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(unpaidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Unpaid Invoices <span style={{fontSize:'15px'}}>{accountingFormat(unPaidInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Unpaid {type} <span style={{fontSize:'15px'}}>{accountingFormat(unPaidInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1967,7 +1997,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(canInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'16px',display:'flex',justifyContent:'space-around',alignItems:'end',flexWrap:'wrap'}}>Cancelled Invoices <span style={{fontSize:'14px'}}>{accountingFormat(canInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'16px',display:'flex',justifyContent:'space-around',alignItems:'end',flexWrap:'wrap'}}>Cancelled {type} <span style={{fontSize:'14px'}}>{accountingFormat(canInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1982,7 +2012,7 @@ const exportToExcel = async () => {
 											<thead class="thead-light">
 												<tr style={{background: "linear-gradient(90deg, rgba(67,203,255,1) 25%, rgba(151,8,204,1) 100%)",color:"white"}}>
 													<th>Sr No</th>
-													<th>Invoice No</th>
+													<th>{type} No</th>
 													<th>Date</th>
 												    <th>Customer Name</th>
 												    <th>Gross Total</th>

@@ -5,6 +5,8 @@ import Navbar from "../Navbar";
 import axios from "axios";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 export default function DocumentSequence() {
 
     const navigate=useNavigate();
@@ -340,6 +342,16 @@ export default function DocumentSequence() {
 
     function save(){
 
+        if(documentName == null || documentName == "" || documentName == undefined){
+            validations("Please Enter Document Name.");
+       }else if(prefix1 == null || prefix1 == "" || prefix1 == undefined){
+           validations("Please Enter prefix1");
+       }else if(prefix2 == null || prefix2 == "" || prefix2 == undefined ){
+           validations("Please Enter prefix2");
+       }else if(series == null || series == "" || series == undefined){
+           validations("Please Enter series");
+       }else{
+
         let documentdata = {
             DocumentId : documentId,
             DocumentName : documentName,
@@ -391,6 +403,16 @@ debugger;
         console.log(error);
       });
     }
+    }
+
+    function validations(msg){
+        toast(msg,{
+            position: "top-center",
+            theme:"colored",
+            type:"error",
+            autoClose:500
+           });
+     }
 
     function setDocIdForDel(tempDocId){
         console.log("before set doc id ::"+tempDocId);

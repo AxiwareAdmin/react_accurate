@@ -33,6 +33,24 @@ export default function AddProduct(props) {
     function saveProduct(e) {
         e.preventDefault();
 
+        if(productName == null || productName == undefined || productName == ""){
+            validations("Please Enter Product Name");
+         }else if(partCode == null || partCode == undefined || partCode == ""){
+            validations("Please Enter partCode");
+         }else if(hsnCode == null || hsnCode == undefined || hsnCode == ""){
+            validations("Please Enter hsnCode");
+         }else if(unitVarchar == null || unitVarchar == undefined || unitVarchar == "0"){
+            validations("Please Select  unit");
+         }else if(rate == null || rate == undefined || rate == ""){
+            validations("Please Enter rate");
+         }else if(category == null || category == undefined || category =="--Select--"){
+            validations("Please select  category");
+         }else if(applicableTax == null || applicableTax == undefined || applicableTax == "0"){
+            validations("Please select  applicableTax");
+         }else if(openingStock == null || openingStock == undefined || openingStock == ""){
+             validations("Please Enter openingStock");
+         }else{
+
         let productData = {
 
             productName: productName,
@@ -90,9 +108,17 @@ export default function AddProduct(props) {
                    });
                 props.sendToParent(true);
             });
-
+        }
     }
 
+    function validations(msg){
+        toast(msg,{
+            position: "top-center",
+            theme:"colored",
+            type:"error",
+            autoClose:500
+           });
+    }
     useEffect (() => {
         window.selectCategory = (e) => {
             selectCategory(e);

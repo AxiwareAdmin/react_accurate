@@ -100,10 +100,10 @@ export default function Sidebar() {
 							<li className="submenu">
 								<a href="#"><i className="feather-file-text"></i> <span>  Sales </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
-									<li><Link to="/salesRegister">GST Sale</Link></li>
-									<li><Link to="/salesCashRegister">Cash Sale</Link></li>
-									<li><Link to="/salesRegister">Proforma Invoice</Link></li>
-									<li><Link to="/add-invoice">Create Invoice</Link></li>
+									<li><Link to={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_GST_SALE_INVOICE}`}>GST Sale</Link></li>
+									<li><Link to={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_CASH_SALE_INVOICE}`}>Cash Sale</Link></li>
+									<li><Link to={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_PROFORMA_INVOICE}`}>Proforma Invoice</Link></li>
+									<li><Link to={`/add-invoice?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_GST_SALE_INVOICE}`}>Create Invoice</Link></li>
 									<li><a href="edit-invoice.html">Create Customer</a></li>
 									<li><a href="edit-invoice.html">Create Product and Services</a></li>
 									<li><a href="edit-invoice.html">Create E-Way Bill</a></li>

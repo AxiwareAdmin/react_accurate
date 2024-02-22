@@ -7,7 +7,7 @@ import InvoicesDraft from "./InvoicesDraft";
 import invoicesRecurring from "./invoicesRecurring";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import { render } from "react-dom";
@@ -16,7 +16,21 @@ import ExcelJS from 'exceljs';
 
 export default function InvoiceList () {
 
-	var token=localStorage.getItem("token")
+	var token=localStorage.getItem("token");
+
+	const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const initialInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+  
+
+    const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+
+    useEffect(() => {
+      console.log("changing")
+      const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+      setInvoiceType(newInvoiceType);
+    }, [location.search]);
+
 	var header={
         headers:{
           "Content-Type":"application/json",
@@ -360,7 +374,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+			navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -550,6 +564,10 @@ const exportToExcel = async () => {
 
 
     useEffect(() => {
+
+		document.querySelector(".datatable tbody").innerHTML='';
+		document.querySelector("#tableFooter").innerHTML='';
+
 		window.onUserChange=(e)=>{
 			onUserChange(e);
 		}
@@ -596,7 +614,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.get("http://localhost:8080/invoices/"+month1,header).then((res) => {
+        axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"invoices"}/${month1}`,header).then((res) => {
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -677,7 +695,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -903,7 +921,7 @@ const exportToExcel = async () => {
 
 	// },3000)	
 		
-      }, []);
+      }, [invoiceType]);
 
 	  useEffect(()=>{
 
@@ -1028,13 +1046,15 @@ const exportToExcel = async () => {
 	  function rendercommon(e,name , invt) {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
-			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
+
+			navigate(`/add-invoice?InvNo=${invt}&action=Edit&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`)
+			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/viewInvoiceTriplet?id=${invt}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${invt}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
 		 }else if(name == "Delete"){
-			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
+			axios.get(`http://localhost:8080/deleteInv?invoiceId=${invt}&invoiceType=${invoiceType}`,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1061,7 +1081,8 @@ const exportToExcel = async () => {
 			
 			//new code
 			console.log(e)
-			axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
+			// axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
+			axios.post(`http://localhost:8080/cancelInvoice?invoiceId=${invt}&invoiceType=${invoiceType}`,{},header).then((res)=>{
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
@@ -1098,31 +1119,30 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-					axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
-					console.log(res.data);
-					if(res!=null && res.data.res=='sucess'){
-						// alert("Invoice mail send successfully!!");	
+					// axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
+					// console.log(res.data);
+					// if(res!=null && res.data.res=='sucess'){
 						
-						Swal.fire(
-							'',
-							'Invoice mail send successfully!!',
-							'success'
-						  )	  
-						}
-						else
-						// alert("There is some issue to send invoice amil.");		   
+					// 	Swal.fire(
+					// 		'',
+					// 		'Invoice mail send successfully!!',
+					// 		'success'
+					// 	  )	  
+					// 	}
+					// 	else	   
 
-						Swal.fire({
-							icon: 'error',
-							title: 'Oops...',
-							text: 'There is some issue to send invoice mail',
-							footer: ''
-						  })	
-				}).catch(function(error) {
-					console.log(error);
-				});
+					// 	Swal.fire({
+					// 		icon: 'error',
+					// 		title: 'Oops...',
+					// 		text: 'There is some issue to send invoice mail',
+					// 		footer: ''
+					// 	  })	
+					navigate(`/viewInvoice?invNo=${invt}&custName=Samarth Industries&action=send&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
+
+					
+				
 		 } else if(name == "Copy"){
-			 navigate("/add-invoice?InvNo="+invt+"&action=Clone");
+			 navigate(`/add-invoice?InvNo=${invt}&action=Clone&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
 			 //comented temporarily	  
 		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
@@ -1148,8 +1168,9 @@ const exportToExcel = async () => {
 					console.log(error);
 				});*/
 		 }else if(name == "Download"){
-			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt+"&action=download");
+
+			navigate(`/viewInvoice?invNo=${invt}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}&action=download`);
+			// navigate("/viewInvoice?id="+invt+"&action=download");
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
 			// 	document.body.appendChild(canvas);  
@@ -1353,7 +1374,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=GST`);
+                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
@@ -1592,12 +1613,12 @@ const exportToExcel = async () => {
                 			<h3 class="page-title m-0">
 			                <span class="page-title-icon bg-gradient-primary text-white me-2">
 			                  <i class="fa fa-file" aria-hidden="true"></i>
-			                </span> Invoice </h3>
+			                </span>{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Invoice </h3>
                 		</div>
                         <div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
 								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-								<li class="breadcrumb-item active">Invoice</li>
+								<li class="breadcrumb-item active">{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Invoice</li>
 							</ul>
                 		</div>
                     </div>

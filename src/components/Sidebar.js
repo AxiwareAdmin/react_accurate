@@ -130,11 +130,13 @@ export default function Sidebar() {
 									<span class="menu-arrow"></span>
 								</a>
 								<ul class="sub-menus">
-									<li><a href="/purchaseRegister" >Customer Quotation</a></li>
+									{/* <li><a href="/purchaseRegister" >Customer Quotation</a></li>
 									<li><a href="/add-purchase">Supplier Quotation</a></li>
 									<li><a href="invoice.html">Create Customer</a></li>
 									<li><a href="invoice.html">Create Supplier</a></li>
-									<li><a href="invoice.html">Products And Services</a></li>
+									<li><a href="invoice.html">Products And Services</a></li> */}
+									<li><a href="/CreateQuotation" >Create Quotation</a></li>
+									<li><a href="/SalesRegisterQuotation" >All Quotation</a></li>
 								</ul>
 							</li>
 

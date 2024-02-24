@@ -26,6 +26,11 @@ import { useNavigate,Navigate } from "react-router-dom";
 import axios from "axios";
 import SalesCashRegister from "./components/SalesCashRegister";
 import CashInvoiceList from "./components/CashInvoiceList";
+import CreateQuotation from "./components/Quotation/createQuotation";
+import SalesRegisterQuotation from "./components/Quotation/salesRegister";
+import QuotationList from "./components/Quotation/quotationList";
+import ViewQuotation from "./components/Quotation/viewQuotation";
+import ViewQuotationTriplet from "./components/Quotation/viewQuotationTriplet";
 
 
 function App() {
@@ -94,6 +99,11 @@ function App() {
           <Route  path="/dashboard" element={<Index1 />} />
           <Route  path="/register" element={<Register/>} />
 	        <Route path="/DocumentSequence" element={<DocumentSequence/>} />
+          <Route path="/CreateQuotation" element={<CreateQuotation/>} />
+          <Route path="/SalesRegisterQuotation" element={<SalesRegisterQuotation/>} />
+          <Route path="/QuotationList" element={<QuotationList/>} /> 
+          <Route path="/ViewQuotation" element={<ViewQuotation/>} /> 
+          <Route path="/ViewQuotationTriplet" element={<ViewQuotationTriplet/>} /> 
           <Route  path="/" element={<Login/>} />
         </Routes>
         )

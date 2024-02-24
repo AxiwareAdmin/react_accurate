@@ -31,9 +31,60 @@ export default function AddCustomer(props) {
 
      const BACKEND_SERVER="http://localhost:8080";
 
+     function checksum(g){
+        let regTest = /\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}/.test(g)
+         if(regTest){
+            let a=65,b=55,c=36;
+            return Array['from'](g).reduce((i,j,k,g)=>{ 
+               var p=(p=(j.charCodeAt(0)<a?parseInt(j):j.charCodeAt(0)-b)*(k%2+1))>c?1+(p-c):p;
+               return k<14?i+p:j==((c=(c-(i%c)))<10?c:String.fromCharCode(c+b));
+            },0); 
+        }
+        return regTest
+    }
 
      function saveCustomer(e){
          e.preventDefault();
+
+         if(customerName == null || customerName == "" || customerName == undefined){
+            validations("Please Enter Billing Customer Name.");
+         }else if(gstNo == null || gstNo == "" || gstNo == undefined){
+            validations("Please Enter Billing GST_NO");
+         }
+         //27AAPFU0939F1ZV--true
+         //27AASCS2460H1Z0-false
+         else if(!checksum(gstNo)){
+            validations("Please Enter Valid Billing GST_NO");
+         }
+         else if(address1 == null || address1 == "" || address1 == undefined){
+            validations("Please Enter Billing Address.");
+         }else if(city == null || city == "" || city == undefined){
+            validations("Please Enter Billing city.");
+         }else if(pincode == null || pincode == "" || pincode == undefined){
+            validations("Please Enter Billing pincode.");
+         }else if(state == null || state == "--Select State--" || state == undefined){
+            validations("Please select Billing State.");
+         }else if(country == null || country == "" || country == undefined){
+            validations("Please Enter Billing country.");
+         }else if(shippingCustomerName == null || shippingCustomerName == "" || shippingCustomerName == undefined){
+            validations("Please Enter Shipping Customer Name.");
+         }else if(shippingGstNo == null || shippingGstNo == "" || shippingGstNo == undefined){
+            validations("Please Enter Shipping GST_NO");
+         }else if(shippingAddress1 == null || shippingAddress1 == "" || shippingAddress1 == undefined){
+            validations("Please Enter Shipping Address.");
+         }else if(shippingCity == null || shippingCity == "" || shippingCity == undefined){
+            validations("Please Enter Shipping city.");
+         }else if(shippingPincode == null || shippingPincode == "" || shippingPincode == undefined){
+            validations("Please Enter Shipping pincode.");
+         }else if(shippingState == null || shippingState == "--Select State--" || shippingState == undefined){
+            validations("Please select Shipping State.");
+         }else if(shippingCountry == null || shippingCountry == "" || shippingCountry == undefined){
+            validations("Please Enter Shipping country.");
+         }else if(contactNo == null || contactNo == "" || contactNo == undefined){
+            validations("Please Enter Contact No.");
+         }else if(email == null || email == "" || email == undefined){
+            validations("Please Enter Email id.");
+         }else{
 
          let customerData={
 
@@ -99,8 +150,17 @@ export default function AddCustomer(props) {
            });
         props.sendToParent(true);
       });
+    }
+
+        }
 
 
+        function validations(msg){
+            toast(msg,{
+                position: "top-center",
+                theme:"colored",
+                type:"error"
+               });
         }
 
         useEffect (() => {

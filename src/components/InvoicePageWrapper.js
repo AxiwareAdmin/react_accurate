@@ -5,7 +5,7 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import Alert from "./alert";
-import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
+import { Navigate, useAsyncError,useNavigate,useLocation } from "react-router-dom";
 import { useRef } from "react";
 import Swal from "sweetalert2";
 import AddProduct from "./Manage/AddProduct";
@@ -24,6 +24,20 @@ export default function InvoicePageWrapper(props) {
 
  
   const addProductForCopy=window.addProductForCopy;
+
+
+  const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const initialInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+  
+
+    const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+
+    useEffect(() => {
+      console.log("changing")
+      const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+      setInvoiceType(newInvoiceType);
+    }, [location.search]);
   const BACKEND_SERVER="http://localhost:8080";
   const editref = useRef(true);
 
@@ -35,6 +49,8 @@ export default function InvoicePageWrapper(props) {
        setIsOpenCustomer(true);
 
  }
+
+ 
 
  const AddProductDetails = (e) => {
   e.preventDefault()
@@ -52,7 +68,6 @@ const custData = (data) => {
   if(data.custName != null && data.custName != "undefined"){
     custName = data.custName;
   }
-  debugger;
   if( custId != null && custName != null){
   var option = document.createElement("option");
   option.value = custId;
@@ -151,14 +166,14 @@ const prodData = (data) => {
 
     return num;
   }
-  const [productCount, setProductCount] = useState(1);
+  const [productCount, setProductCount] = useState(productUnits.length);
   function prodSelectOnChange(event) {
     console.log(event.target.value);
 
     var token=localStorage.getItem("token")
     //it was GET method earlier
     axios
-      .get(BACKEND_SERVER+"/invoiceproduct/" + event.target.value,{
+      .get(BACKEND_SERVER+"/invoiceproduct/" + event.target.value,{//change
         headers:{
           "Content-Type":"application/json",
           "Authorization":'Bearer '+token
@@ -206,7 +221,7 @@ const prodData = (data) => {
 
 
   function prodSelectOnChangeForCopy(dataArr) {
-        debugger;
+      
         let tempProdUnits = [];
 
         var index=1;
@@ -294,7 +309,7 @@ const prodData = (data) => {
   // }
 
   const calculateTotalAmt = () => {
-    debugger;
+    
     console.log(productUnits)
     let totAmt = 0;
     let tempProdUnits = [...productUnits];
@@ -648,7 +663,7 @@ window.onTransportModeChange=(e)=>{
 var token=localStorage.getItem("token")
 //it was GET method earlier
 
-axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
+axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
   headers:{
     "Content-Type":"application/json",
     "Authorization":'Bearer '+token
@@ -678,7 +693,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
     var adder=parseInt(series);
 
 
-    axios.get(BACKEND_SERVER+"/invoices/year/"+document.querySelector("#financialYear").value,{
+    axios.get(BACKEND_SERVER+`/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"invoices"}/year/`+document.querySelector("#financialYear").value,{//change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -752,7 +767,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/Invoice",{
     });
 
     var token=localStorage.getItem("token")
-    axios.get(BACKEND_SERVER+"/invoiceproducts",{
+    axios.get(BACKEND_SERVER+"/invoiceproducts",{//change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -992,9 +1007,12 @@ useEffect(()=>{
   console.log("after")
   console.log(tempGstPercentageArr)
 
+
+  if(invoiceType!=process.env.REACT_APP_CASH_SALE_INVOICE){
   setGstPercentageArr(tempGstPercentageArr);
   setGstPercentageVal(tempGstPercentageVal);
   setGstCalculationVal(tempGstCalculationVal);
+  }
 
   console.log(tempGstCalculationVal)
 
@@ -1006,6 +1024,9 @@ useEffect(()=>{
 
     useEffect(()=>{
       document.querySelector(".gstContainer").innerHTML='';
+      //change here based on invoicetype
+
+      if(invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE) return;
 
       gstPercentageArr.map((elem)=>{
         let index=gstPercentageArr.indexOf(elem);
@@ -1162,9 +1183,12 @@ useEffect(()=>{
 
   console.log("after")
   console.log(tempGstPercentageArr)
+
+  if(invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE){
   setGstPercentageArr(tempGstPercentageArr);
   setGstPercentageVal(tempGstPercentageVal);
   setGstCalculationVal(tempGstCalculationVal);
+  }
     
     
     
@@ -1237,6 +1261,7 @@ const onDescriptionChange=(e)=>{
 
   const saveInvoice=(e)=>{
     e.preventDefault();
+
     let totalSgst=0;
     let totalCgst=0;
 
@@ -1285,7 +1310,7 @@ const onDescriptionChange=(e)=>{
 
     var token=localStorage.getItem("token");
 
-    axios.post('http://localhost:8080/saveInvoice', invoiceData,{
+    axios.post(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveInvoice"}`, invoiceData,{//save invoice //change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1318,7 +1343,6 @@ const onDescriptionChange=(e)=>{
   }
 
   const onInvoiceDateChange=(e)=>{
-    debugger; 
     var inDateArr=e.target.value.split("/")
     var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
     console.log(inDate)
@@ -1334,7 +1358,7 @@ const onDescriptionChange=(e)=>{
   }
 
   const onInvoiceDateChangeForCopyProduct=(date)=>{
-    debugger; 
+
     var inDateArr=date.split("/")
     var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
     console.log(inDate)
@@ -1413,7 +1437,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the invoice first!!.");
     else
-     navigate("/viewInvoice?id="+invoiceNumber);
+     navigate("/viewInvoice?id="+invoiceNumber);//change
   }
 
 
@@ -1452,9 +1476,9 @@ const onDescriptionChange=(e)=>{
      if(actionedit == "Edit" || actionedit == "Clone"){
        
        document.querySelector("#prodtable").innerHTML=''
-            debugger;
+           
 
-            axios.get("http://localhost:8080/viewInvoice?invId="+invNoEdit,{
+            axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"viewCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"viewProformaInvoice":"viewInvoice"}?invId=${invNoEdit}`,{//change
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token
@@ -1576,11 +1600,13 @@ const onDescriptionChange=(e)=>{
               // window.fetchProdList();
               var productUnitsTemp=[];
               
-              res.data.invoiceProductDO.map((elem,index)=>{
+              res.data.invoiceProductDO && res.data.invoiceProductDO.map((elem,index)=>{
                 debugger;
                 console.log('product data '+ elem.productName+':index id :'+index);
 
                 addProductForCopy(elem,index)
+
+                setProdCount(index+1);
 
                 productUnitsTemp.push(elem);
               });   

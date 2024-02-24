@@ -178,7 +178,7 @@ export default function ViewInvoiceTriplet() {
 
     const fetchInvoiceType=()=>{
       var url = new URL(window.location.href);
-    let id1 = url.searchParams.get("invoiceType");
+    let id1 = url.searchParams.get(process.env.REACT_APP_INVOICE_TYPE);
     return id1;
   }
   return (
@@ -572,7 +572,7 @@ function ViewInvoice(props) {
       if (!initilized.current) {
         initilized.current = true;
         axios
-          .get(`http://localhost:8080/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=` + id1, header)
+          .get(`http://localhost:8080/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':props.invoiceType.toLowerCase()=='proforma'?"viewProformaInvoice":'viewInvoice'}?invId=` + id1, header)
           .then((res) => {
             debugger;
   

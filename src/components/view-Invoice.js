@@ -6,6 +6,8 @@ import html2canvas from "html2canvas";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import userEvent from "@testing-library/user-event";
+import Loader from "./Loader";
+import Swal from "sweetalert2";
 
 export default function ViewInvoice() {
   var token = localStorage.getItem("token");
@@ -16,14 +18,20 @@ export default function ViewInvoice() {
     },
   };
 
-  const fetchInvoiceType=()=>{
-    var url = new URL(window.location.href);
-    let id1 = url.searchParams.get("invoiceType");
-    return id1;
-  }
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
 
+
+  const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+
+  useEffect(() => {
+    console.log("changing")
+    const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+    setInvoiceType(newInvoiceType);
+  }, [location.search]);
   const navigate=useNavigate();
-  const [invoiceType,setInvoiceType]=useState(fetchInvoiceType());
+  const [displayFlag,setDisplayFlag]=useState(null)
   const [invNo, setinvNo] = useState(null);
   const [compName, setcmpName] = useState("Shivansh infotech");
   const [fromAddr, setfromAddr] = useState("");
@@ -454,14 +462,16 @@ export default function ViewInvoice() {
   useEffect(() => {
     var url = new URL(window.location.href);
     let id1 = url.searchParams.get("id");
+    let invId=url.searchParams.get("invNo");
     let action = url.searchParams.get("action");
+    let custName=url.searchParams.get("custName");
     let serviceChkT = url.searchParams.get("serviceChk");
     setBillToAddrShow(serviceChkT);
 
     if (!initilized.current) {
       initilized.current = true;
       axios
-        .get(`http://localhost:8080/${invoiceType.toLowerCase()=='cash'?'viewCashInvoice':'viewInvoice'}?invId=` + id1, header)
+        .get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewCashInvoice':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewProformaInvoice':'viewInvoice'}?invId=` + invId, header)
         .then((res) => {
           debugger;
 
@@ -716,11 +726,11 @@ export default function ViewInvoice() {
 
           setGstPercentageVal(tempGstPercentageVal);
 
-          addGstElems(
-            tempGstPercentageArr,
-            tempGstPercentageVal,
-            tempGstCalculationVal
-          );
+         invoiceType!=process.env.REACT_APP_CASH_SALE_INVOICE && addGstElems(
+              tempGstPercentageArr,
+              tempGstPercentageVal,
+              tempGstCalculationVal
+            );
 
           settaxable(totalAmount);
 
@@ -734,6 +744,20 @@ export default function ViewInvoice() {
               downloadpdf(res.data.invoiceNo);
             }, 500);
           }
+
+
+
+          if (
+            action == "send" &&
+            action != null &&
+            action != "" &&
+            action != undefined
+          ) {
+            setTimeout(function () {
+              sendMail(res.data.invoiceNo,custName);
+            }, 500);
+          }
+
         })
         .catch((e) => {
           console.log(e);
@@ -787,6 +811,59 @@ export default function ViewInvoice() {
     });
   };
 
+  const sendMail=  (invoiceNo,custName) => {
+    html2canvas(invoicepdf.current).then((canvas) => {
+      
+      debugger;
+
+      setDisplayFlag(true);
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF();
+      pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
+
+      var pdfblod= pdf.output('blob')
+      const formData = new FormData();
+      formData.append('file',pdfblod , 'generated-pdf.pdf');
+
+      formData.append("invoiceNo",invoiceNo);
+
+      formData.append("custName",custName);
+
+
+      const pdfData = pdf.output('datauristring');
+
+      // Send PDF data to Spring Boot backend
+      axios.post('http://localhost:8080/sendmail', formData ,{
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then(response => {
+          console.log('PDF sent successfully:', response.data);
+
+          setDisplayFlag(false);
+
+          Swal.fire(
+						'',
+						'Mail Sent successfully!!',
+						'success'
+					  )	
+        })
+        .catch(error => {
+          console.error('Error sending PDF:', error);
+
+         	
+          setDisplayFlag(false);
+
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'There is some issue to mail invoice',
+            footer: ''
+            })
+        });
+    });
+  };
  
 
   
@@ -794,6 +871,7 @@ export default function ViewInvoice() {
     <div>
       <Navbar />
       <Sidebar />
+      <Loader display={displayFlag}/>
       <div class="page-wrapper" ref={invoicepdf}>
         <div class="content container-fluid">
           <div class="row justify-content-center">

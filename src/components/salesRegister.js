@@ -2,7 +2,7 @@
 import React,{useState,useEffect} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 
 
@@ -11,6 +11,20 @@ export default function SalesRegister () {
   const navigate=useNavigate();
 
     var token=localStorage.getItem("token")
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const initialInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+  
+
+    const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+
+    useEffect(() => {
+      console.log("changing")
+      const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+      setInvoiceType(newInvoiceType);
+    }, [location.search]);
+
+
 	var header={
         headers:{
           "Content-Type":"application/json",
@@ -124,13 +138,18 @@ export default function SalesRegister () {
       }, []);
 
       useEffect(() =>{
+        //clearing invoice list table
+        document.querySelector("#invoiceListTable").innerHTML=''
+
         var totaInvoiceVal=0;
         var totalAmt=0;
         var closingBal=0;
 
         var tempTotal=0;
-        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
-            res.data.map(ele => {
+        
+        axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewSalesCashReg':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewSalesProformaReg':'viewSalesReg'}`,header).then((res) =>{
+        if(res.data.res) return;  
+        res.data && res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
                 let obj = JSON.parse(ele);
                 tempTotal=tempTotal+fromCurrency(toCurrency(obj.amount));
@@ -140,21 +159,22 @@ export default function SalesRegister () {
             )
 
         }).finally(()=>{
-        axios.get("http://localhost:8080/viewSalesReg",header).then((res) =>{
-            
-          res.data.map(ele => {
+        axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewSalesCashReg':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewSalesProformaReg':'viewSalesReg'}`,header).then((res) =>{
+            if(res.data.res) return;
+        res.data && res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
             let obj = JSON.parse(ele);
               console.log("map value"+obj.month);
               let trEle = document.createElement("tr");
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
-                navigate("/invoiceList?month="+obj.month);
+           
+                navigate(`/invoiceList?month=${obj.month}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");
               aEle.className="text-decoration-none";
-              aEle.href = "/invoiceList?month="+obj.month;
+              aEle.href = `/invoiceList?month=${obj.month}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
               let iEle = document.createElement("i");
               iEle.className = "fa fa-star";
               iEle.ariaHidden = "true";
@@ -187,7 +207,7 @@ export default function SalesRegister () {
               tdEle = document.createElement("td");
               tdEle.className='textAlignEnd'
               aEle = document.createElement("a");
-              aEle.href = "invoiceList";
+              aEle.href = `/invoiceList?month=${obj.month}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
             //   aEle.setAttribute(data-bs-toggle,"modal");
             //   aEle.setAttribute(data-bs-target,"#system-user");
             let tempTotInvoiceVal=toCurrency(fromCurrency(obj.totalInv)).replace(/[\$]/g,'');
@@ -269,7 +289,7 @@ export default function SalesRegister () {
     })
 })
 
-      },[]);
+      },[invoiceType]);
 
       
 
@@ -317,7 +337,7 @@ export default function SalesRegister () {
                                     </div>
                                 </li>
                                 <li class="list-inline-item">
-                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to="/add-invoice">Create Invoice</Link>
+                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to={`/add-invoice?${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`}>Create Invoice</Link>
                                 </li>
                             </ul>
                         </div>

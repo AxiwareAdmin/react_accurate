@@ -568,12 +568,13 @@ function ViewQuotation(props) {
       var url = new URL(window.location.href);
       let id1 = props.id;
       let action = url.searchParams.get("action");
+      let quoId = url.searchParams.get("invNo");
   
       if (!initilized.current) {
         initilized.current = true;
         
         axios
-          .get(`http://localhost:8080/viewQuotation?invId=` + id1, header)
+          .get(`http://localhost:8080/viewQuotation?invId=` + quoId, header)
           .then((res) => {
             
   
@@ -658,9 +659,9 @@ function ViewQuotation(props) {
             if (vehicleNo != null && vehicleNo != undefined && vehicleNo != "")
               setVehicleNumber(vehicleNo);
   
-            // let taxableT = res.data.taxableValue;
-            // if(taxableT != null && taxableT != undefined && taxableT != "")
-            // settaxable(taxableT);
+             let taxableT = res.data.taxableValue;
+             if(taxableT != null && taxableT != undefined && taxableT != "")
+             settaxable(taxableT);
   
             let addchrgs =
               res.data.additionalCharges == null ||
@@ -830,7 +831,12 @@ function ViewQuotation(props) {
   
             setGstPercentageVal(tempGstPercentageVal);
             
-            props.invoiceType.toLowerCase()!='cash' && addGstElems(
+            // props.invoiceType.toLowerCase()!='cash' && addGstElems(
+            //   tempGstPercentageArr,
+            //   tempGstPercentageVal,
+            //   tempGstCalculationVal
+            // );
+            addGstElems(
               tempGstPercentageArr,
               tempGstPercentageVal,
               tempGstCalculationVal

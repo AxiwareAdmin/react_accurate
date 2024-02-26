@@ -27,12 +27,19 @@ export default function QuotationList () {
     //   setInvoiceType(process.env.REACT_APP_QUOTATION);
     // }, [location.search]);
 
-	var header={
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":'Bearer '+token
-        }
-      }
+	// var header={
+    //     headers:{
+    //       "Content-Type":"application/json",
+    //       "Authorization":'Bearer '+token
+    //     }
+    //   }
+
+	var header = {
+		headers: {
+		  "Content-Type": "application/json",
+		  Authorization: "Bearer " + token,
+		},
+	  };
 
 	const [month , setMonth] = useState("");
 	const [allInv , setAllInv] = useState(0);
@@ -1050,9 +1057,9 @@ const exportToExcel = async () => {
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/ViewQuotationTriplet?id=${invt}`);
+                navigate(`/ViewQuotationTriplet?invNo=${invt}`);
 		 }else if(name == "Delete"){
-			axios.get(`http://localhost:8080/deleteInv?invoiceId=${invt}`,header).then((res) => {
+			axios.get(`http://localhost:8080/deleteQuo?QuoId=${invt}`,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1080,11 +1087,11 @@ const exportToExcel = async () => {
 			//new code
 			console.log(e)
 			// axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
-			axios.post(`http://localhost:8080/cancelInvoice?invoiceId=${invt}`,{},header).then((res)=>{
+			axios.get(`http://localhost:8080/cancelQuotation?QuoId=${invt}`,header).then((res)=>{
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
-						'Invoice cancelled successfully!!',
+						'Quotation cancelled successfully!!',
 						'success'
 					  )	
 

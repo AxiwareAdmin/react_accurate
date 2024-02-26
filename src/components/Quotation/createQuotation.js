@@ -662,7 +662,7 @@ window.onTransportModeChange=(e)=>{
 var token=localStorage.getItem("token")
 //it was GET method earlier
 
-axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/GST Invoice",{//change
+axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/Quotation",{//change
   headers:{
     "Content-Type":"application/json",
     "Authorization":'Bearer '+token
@@ -692,7 +692,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/GST Invoice",{//change
     var adder=parseInt(series);
 
 
-    axios.get(process.env.REACT_APP_LOCAL_URL+`/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"Quotations"}/year/`+document.querySelector("#financialYear").value,{//change
+    axios.get(process.env.REACT_APP_LOCAL_URL+`/Quotations/year/`+document.querySelector("#financialYear").value,{//change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1477,7 +1477,7 @@ const onDescriptionChange=(e)=>{
        document.querySelector("#prodtable").innerHTML=''
            
 
-            axios.get(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"viewCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"viewProformaInvoice":"viewInvoice"}?invId=${invNoEdit}`,{//change
+            axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewQuotation?invId=${invNoEdit}`,{//change
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token

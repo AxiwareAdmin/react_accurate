@@ -9,7 +9,7 @@ import Alert from "./components/alert";
 import { BrowserRouter } from "react-router-dom";
 import ViewInvoice from "./components/view-Invoice";
 import ViewInvoiceTriplet from "./components/ViewInvoiceTriplet";
-import SalesRegister from "./components/salesRegister";
+import SalesRegister from "./components/SalesRegister";
 import InvoicesPaid from "./components/InvoicesPaid";
 import InvoicesOverDue from "./components/InvoicesOverDue";
 import InvoicesDraft from "./components/InvoicesDraft";
@@ -27,6 +27,11 @@ import { useNavigate,Navigate } from "react-router-dom";
 import axios from "axios";
 import SalesCashRegister from "./components/SalesCashRegister";
 import CashInvoiceList from "./components/CashInvoiceList";
+import CreateQuotation from "./components/Quotation/createQuotation";
+import SalesRegisterQuotation from "./components/Quotation/SalesRegister";
+import QuotationList from "./components/Quotation/QuotationList";
+import ViewQuotation from "./components/Quotation/ViewQuotation";
+import ViewQuotationTriplet from "./components/Quotation/ViewQuotationTriplet";
 
 
 function App() {
@@ -96,6 +101,11 @@ function App() {
           <Route  path="/dashboard" element={<Index1 />} />
           <Route  path="/register" element={<Register/>} />
 	        <Route path="/DocumentSequence" element={<DocumentSequence/>} />
+          <Route path="/CreateQuotation" element={<CreateQuotation/>} />
+          <Route path="/SalesRegisterQuotation" element={<SalesRegisterQuotation/>} />
+          <Route path="/QuotationList" element={<QuotationList/>} /> 
+          <Route path="/ViewQuotation" element={<ViewQuotation/>} /> 
+          <Route path="/ViewQuotationTriplet" element={<ViewQuotationTriplet/>} /> 
           <Route  path="/" element={<Login/>} />
         </Routes>
         )

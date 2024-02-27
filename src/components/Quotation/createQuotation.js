@@ -1,25 +1,25 @@
 //invoice wrapper
 
 import React, { useEffect, useState } from "react";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
+import Navbar from "../Navbar";
+import Sidebar from "../Sidebar";
 import axios from "axios";
-import Alert from "./alert";
+import Alert from "../alert";
 import { Navigate, useAsyncError,useNavigate,useLocation } from "react-router-dom";
 import { useRef } from "react";
 import Swal from "sweetalert2";
-import AddProduct from "./Manage/AddProduct";
+import AddProduct from "../Manage/AddProduct";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import AddCustomer from "./Manage/AddCustomer";
+import AddCustomer from "../Manage/AddCustomer";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function InvoicePageWrapper(props) {
+export default function CreateQuotation(props) {
 
 
  
@@ -38,7 +38,6 @@ export default function InvoicePageWrapper(props) {
       const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
       setInvoiceType(newInvoiceType);
     }, [location.search]);
-  const BACKEND_SERVER="http://localhost:8080";
   const editref = useRef(true);
 
   const [isOpenCustomer, setIsOpenCustomer] = React.useState(false);
@@ -173,7 +172,7 @@ const prodData = (data) => {
     var token=localStorage.getItem("token")
     //it was GET method earlier
     axios
-      .get(BACKEND_SERVER+"/invoiceproduct/" + event.target.value,{//change
+      .get(process.env.REACT_APP_LOCAL_URL+"/invoiceproduct/" + event.target.value,{//change
         headers:{
           "Content-Type":"application/json",
           "Authorization":'Bearer '+token
@@ -512,7 +511,7 @@ const prodData = (data) => {
  
 
     axios
-      .get(BACKEND_SERVER+"/customer/" + customerId,{
+      .get(process.env.REACT_APP_LOCAL_URL+"/customer/" + customerId,{
         headers:{
           "Content-Type":"application/json",
           "Authorization":'Bearer '+token
@@ -663,7 +662,7 @@ window.onTransportModeChange=(e)=>{
 var token=localStorage.getItem("token")
 //it was GET method earlier
 
-axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
+axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/Quotation",{//change
   headers:{
     "Content-Type":"application/json",
     "Authorization":'Bearer '+token
@@ -693,7 +692,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
     var adder=parseInt(series);
 
 
-    axios.get(BACKEND_SERVER+`/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"invoices"}/year/`+document.querySelector("#financialYear").value,{//change
+    axios.get(process.env.REACT_APP_LOCAL_URL+`/Quotations/year/`+document.querySelector("#financialYear").value,{//change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -716,7 +715,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
 
 })
 
-    axios.get(BACKEND_SERVER+"/gstRates",{
+    axios.get(process.env.REACT_APP_LOCAL_URL+"/gstRates",{
       headers:{
         "Authorization":'Bearer '+token
       }
@@ -731,7 +730,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
     
 
 
-    axios.get(BACKEND_SERVER+"/customers",{
+    axios.get(process.env.REACT_APP_LOCAL_URL+"/customers",{
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -767,7 +766,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
     });
 
     var token=localStorage.getItem("token")
-    axios.get(BACKEND_SERVER+"/invoiceproducts",{//change
+    axios.get(process.env.REACT_APP_LOCAL_URL+"/invoiceproducts",{//change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1008,11 +1007,11 @@ useEffect(()=>{
   console.log(tempGstPercentageArr)
 
 
-  if(invoiceType!=process.env.REACT_APP_CASH_SALE_INVOICE){
+//   if(invoiceType!=process.env.REACT_APP_CASH_SALE_INVOICE){
   setGstPercentageArr(tempGstPercentageArr);
   setGstPercentageVal(tempGstPercentageVal);
   setGstCalculationVal(tempGstCalculationVal);
-  }
+//   }
 
   console.log(tempGstCalculationVal)
 
@@ -1184,11 +1183,11 @@ useEffect(()=>{
   console.log("after")
   console.log(tempGstPercentageArr)
 
-  if(invoiceType!=process.env.REACT_APP_CASH_SALE_INVOICE){
+//   if(invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE){
   setGstPercentageArr(tempGstPercentageArr);
   setGstPercentageVal(tempGstPercentageVal);
   setGstCalculationVal(tempGstCalculationVal);
-  }
+//   }
     
     
     
@@ -1310,7 +1309,7 @@ const onDescriptionChange=(e)=>{
 
     var token=localStorage.getItem("token");
 
-    axios.post(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveInvoice"}`, invoiceData,{//save invoice //change
+    axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveQuotation"}`, invoiceData,{//save invoice //change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1478,7 +1477,7 @@ const onDescriptionChange=(e)=>{
        document.querySelector("#prodtable").innerHTML=''
            
 
-            axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"viewCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"viewProformaInvoice":"viewInvoice"}?invId=${invNoEdit}`,{//change
+            axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewQuotation?invId=${invNoEdit}`,{//change
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token
@@ -1639,7 +1638,7 @@ const onDescriptionChange=(e)=>{
                 <ul className="breadcrumb invoices-breadcrumb">
                   <li className="breadcrumb-item invoices-breadcrumb-item">
                     <a href="invoices.html">
-                      <i className="fa fa-chevron-left"></i> Back to Invoice
+                      <i className="fa fa-chevron-left"></i> Back to Quotation
                       List
                     </a>
                   </li>
@@ -1661,7 +1660,7 @@ const onDescriptionChange=(e)=>{
                     data-bs-target="#delete_invoices_details"
                     className="btn delete-invoice-btn"
                   >
-                    Delete Invoice
+                    Delete Quotation
                   </a>
                   <a
                     href="#"
@@ -1790,17 +1789,17 @@ const onDescriptionChange=(e)=>{
 
                         <div className="col-xl-5 col-md-6 col-sm-12 col-12">
                           <h4 className="invoice-details-title">
-                            Invoice details
+                            Quotation details
                           </h4>
                           <div className="invoice-details-box">
                             <div className="invoice-inner-head">
                               <span>
-                                Invoice No.{" "}
+                                Quotation No.{" "}
                                {invoiceMode=='Auto'?<a href="view-invoice.html">{invoiceNumber}</a>:
                                 <input
                                 className="form-control"
                                 type="text"
-                                placeholder="Enter Invoice Number"
+                                placeholder="Enter Quotation Number"
                                 value={invoiceNumber}
                                 onChange={onInvoiceNumberChange}
                                 style={{
@@ -1820,7 +1819,7 @@ const onDescriptionChange=(e)=>{
                                   alignItems: "center",
                                 }}
                               >
-                                Invoice Date.{" "}
+                                Quotation Date.{" "}
                                 <input
                                   className="form-control datetimepicker"
                                   type="text"

@@ -2,13 +2,17 @@
 import React,{useState,useEffect} from "react";
 import Sidebar from "./Sidebar";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 
 
 export default function SalesRegister () {
 
+  const navigate=useNavigate();
+
     var token=localStorage.getItem("token")
+
+
 	var header={
         headers:{
           "Content-Type":"application/json",
@@ -41,6 +45,8 @@ export default function SalesRegister () {
         const script11 = document.createElement("script");
         script11.src = "/assets/js/jquery-3.6.0.min.js";
         script11.async = false;
+
+        
     
         document.body.appendChild(script11);
     
@@ -120,15 +126,18 @@ export default function SalesRegister () {
       }, []);
 
       useEffect(() =>{
+        //clearing invoice list table
+        document.querySelector("#invoiceListTable").innerHTML=''
+
         var totaInvoiceVal=0;
         var totalAmt=0;
         var closingBal=0;
 
         var tempTotal=0;
-        axios.get("http://localhost:8080/getPurchases",header).then((res) =>{
-            if(res.data.res && res.data.res=="Purchase are not found") return;
-            res.data.map(ele => {
-                debugger;
+        
+        axios.get(`http://localhost:8080/getPurchases`,header).then((res) =>{
+        if(res.data.res) return;  
+        res.data && res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
                 let obj = JSON.parse(ele);
                 tempTotal=tempTotal+fromCurrency(toCurrency(obj.amount));
@@ -138,23 +147,28 @@ export default function SalesRegister () {
             )
 
         }).finally(()=>{
-        axios.get("http://localhost:8080/getPurchases",header).then((res) =>{
-            if(res.data.res && res.data.res=="Purchase are not found") return;
-          res.data.map(ele => {
+            axios.get(`http://localhost:8080/getPurchases`,header).then((res) =>{
+            if(res.data.res) return;
+        res.data && res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
             let obj = JSON.parse(ele);
               console.log("map value"+obj.month);
               let trEle = document.createElement("tr");
+              trEle.style='cursor:pointer;'
+              trEle.addEventListener('click',()=>{
+           
+                navigate(`/purchaseList?month=${obj.month}`);
+              })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");
               aEle.className="text-decoration-none";
-              aEle.href = "/purchaseList?month="+obj.month;
+              aEle.href = `/purchaseList?month=${obj.month}`;
               let iEle = document.createElement("i");
               iEle.className = "fa fa-star";
               iEle.ariaHidden = "true";
               iEle.style = "padding-right:10px";
               let textEle = document.createTextNode(obj.month);
-              aEle.appendChild(iEle);
+            //   aEle.appendChild(iEle); //not appending star in front of month name
               aEle.appendChild(textEle);
               tdEle.appendChild(aEle);
               trEle.appendChild(tdEle);
@@ -179,8 +193,9 @@ export default function SalesRegister () {
               trEle.appendChild(tdEle);
 
               tdEle = document.createElement("td");
+              tdEle.className='textAlignEnd'
               aEle = document.createElement("a");
-              aEle.href = "invoiceList";
+              aEle.href = `/purchaseList?month=${obj.month}`;
             //   aEle.setAttribute(data-bs-toggle,"modal");
             //   aEle.setAttribute(data-bs-target,"#system-user");
             let tempTotInvoiceVal=toCurrency(fromCurrency(obj.totalInv)).replace(/[\$]/g,'');
@@ -195,16 +210,18 @@ export default function SalesRegister () {
               totalAmt=totalAmt+fromCurrency(toCurrency(obj.amount));
 
               tdEle = document.createElement("td");
+              tdEle.className='textAlignEnd'
               textEle = document.createTextNode(tempAmt);
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
 
-              let tempClosingBalance=toCurrency(fromCurrency(obj.closingBal)).replace(/[\$]/g,'');
+              let tempClosingBalance=toCurrency(fromCurrency(obj.closingBal)).replace(/[\$]/g,'');//not used
 
-              closingBal=closingBal+fromCurrency(toCurrency(obj.closingBal));
+              closingBal=closingBal+fromCurrency(toCurrency(obj.amount));
 
               tdEle = document.createElement("td");
-              textEle = document.createTextNode(tempClosingBalance);
+              tdEle.className='textAlignEnd'
+              textEle = document.createTextNode(toCurrency(closingBal).replace(/[\$]/g,''));
               tdEle.appendChild(textEle);
               trEle.appendChild(tdEle);
 
@@ -236,20 +253,23 @@ export default function SalesRegister () {
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.className='textAlignEnd'
         tdElem.style='color: #ffffff;font-weight:bold'
-         textElem=document.createTextNode(totaInvoiceVal);
+         textElem=document.createTextNode(toCurrency(totaInvoiceVal).replace(/[\$]/g,''));
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.className='textAlignEnd'
         tdElem.style='color: #ffffff;font-weight:bold'
-        textElem=document.createTextNode(totalAmt);
+        textElem=document.createTextNode(toCurrency(totalAmt).replace(/[\$]/g,''));
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);
 
         tdElem = document.createElement("td");
+        tdElem.className='textAlignEnd'
         tdElem.style='color: #ffffff;font-weight:bold'
-         textElem=document.createTextNode(closingBal);
+         textElem=document.createTextNode(toCurrency(closingBal).replace(/[\$]/g,''));
          tdElem.appendChild(textElem);
         trElem.appendChild(tdElem);
 
@@ -259,13 +279,15 @@ export default function SalesRegister () {
 
       },[]);
 
+      
+
     return(
 
       
         <div>
              <Navbar/>
             <Sidebar />
-            
+             
             <div class="page-wrapper">
 			
            
@@ -303,7 +325,7 @@ export default function SalesRegister () {
                                     </div>
                                 </li>
                                 <li class="list-inline-item">
-                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to="/add-invoice">Create Purchase</Link>
+                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to={`/add-purchase`}>Create Purchase</Link>
                                 </li>
                             </ul>
                         </div>
@@ -320,205 +342,14 @@ export default function SalesRegister () {
                                         <tr  style={{background: "linear-gradient(90deg, rgba(67,203,255,1) 25%, rgba(151,8,204,1) 100%)"}} >
                                             <th style={{color:"#fff",fontWeight:"bolder", width:"25%"}}>Month</th>
                                             <th style={{width:"60%"}}></th>
-                                            <th style={{color:"#fff",fontWeight:"bolder"}}>Total Purchase</th>
+                                            <th style={{color:"#fff",fontWeight:"bolder"}}>Total Invoice</th>
                                             <th style={{color:"#fff",fontWeight:"bolder",width:"30%"}}>Amount</th>
                                             <th style={{color:"#fff",fontWeight:"bolder",paddingLeft:"15px"}}>Closing Balance</th>
                                             
                                         </tr>
                                     </thead>
                                     <tbody id="invoiceListTable">
-                                    {/* <tr>
-                                            
-                                            <td>
-                                                <a href="monthlysales.php" class="text-decoration-none"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>April</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">500</a></td>
-                                            <td>100</td>
-                                            <td>1000</td>
-                                            
-                                        </tr>
-                                        <tr>
-                                        
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"> <i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>May</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">500</a></td>
-                                            <td>100</td>
-                                            <td>1000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>June</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>July</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>August</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>September</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">500</a></td>
-                                            <td>100</td>
-                                            <td>1000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>October</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">500</a></td>
-                                            <td>100</td>
-                                            <td>1000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"> <i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>November</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>December</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>January</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" style={{paddingRight:"10px"}} ></i>February</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-
-                                        <tr>
-                                       
-                                            <td>
-                                                <a href="#" class="text-decoration-none" data-bs-toggle="modal" data-bs-target="#task-details-modal"><i class="fa fa-star" aria-hidden="true" ></i>March</a>
-                                            </td>
-                                            <td>
-                                                <div class="progress">
-                                                    <div class="progress-bar bg-gradient-danger" role="progressbar" style={{width: "75%"}} aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td><a href="#" data-bs-toggle="modal" data-bs-target="#system-user">10</a></td>
-                                            <td>2000000</td>
-                                            <td>4000000</td>
-                                            
-                                        </tr>
-                                         */}
+                                   
                                         
                                     </tbody>
                                 </table>
@@ -532,7 +363,7 @@ export default function SalesRegister () {
             </div>
             
             
-        </div>
+        </div> 
 
      </div>
        

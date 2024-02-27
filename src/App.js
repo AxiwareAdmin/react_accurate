@@ -22,6 +22,7 @@ import ViewPurchase from "./components/ViewPurchase"
 import Register from "./components/Register";
 import DocumentSequence from "./components/Manage/DocumentSequence";
 import PurchaseCreate from "./components/PurchaceCreate"
+import ViewPurchaseTriplet from './components/ViewPurchaseTriplet'
 import { useNavigate,Navigate } from "react-router-dom";
 import axios from "axios";
 import SalesCashRegister from "./components/SalesCashRegister";
@@ -81,6 +82,7 @@ function App() {
           <Route path="/cashInvoices" element={<CashInvoiceList/>}/>
           <Route path="/purchaseList" element={<PurchaseList/>}/>
           <Route path="/viewInvoiceTriplet" element={<ViewInvoiceTriplet/>}/>
+          <Route path="/viewPurchaseTriplet" element={<ViewPurchaseTriplet/>}/>
           <Route path="/viewInvoice" element={<ViewInvoice/>}/>
           <Route path="/viewPurchase" element={<ViewPurchase/>}/>
           <Route path="/salesRegister" element={<SalesRegister/>} />

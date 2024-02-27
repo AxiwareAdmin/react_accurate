@@ -5,107 +5,251 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import Alert from "./alert";
-import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  useAsyncError,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { useRef } from "react";
 import Swal from "sweetalert2";
-export default function InvoicePageWrapper(props) {
+import AddProduct from "./Manage/AddProduct";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import AddCustomer from "./Manage/AddCustomer";
 
-  const BACKEND_SERVER="http://localhost:8080";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+export default function InvoicePageWrapper(props) {
+  const addProductForCopy = window.addProductForCopy;
+
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialInvoiceType = queryParams.get(
+    process.env.REACT_APP_INVOICE_TYPE
+  );
+
+  const [invoiceType, setInvoiceType] = useState(initialInvoiceType);
+
+  useEffect(() => {
+    console.log("changing");
+    const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+    setInvoiceType(newInvoiceType);
+  }, [location.search]);
+  const BACKEND_SERVER = "http://localhost:8080";
   const editref = useRef(true);
+
+  const [isOpenCustomer, setIsOpenCustomer] = React.useState(false);
+  const [isOpenAddProduct, setIsOpenAddProduct] = React.useState(false);
+
+  const handleClickOpenCustomer = (e) => {
+    e.preventDefault();
+    setIsOpenCustomer(true);
+  };
+
+  const AddProductDetails = (e) => {
+    e.preventDefault();
+    console.log("add product clicked");
+    setIsOpenAddProduct(true);
+  };
+
+  const custData = (data) => {
+    var custId = null;
+    var custName = null;
+    if (data.custId != null && data.custId != "undefined") {
+      custId = data.custId;
+    }
+    if (data.custName != null && data.custName != "undefined") {
+      custName = data.custName;
+    }
+    if (custId != null && custName != null) {
+      var option = document.createElement("option");
+      option.value = custId;
+      option.append(document.createTextNode(custName));
+      document.querySelector("#customer").append(option);
+
+      toast.success("Customer created successfully!", {
+        position: "top-center",
+        theme: "colored",
+        autoClose: 500,
+      });
+    }
+
+    if (data.flag != null && data.flag != "undefined") {
+      setIsOpenCustomer(data.flag);
+    }
+    console.log("In parent got data from child " + data.flag);
+    console.log("In parent got data from child " + data.custId);
+    console.log("In parent got data from child " + data.custName);
+    console.log("In parent got data from child " + data);
+  };
+
+  const prodData = (data) => {
+    var prodId = null;
+    var prodName = null;
+
+    if (data.prodId != null && data.prodId != "undefined") {
+      prodId = data.prodId;
+    }
+    if (data.prodName != null && data.prodName != "undefined") {
+      prodName = data.prodName;
+    }
+
+    if (prodId != null && prodName != null) {
+      var option = document.createElement("option");
+      option.value = prodId;
+      option.append(document.createTextNode(prodName));
+      document.querySelector(".prodListSelect").append(option);
+
+      toast.success("Product created successfully!", {
+        position: "top-center",
+        theme: "colored",
+        autoClose: 500,
+      });
+    }
+
+    if (data.flag != null && data.flag != "undefined") {
+      setIsOpenAddProduct(data.flag);
+    }
+
+    console.log("In parent got data from child " + data.flag);
+    console.log("In parent got data from child " + data.prodId);
+    console.log("In parent got data from child " + data.prodName);
+    console.log("In parent got data from child " + data);
+  };
 
   const [productUnits, setProductUnits] = useState([
     {
       id: 1,
       productName: null,
       description: null,
-      hsnSac:0,
-      tax:0,
+      hsnSac: 0,
+      tax: 0,
       quantity: 0,
       price: 0,
       amount: 0,
       discount: null,
-      unit:null
+      unit: null,
     },
   ]);
 
   function toCurrency(value) {
     try {
-      if( isNaN(Number(value)) ) return value;
-      return Number(value).toLocaleString("en-US",{style:"currency", currency:"USD"});    
-    }
-    catch(err) {
+      if (isNaN(Number(value))) return value;
+      return Number(value).toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+    } catch (err) {
       throw err;
     }
   }
   function fromCurrency(value) {
     try {
-      let num = Number((value+"").replace(/[\$,]/g,''));
+      let num = Number((value + "").replace(/[\$,]/g, ""));
       return isNaN(num) ? 0 : num;
-    }
-    catch(err) {
+    } catch (err) {
       throw err;
     }
   }
 
-  function convertToAccountingStandard(num){
-    num=toCurrency(fromCurrency(num)).replace(/[\$]/g,'')
+  function convertToAccountingStandard(num) {
+    num = toCurrency(fromCurrency(num)).replace(/[\$]/g, "");
 
     return num;
   }
-  const [productCount, setProductCount] = useState(1);
+  const [productCount, setProductCount] = useState(productUnits.length);
   function prodSelectOnChange(event) {
     console.log(event.target.value);
 
-    var token=localStorage.getItem("token")
+    var token = localStorage.getItem("token");
     //it was GET method earlier
     axios
-      .get(BACKEND_SERVER+"/invoiceproduct/" + event.target.value,{
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":'Bearer '+token
-        }
+      .get(BACKEND_SERVER + "/invoiceproduct/" + event.target.value, {
+        //change
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       })
       .then((res) => {
         var td = event.target.parentElement;
         var productId = td.querySelector("#productId").value;
         td = td.parentElement;
         var description = td.querySelector("#description").value;
-        var hsnSac=td.querySelector("#hsnSac").value;
-        var tax=fromCurrency(td.querySelector("#tax").value);
+        var hsnSac = td.querySelector("#hsnSac").value;
+        var tax = fromCurrency(td.querySelector("#tax").value.replace("%", ""));
         var quantity = fromCurrency(td.querySelector("#quantity").value);
         var price = fromCurrency(td.querySelector("#price").value);
         var discount = fromCurrency(td.querySelector("#discount").value);
         var amount = fromCurrency(td.querySelector("#amount").value);
-        var unit=td.querySelector("#unit").value;
+        var unit = td.querySelector("#unit").value;
         var productName = event.target.querySelector("option:checked").text;
 
         let tempProdUnits = [...productUnits];
 
         tempProdUnits.map((prodUnit) => {
           if (prodUnit.id == productId) {
-            prodUnit.description=description;
-            prodUnit.hsnSac=hsnSac;
-            prodUnit.tax=tax;
+            prodUnit.description = description;
+            prodUnit.hsnSac = hsnSac;
+            prodUnit.tax = tax;
             prodUnit.quantity = quantity;
             prodUnit.price = price;
             prodUnit.discount = discount;
             prodUnit.amount = amount;
             prodUnit.productName = productName;
-            prodUnit.unit=unit;
+            prodUnit.unit = unit;
           }
         });
 
         setProductUnits(tempProdUnits);
 
         setTotalAmt(calculateTotalAmt());
-
-       
-       
-
       });
   }
 
+  function prodSelectOnChangeForCopy(dataArr) {
+    let tempProdUnits = [];
 
+    var index = 1;
+
+    dataArr.map((data, ind) => {
+      var productId = index;
+      index = index + 1;
+      var description = data.productDescription;
+      var hsnSac = data.hsnSac;
+      var tax = data.tax;
+      var quantity = data.quantity;
+      var price = data.rate;
+      var discount = data.discount;
+      var amount = data.amount;
+      var unit = data.unit;
+      var productName = data.productName;
+
+      var tempObj = {
+        id: productId,
+        description,
+        hsnSac,
+        tax,
+        quantity,
+        price,
+        discount,
+        amount,
+        productName,
+        unit,
+      };
+
+      tempProdUnits.push(tempObj);
+    });
+
+    setProductUnits(tempProdUnits);
+
+    setTotalAmt(calculateTotalAmt());
+  }
 
   function getProductCount() {
     return productCount;
@@ -116,16 +260,15 @@ export default function InvoicePageWrapper(props) {
       id: num,
       productName: null,
       description: null,
-      hsnSac:0,
-      tax:0,
+      hsnSac: 0,
+      tax: 0,
       quantity: 0,
       price: 0,
       amount: 0,
       discount: null,
-      unit:null
+      unit: null,
     };
 
- 
     // alert([...productUnits].push(temp));
     setProductCount(num);
     setProductUnits([...productUnits, temp]);
@@ -133,7 +276,7 @@ export default function InvoicePageWrapper(props) {
   }
 
   const roundNum = (num) => {
-    num=fromCurrency(toCurrency(num));
+    num = fromCurrency(toCurrency(num));
     // num=toCurrency(fromCurrency(e.target.value)).replace(/[\$]/g,'')
     return num;
   };
@@ -150,12 +293,13 @@ export default function InvoicePageWrapper(props) {
   // }
 
   const calculateTotalAmt = () => {
-    console.log(productUnits)
+    console.log(productUnits);
     let totAmt = 0;
     let tempProdUnits = [...productUnits];
     tempProdUnits.map((product) => {
       let quantity = product.quantity;
-      let temp=( quantity == null ||
+      let temp =
+        quantity == null ||
         quantity == undefined ||
         quantity == "" ||
         product.price == null ||
@@ -165,10 +309,13 @@ export default function InvoicePageWrapper(props) {
         product.discount == null ||
         product.discount == "" ||
         product.productName == null ||
-        product.productName == "--Select--")
+        product.productName == "--Select--";
 
-        console.log(product.discount+".."+ (product.discount == null ||
-          product.discount == ""))
+      console.log(
+        product.discount +
+          ".." +
+          (product.discount == null || product.discount == "")
+      );
       if (
         quantity == null ||
         quantity == undefined ||
@@ -190,7 +337,7 @@ export default function InvoicePageWrapper(props) {
       //   quantity * price - quantity * price * (discount / 100)
       // );
 
-      let amt=roundNum(
+      let amt = roundNum(
         quantity * price - quantity * price * (discount / 100)
       );
 
@@ -301,55 +448,62 @@ export default function InvoicePageWrapper(props) {
     var a = document.querySelector("#customer option:checked");
     var customerId = a.value;
 
-    var token=localStorage.getItem("token")
-    //it was GET method earlier
-
- 
-    axios.get(BACKEND_SERVER+"/purchases",{
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":'Bearer '+token
-      }
-    }).then((res) => {
-      let invoiceLen = res.data.length;
-      let invoiceNum = "S/" + getCurrentFinancialYear() + "/" + invoiceLen;
-      console.log("invoice:" + invoiceNum);
-      setInvoiceNumber(invoiceNum);
-    }).catch((e)=>{
-      console.log(e)
-    })
-
-    
-    var token=localStorage.getItem("token")
-
+    var token = localStorage.getItem("token");
 
     axios
-      .get(BACKEND_SERVER+"/supplier/" + customerId,{
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":'Bearer '+token
-        }
+      .get(BACKEND_SERVER + "/supplier/" + customerId, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
       })
       .then((res) => {
         debugger;
         var address1 = res.data.address1;
         var address2 = res.data.address2;
 
-        var tempTermsAndCondition=res.data.termsAndCondition;
+        var tempTermsAndCondition = res.data.termsAndCondition;
 
-        setTermsAndCondition(tempTermsAndCondition)
+        setTermsAndCondition(tempTermsAndCondition);
 
-        if(tempTermsAndCondition!=null && tempTermsAndCondition!=undefined && tempTermsAndCondition!="NULL")
-        document.getElementById("termsAndCondition").value=tempTermsAndCondition
+        if (
+          tempTermsAndCondition != null &&
+          tempTermsAndCondition != undefined &&
+          tempTermsAndCondition != "NULL"
+        )
+          document.getElementById("termsAndCondition").value =
+            tempTermsAndCondition;
 
-        var remark=res.data.remarks;
-        console.log("remark:"+remark)
+        var remark = res.data.remarks;
+        console.log("remark:" + remark);
         setRemarks(remark);
 
-        if(remarks!=null && remark!=undefined && remark!="NULL")
-        document.getElementById("remark").value=remark;
-        else
-        document.getElementById("remark").value="";
+        var tempPaymentTerms=res.data.paymentTerms;
+
+        if (tempPaymentTerms != null) {
+          const text = tempPaymentTerms;
+          const $select = document.querySelector("#paymentTerm");
+          const $options = Array.from($select.options);
+
+          const optionToSelect = $options.find(
+            (item) => item.text === text
+          );
+          $select.value = optionToSelect.value;
+          //below code is used to dispatch change event on customer select box becuase i is not getting updated otherwise
+          var event = new Event("change");
+
+          // Dispatch it.
+          $select.dispatchEvent(event);
+        }
+
+
+        if(tempPaymentTerms!=null && tempPaymentTerms!=undefined){
+
+        }
+
+        if (remarks != null && remark != undefined && remark != "NULL")
+          document.getElementById("remark").value = remark;
+        else document.getElementById("remark").value = "";
 
         if (address1 != null && address1 != undefined && address1 != "")
           setFromAddr1(address1);
@@ -357,28 +511,28 @@ export default function InvoicePageWrapper(props) {
         if (address2 != null && address2 != undefined && address2 != "")
           setFromAddr2(address2);
 
-        // var shippingAddr1 = res.data.shippingAddress1;
+        var shippingAddr1 = res.data.shippingAddress1;
 
-        // var shippingAddr2 = res.data.shippingAddress2;
+        var shippingAddr2 = res.data.shippingAddress2;
 
-        var gstNo=res.data.gstNo;
+        var gstNo = res.data.gstNo;
 
-        var shippingGstNo=res.data.shippingGstNo;
+        var shippingGstNo = res.data.shippingGstNo;
 
-        var state=res.data.state;
+        var state = res.data.state;
 
-        var shippingState=res.data.shippingState;
+        var shippingState = res.data.shippingState;
 
         setGstNo(gstNo);
 
-        // setShippingGstNo(shippingGstNo);
+        setShippingGstNo(shippingGstNo);
 
         setState(state);
 
-        // setShippingState(shippingState)
+        setShippingState(shippingState);
 
-        // setShippingAddress1(shippingAddr1);
-        // setShippingAddress2(shippingAddr2);
+        setShippingAddress1(shippingAddr1);
+        setShippingAddress2(shippingAddr2);
 
         let poNum = res.data.pono;
         if (poNum != null && poNum != undefined && poNum != "")
@@ -387,48 +541,50 @@ export default function InvoicePageWrapper(props) {
   }
 
   useEffect(() => {
+    debugger;
     console.log("produnit changed" + productUnits);
     setTotalAmt(calculateTotalAmt());
     // setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
     // let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
     // setTotalTaxableAmt(tempTotalTaxableAmt)
-
   }, [productUnits]);
 
-
-
-
-
   useEffect(() => {
+    window.AddProductDetails = (e) => {
+      AddProductDetails(e);
+    };
 
+    window.onPaymentTermsChange = (e) => {
+      onPaymentTermsChange(e);
+    };
 
-window.onPaymentTermsChange=(e)=>{
-  onPaymentTermsChange(e);
-}
+    window.prodSelectOnChangeForCopy = (data) => {
+      prodSelectOnChangeForCopy(data);
+    };
 
-window.onDescriptionChange=(e)=>{
-  onDescriptionChange(e);
-}
+    window.onDescriptionChange = (e) => {
+      onDescriptionChange(e);
+    };
 
-window.onTransportModeChange=(e)=>{
-  onTransportModeChange(e);
-}
+    window.onTransportModeChange = (e) => {
+      onTransportModeChange(e);
+    };
 
-    window.onDueDateChange=(e)=>{
+    window.onDueDateChange = (e) => {
       onDueDateChange(e);
-    }
+    };
 
-    window.onChallanDateChange=(e)=>{
+    window.onChallanDateChange = (e) => {
       onChallanDateChange(e);
-    }
+    };
 
-    window.onPoDateChange=(e)=>{
+    window.onPoDateChange = (e) => {
       onPoDateChange(e);
-    }
+    };
 
-    window.onInvoiceDateChange=(e)=>{
+    window.onInvoiceDateChange = (e) => {
       onInvoiceDateChange(e);
-    }
+    };
     window.selectCustomer = (e) => {
       selectCustomer(e);
     };
@@ -462,73 +618,136 @@ window.onTransportModeChange=(e)=>{
     // document.querySelectorAll("script").forEach(e => e.remove());
     // document.querySelectorAll("script[src]").forEach(a=>a.remove())
     // document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());
-var token=localStorage.getItem("token")
+    var token = localStorage.getItem("token");
+    //it was GET method earlier
 
+    /*axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
+  headers:{
+    "Content-Type":"application/json",
+    "Authorization":'Bearer '+token
+  }
+}).then((res)=>{
+    var prefix1=res.data.prefix1;
 
-    axios.get(BACKEND_SERVER+"/gstRates",{
-      headers:{
-        "Authorization":'Bearer '+token
-      }
-    }).then((res)=>{
-      console.log(res.data);
-      if(res.data!=null && res.data!=undefined){
-        setTransportGstRate(res.data[0])
-        setOtherChargesGstRate(res.data[0])
-    }
-      setGstRates(res.data)
-    })
+    var prefix2=res.data.prefix2;
+
+    var mode=res.data.mode;
+
+    if(mode!='Auto'){
+      setInvoiceMode(mode);
+      return;
+    } 
+
+    debugger;
+
+    var url=new URL(window.location.href);
+    let actionedit = url.searchParams.get("action");
+
+    if(actionedit!=undefined && actionedit!=null && actionedit=='Edit') return;
     
+    
+    var series=res.data.series;
+
+    var adder=parseInt(series);
 
 
-    axios.get(BACKEND_SERVER+"/suppliers",{
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":'Bearer '+token
-      }
-    }).then((res) => {
-      console.log(res.data);
-      res.data.map((a) => {
-        // var label = document.createElement("label");
-        // label.className = "custom_check w-100";
-        // var span = document.createElement("span");
-        // span.className = "checkmark";
-        // var input = document.createElement("input");
-        // input.type = "checkbox";
-        // input.name = "username";
+    // axios.get(BACKEND_SERVER+`/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"invoices"}/year/`+document.querySelector("#financialYear").value,{//change
+    //   headers:{
+    //     "Content-Type":"application/json",
+    //     "Authorization":'Bearer '+token
+    //   }
+    // }).then((res) => {
+    //   let invoiceLen = res.data.length+adder+"";
 
-        // var hiddenInput = document.createElement("input");
-        // hiddenInput.type = "hidden";
-        // hiddenInput.value = a.customerId;
-        // var customerName = document.createTextNode(a.customerName);
+    //   while(invoiceLen.length<series.length){
+    //     invoiceLen='0'+invoiceLen;
+    //   }
 
-        // label.appendChild(input);
-        // label.appendChild(span);
-        // label.appendChild(customerName);
-        // label.appendChild(hiddenInput);
-        var option = document.createElement("option");
-        option.value = a.supplierId;
-        option.append(document.createTextNode(a.supplierName));
-        document.querySelector("#customer").append(option);
+      
+    //   let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
+    //   console.log("invoice:" + invoiceNum);
+    //   debugger;
+    //   setInvoiceNumber(invoiceNum);
+    // }).catch((e)=>{
+    //   console.log(e)
+    // })
 
-        // var str='<label className="custom_check w-100"><input type="checkbox" name="username" /><span className="checkmark"></span>'+a.customerName+'</label>'
-        // document.getElementById("customer").appendChild(label);
+    // setInvoiceNumber("A/B/"+Math.random*10);
+
+})*/
+
+    axios
+      .get(BACKEND_SERVER + "/gstRates", {
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        if (res.data != null && res.data != undefined) {
+          setTransportGstRate(res.data[0]);
+          setOtherChargesGstRate(res.data[0]);
+        }
+        setGstRates(res.data);
       });
-    });
 
-    var token=localStorage.getItem("token")
-    axios.get(BACKEND_SERVER+"/invoiceproducts",{
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":'Bearer '+token
-      }
-    }).then((res) => {
-      res.data.map((product) => {
-        var option = document.createElement("option");
-        option.value = product.invoiceProductId;
-        option.append(document.createTextNode(product.productName));
-        document.querySelector(".prodListSelect").append(option);
+    axios
+      .get(BACKEND_SERVER + "/suppliers", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((res) => {
+        console.log(res.data);
+        res.data.map((a) => {
+          // var label = document.createElement("label");
+          // label.className = "custom_check w-100";
+          // var span = document.createElement("span");
+          // span.className = "checkmark";
+          // var input = document.createElement("input");
+          // input.type = "checkbox";
+          // input.name = "username";
+
+          // var hiddenInput = document.createElement("input");
+          // hiddenInput.type = "hidden";
+          // hiddenInput.value = a.customerId;
+          // var customerName = document.createTextNode(a.customerName);
+
+          // label.appendChild(input);
+          // label.appendChild(span);
+          // label.appendChild(customerName);
+          // label.appendChild(hiddenInput);
+          var option = document.createElement("option");
+          option.value = a.supplierId;
+          option.append(document.createTextNode(a.supplierName));
+          document.querySelector("#customer").append(option);
+
+          // var str='<label className="custom_check w-100"><input type="checkbox" name="username" /><span className="checkmark"></span>'+a.customerName+'</label>'
+          // document.getElementById("customer").appendChild(label);
+        });
       });
-    });
+
+    var token = localStorage.getItem("token");
+    axios
+      .get(BACKEND_SERVER + "/invoiceproducts", {
+        //change
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then((res) => {
+        res.data.map((product) => {
+          var option = document.createElement("option");
+          option.value = product.invoiceProductId;
+          option.append(document.createTextNode(product.productName));
+          document.querySelector(".prodListSelect").append(option);
+        });
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
 
     const script11 = document.createElement("script");
     script11.src = "/assets/js/jquery-3.6.0.min.js";
@@ -596,6 +815,10 @@ var token=localStorage.getItem("token")
 
     document.body.appendChild(script);
 
+    setTimeout(() => {
+      onCopyInvoiceAddInvoiceDetails();
+    }, 1000);
+
     return () => {
       document.body.removeChild(script);
       document.body.removeChild(script2);
@@ -614,348 +837,449 @@ var token=localStorage.getItem("token")
   const [fromAddr1, setFromAddr1] = useState("");
   const [fromAddr2, setFromAddr2] = useState("");
 
-  const [remarks,setRemarks]=useState("")
+  const [loadingCompleted, setLoadingCompleted] = useState();
+
+  const [remarks, setRemarks] = useState("");
 
   const [shippingAddress1, setShippingAddress1] = useState("");
 
-  const [gstNo,setGstNo]=useState("");
+  const [gstNo, setGstNo] = useState("");
 
-  const [shippingGstNo,setShippingGstNo]=useState("");
+  const [shippingGstNo, setShippingGstNo] = useState("");
 
-  const [state,setState]=useState("");
+  const [state, setState] = useState("");
 
-  const [shippingState,setShippingState]=useState("");
+  const [shippingState, setShippingState] = useState("");
 
   const [shippingAddress2, setShippingAddress2] = useState("");
 
   const [poNumber, setPoNumber] = useState("");
 
   const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [invoiceId , setInvoiceId] = useState("");
+  const [invoiceId, setInvoiceId] = useState("");
 
-  const [transportCharge, setTransportCharge]=useState(0);
+  const [transportCharge, setTransportCharge] = useState(0);
 
-  const [otherCharge,setOtherCharge]=useState(0);
+  const [otherCharge, setOtherCharge] = useState(0);
 
-  const [discountInRuppes,setDiscountInRupees]=useState(0);
+  const [discountInRuppes, setDiscountInRupees] = useState(0);
 
-  const [discountInPercentage, setDiscountInPercentage]=useState(0);
+  const [discountInPercentage, setDiscountInPercentage] = useState(0);
 
-  const [totalDiscount,setTotalDiscount]=useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0);
 
-  const[totalTaxableAmt,setTotalTaxableAmt]=useState(0);
+  const [totalTaxableAmt, setTotalTaxableAmt] = useState(0);
 
-  const [finalAmt,setFinalAmt]=useState(0); 
+  const [finalAmt, setFinalAmt] = useState(0);
 
-  const [alertMsg,setAlertMsg]=useState(null);
+  const [alertMsg, setAlertMsg] = useState(null);
 
-  const [gstPercentageArr,setGstPercentageArr]=useState([]);
+  const [gstPercentageArr, setGstPercentageArr] = useState([]);
 
-  const [gstPercentageVal,setGstPercentageVal]=useState([]);
+  const [gstPercentageVal, setGstPercentageVal] = useState([]);
 
-  const [gstCalculationVal,setGstCalculationVal]=useState({})
+  const [gstCalculationVal, setGstCalculationVal] = useState({});
 
-  const [invoiceDate,setInvoiceDate]=useState("");
+  const [invoiceDate, setInvoiceDate] = useState("");
 
-  const [poDate,setPoDate]=useState("");
+  const [poDate, setPoDate] = useState("");
 
-  const [challanNumber,setChallanNumber]=useState("");
+  const [challanNumber, setChallanNumber] = useState("");
 
-  const [challanDate,setChallanDate]=useState("");
+  const [challanDate, setChallanDate] = useState("");
 
-  const [paymentTerm,setPaymentTerm]=useState(["15 Days","30 Days","45 Days","60 Days","90 Days","50% Advance","100% Advance","As Per Remarks"]);
+  const [copyOtherDiscountVal,setCopyOtherDiscountVal]=useState("")
 
-  const [dueDate,setDueDate]=useState("");
+  const [paymentTerm, setPaymentTerm] = useState([
+    "15 Days",
+    "30 Days",
+    "45 Days",
+    "60 Days",
+    "90 Days",
+    "50% Advance",
+    "100% Advance",
+    "As Per Remarks",
+  ]);
 
-  const [transportModes,setTransportModes]=useState(["By Air","By Road"])
+  const [dueDate, setDueDate] = useState("");
 
-  const [paymentTermVal,setPaymentTermVal]=useState("15 Days");
+  const [transportModes, setTransportModes] = useState(["By Air", "By Road"]);
 
-  const [transportModeVal,setTransportModeVal]=useState("By Air");
+  const [paymentTermVal, setPaymentTermVal] = useState("15 Days");
 
-  const [vehicleNumber,setVehicleNumber]=useState("");
+  const [transportModeVal, setTransportModeVal] = useState("By Air");
 
-  const [isSaved,setIsSaved]=useState(0)
+  const [vehicleNumber, setVehicleNumber] = useState("");
 
-  const [serviceCheck , setServiceCheck] = useState(false)
+  const [isSaved, setIsSaved] = useState(0);
 
-  const [gstRates,setGstRates]=useState([])
+  const [serviceCheck, setServiceCheck] = useState(false);
 
-  const [transportGstRate,setTransportGstRate]=useState(0);
+  const [gstRates, setGstRates] = useState([]);
 
-  const [otherChargesGstRate,setOtherChargesGstRate]=useState(0);
+  const [transportGstRate, setTransportGstRate] = useState(0);
 
-  const [termsAndCondition, setTermsAndCondition]=useState("");
+  const [otherChargesGstRate, setOtherChargesGstRate] = useState(0);
 
-  const navigate=useNavigate();
-useEffect(()=>{
-    document.querySelector(".gstContainer").innerHTML='';
-    let tempGstPercentageArr=[];
-    let tempGstPercentageVal=[];
-    let tempGstCalculationVal={};
-    productUnits.map((prodUnit)=>{
-      if(prodUnit.productName==undefined || prodUnit.productName==null) return;
+  const [termsAndCondition, setTermsAndCondition] = useState("");
 
-      let index=tempGstPercentageArr.indexOf(prodUnit.tax);
-      if(index<0){
-        tempGstPercentageArr=[...tempGstPercentageArr,prodUnit.tax];
-        tempGstPercentageVal=[...tempGstPercentageVal,roundNum(prodUnit.amount*prodUnit.tax/100)]
-        var tempTax=prodUnit.tax;
-        tempGstCalculationVal[tempTax]=prodUnit.amount;
+  const [invoiceMode, setInvoiceMode] = useState("Manual");
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    document.querySelector(".gstContainer").innerHTML = "";
+    let tempGstPercentageArr = [];
+    let tempGstPercentageVal = [];
+    let tempGstCalculationVal = {};
+    productUnits.map((prodUnit) => {
+      if (prodUnit.productName == undefined || prodUnit.productName == null)
+        return;
+
+      let index = tempGstPercentageArr.indexOf(prodUnit.tax);
+      if (index < 0) {
+        tempGstPercentageArr = [...tempGstPercentageArr, prodUnit.tax];
+        tempGstPercentageVal = [
+          ...tempGstPercentageVal,
+          roundNum((prodUnit.amount * prodUnit.tax) / 100),
+        ];
+        var tempTax = prodUnit.tax;
+        tempGstCalculationVal[tempTax] = prodUnit.amount;
+      } else {
+        tempGstPercentageVal[index] =
+          tempGstPercentageVal[index] +
+          roundNum((prodUnit.amount * prodUnit.tax) / 100);
+        tempGstCalculationVal[prodUnit.tax] =
+          tempGstCalculationVal[prodUnit.tax] + prodUnit.amount;
       }
-      else{
-        tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(prodUnit.amount*prodUnit.tax/100);
-        tempGstCalculationVal[prodUnit.tax]=tempGstCalculationVal[prodUnit.tax]+prodUnit.amount;
+    });
+
+    console.log("before");
+    console.log(tempGstPercentageArr);
+
+    //adding transport charge to gst calsulation
+    var tempTransportGstRate = roundNum(transportGstRate);
+    let index = tempGstPercentageArr.indexOf(tempTransportGstRate);
+    if (roundNum(transportCharge) > 0) {
+      if (index >= 0) {
+        tempGstPercentageVal[index] =
+          tempGstPercentageVal[index] +
+          roundNum(
+            (roundNum(transportCharge) * roundNum(tempTransportGstRate)) / 100
+          );
+        tempGstCalculationVal[tempTransportGstRate] =
+          tempGstCalculationVal[tempTransportGstRate] +
+          roundNum(transportCharge);
+      } else {
+        tempGstPercentageArr = [...tempGstPercentageArr, tempTransportGstRate];
+        tempGstPercentageVal = [
+          ...tempGstPercentageVal,
+          roundNum(
+            (roundNum(transportCharge) * roundNum(tempTransportGstRate)) / 100
+          ),
+        ];
+        tempGstCalculationVal[tempTransportGstRate] = roundNum(transportCharge);
       }
-  })
-
-  console.log("before")
-  console.log(tempGstPercentageArr)
-
-   //adding transport charge to gst calsulation
-   var tempTransportGstRate=roundNum(transportGstRate)
-   let index=tempGstPercentageArr.indexOf(tempTransportGstRate);
-   if(roundNum(transportCharge)>0){
-   if(index>=0){
-     tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100);
-     tempGstCalculationVal[tempTransportGstRate]=tempGstCalculationVal[tempTransportGstRate]+roundNum(transportCharge);
-   }else{
-     tempGstPercentageArr=[...tempGstPercentageArr,tempTransportGstRate];
-     tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100)]
-     tempGstCalculationVal[tempTransportGstRate]=roundNum(transportCharge);
-   }
-   }
- 
-   //adding other charge to gst
-   var tempOtherChargesGstRate=roundNum(otherChargesGstRate)
-   index=tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
-   if(roundNum(otherCharge)>0){
-     if(index>=0){
-       tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100);
-       tempGstCalculationVal[tempOtherChargesGstRate]=tempGstCalculationVal[tempOtherChargesGstRate]+roundNum(otherCharge);
-     }else{
-       tempGstPercentageArr=[...tempGstPercentageArr,tempOtherChargesGstRate];
-       tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100)]
-       tempGstCalculationVal[tempOtherChargesGstRate]=roundNum(otherCharge);
-     }
-   }
-  console.log("after")
-  console.log(tempGstPercentageArr)
-
-  setGstPercentageArr(tempGstPercentageArr);
-  setGstPercentageVal(tempGstPercentageVal);
-  setGstCalculationVal(tempGstCalculationVal);
-
-  console.log(tempGstCalculationVal)
-
-
-   setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
-   let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))
-    setTotalTaxableAmt(tempTotalTaxableAmt)
-},[totalAmt])
-
-    useEffect(()=>{
-
-      gstPercentageArr.map((elem)=>{
-        let index=gstPercentageArr.indexOf(elem);
-
-        let divElem=document.createElement("div");
-        divElem.className="invoice-total-footer";
-        let h4Elem=document.createElement("h4");
-        let aElem=document.createElement("a");
-        
-        h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
-  
-        aElem.style="color:grey;display:flex;flex-direction:column";
-  
-        let textElem=document.createTextNode("SGST "+(parseFloat(elem)/2)+" %");
-        let spanElem=document.createElement("span")
-
-        spanElem.appendChild(textElem)
-        aElem.appendChild(spanElem);
-
-
-        textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
-        spanElem=document.createElement("span")
-
-        spanElem.style='text-transform:capitaize;font-size:18px'
-        spanElem.appendChild(textElem)
-        aElem.appendChild(spanElem);
-
-        textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
-
-        spanElem=document.createElement("span");
-        spanElem.appendChild(textElem);
-
-        spanElem.style='color:grey'
-  
-        h4Elem.appendChild(aElem);
-
-        h4Elem.appendChild(spanElem)
-  
-        divElem.appendChild(h4Elem);
-
-        document.querySelector(".gstContainer").append(divElem);
-
-         divElem=document.createElement("div");
-        divElem.className="invoice-total-footer";
-         h4Elem=document.createElement("h4");
-         aElem=document.createElement("a");
-        
-        h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
-  
-        aElem.style="color:grey;display:flex;flex-direction:column";
-  
-         textElem=document.createTextNode("CGST "+(parseFloat(elem)/2)+" %");
-          spanElem=document.createElement("span")
-
-          spanElem.appendChild(textElem)
-         
-         
-         aElem.appendChild(spanElem);
-
-         textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
-         spanElem=document.createElement("span")
- 
-         spanElem.style='text-transform:capitaize;font-size:18px'
-         spanElem.appendChild(textElem)
-         aElem.appendChild(spanElem);
-         
-        spanElem=document.createElement("span");
-
-         textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
-
-         spanElem.appendChild(textElem);
-
-         spanElem.style='color:grey'
-
-        h4Elem.appendChild(aElem);
-
-        h4Elem.appendChild(spanElem)
-  
-        divElem.appendChild(h4Elem);
-
-        document.querySelector(".gstContainer").append(divElem);
-
-
-
-      })
-   
-
-    },[gstPercentageArr,gstPercentageVal])
-
-    useEffect(()=>{
-
-      let totalGstVal=0;
-
-      gstPercentageVal.map(elem=>{
-        totalGstVal=roundNum(roundNum(parseFloat(totalGstVal))+roundNum(parseFloat(elem)))
-      })
-     
-      setFinalAmt(roundNum(parseFloat(totalTaxableAmt)+totalGstVal-fromCurrency(totalDiscount)))
-
-    },[totalTaxableAmt])
-
-
-
-  useEffect(()=>{
-    debugger;
-    document.querySelector(".gstContainer").innerHTML='';
-    let tempGstPercentageArr=[];
-    let tempGstPercentageVal=[];
-    let tempGstCalculationVal={};
-    productUnits.map((prodUnit)=>{
-      if(prodUnit.productName==undefined || prodUnit.productName==null) return;
-
-      let index=tempGstPercentageArr.indexOf(prodUnit.tax);
-      if(index<0){
-        tempGstPercentageArr=[...tempGstPercentageArr,prodUnit.tax];
-        tempGstPercentageVal=[...tempGstPercentageVal,roundNum(prodUnit.amount*prodUnit.tax/100)]
-        var tempTax=prodUnit.tax;
-        tempGstCalculationVal[tempTax]=prodUnit.amount;
-      }
-      else{
-        tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(prodUnit.amount*prodUnit.tax/100);
-        tempGstCalculationVal[prodUnit.tax]=tempGstCalculationVal[prodUnit.tax]+prodUnit.amount;
-      }
-  })
-  console.log("before")
-  console.log(tempGstPercentageArr)
-  //adding transport charge to gst calsulation
-  var tempTransportGstRate=roundNum(transportGstRate)
-  let index=tempGstPercentageArr.indexOf(tempTransportGstRate);
-  if(roundNum(transportCharge)>0){
-  if(index>=0){
-    tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100);
-    tempGstCalculationVal[tempTransportGstRate]=tempGstCalculationVal[tempTransportGstRate]+roundNum(transportCharge);
-  }else{
-    tempGstPercentageArr=[...tempGstPercentageArr,tempTransportGstRate];
-    tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(transportCharge)*roundNum(tempTransportGstRate)/100)]
-    tempGstCalculationVal[tempTransportGstRate]=roundNum(transportCharge);
-  }
-  }
-
-  //adding other charge to gst
-  var tempOtherChargesGstRate=roundNum(otherChargesGstRate)
-  index=tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
-  if(roundNum(otherCharge)>0){
-    if(index>=0){
-      tempGstPercentageVal[index]=tempGstPercentageVal[index]+roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100);
-      tempGstCalculationVal[tempOtherChargesGstRate]=tempGstCalculationVal[tempOtherChargesGstRate]+roundNum(otherCharge);
-    }else{
-      tempGstPercentageArr=[...tempGstPercentageArr,tempOtherChargesGstRate];
-      tempGstPercentageVal=[...tempGstPercentageVal,roundNum(roundNum(otherCharge)*roundNum(tempOtherChargesGstRate)/100)]
-      tempGstCalculationVal[tempOtherChargesGstRate]=roundNum(otherCharge);
     }
-  }
 
-  console.log("after")
-  console.log(tempGstPercentageArr)
-  setGstPercentageArr(tempGstPercentageArr);
-  setGstPercentageVal(tempGstPercentageVal);
-  setGstCalculationVal(tempGstCalculationVal);
-    
-    
-    
-    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))
-    
-    
-    setTotalTaxableAmt(tempTotalTaxableAmt)
+    //adding other charge to gst
+    var tempOtherChargesGstRate = roundNum(otherChargesGstRate);
+    index = tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
+    if (roundNum(otherCharge) > 0) {
+      if (index >= 0) {
+        tempGstPercentageVal[index] =
+          tempGstPercentageVal[index] +
+          roundNum(
+            (roundNum(otherCharge) * roundNum(tempOtherChargesGstRate)) / 100
+          );
+        tempGstCalculationVal[tempOtherChargesGstRate] =
+          tempGstCalculationVal[tempOtherChargesGstRate] +
+          roundNum(otherCharge);
+      } else {
+        tempGstPercentageArr = [
+          ...tempGstPercentageArr,
+          tempOtherChargesGstRate,
+        ];
+        tempGstPercentageVal = [
+          ...tempGstPercentageVal,
+          roundNum(
+            (roundNum(otherCharge) * roundNum(tempOtherChargesGstRate)) / 100
+          ),
+        ];
+        tempGstCalculationVal[tempOtherChargesGstRate] = roundNum(otherCharge);
+      }
+    }
+    console.log("after");
+    console.log(tempGstPercentageArr);
 
-  },[transportCharge,otherCharge,totalDiscount])
+    if (invoiceType != process.env.REACT_APP_CASH_SALE_INVOICE) {
+      setGstPercentageArr(tempGstPercentageArr);
+      setGstPercentageVal(tempGstPercentageVal);
+      setGstCalculationVal(tempGstCalculationVal);
+    }
 
-  useEffect(()=>{
-   
-    setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
-  },[discountInPercentage,discountInRuppes])
+    console.log(tempGstCalculationVal);
 
-  const onTransportChargeChange=(e)=>{
+    setTotalDiscount(
+      parseFloat(roundNum(discountInRuppes)) +
+        (totalAmt * parseFloat(roundNum(discountInPercentage))) / 100
+    );
+    let tempTotalTaxableAmt =
+      parseFloat(roundNum(totalAmt)) +
+      parseFloat(roundNum(transportCharge)) +
+      parseFloat(roundNum(otherCharge));
+    setTotalTaxableAmt(tempTotalTaxableAmt);
+  }, [totalAmt]);
+
+  useEffect(() => {
+    document.querySelector(".gstContainer").innerHTML = "";
+    //change here based on invoicetype
+
+    gstPercentageArr.map((elem) => {
+      let index = gstPercentageArr.indexOf(elem);
+
+      let divElem = document.createElement("div");
+      divElem.className = "invoice-total-footer";
+      let h4Elem = document.createElement("h4");
+      let aElem = document.createElement("a");
+
+      h4Elem.style =
+        "font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between";
+
+      aElem.style = "color:grey;display:flex;flex-direction:column";
+
+      let textElem = document.createTextNode(
+        "SGST " + parseFloat(elem) / 2 + " %"
+      );
+      let spanElem = document.createElement("span");
+
+      spanElem.appendChild(textElem);
+      aElem.appendChild(spanElem);
+
+      textElem = document.createTextNode(
+        "(Amount: " +
+          convertToAccountingStandard(gstCalculationVal[parseFloat(elem)]) +
+          ")"
+      );
+      spanElem = document.createElement("span");
+
+      spanElem.style = "text-transform:capitaize;font-size:18px";
+      spanElem.appendChild(textElem);
+      aElem.appendChild(spanElem);
+
+      textElem = document.createTextNode(
+        toCurrency(fromCurrency(gstPercentageVal[index] + "") / 2).replace(
+          /[\$]/g,
+          ""
+        )
+      );
+
+      spanElem = document.createElement("span");
+      spanElem.appendChild(textElem);
+
+      spanElem.style = "color:grey";
+
+      h4Elem.appendChild(aElem);
+
+      h4Elem.appendChild(spanElem);
+
+      divElem.appendChild(h4Elem);
+
+      document.querySelector(".gstContainer").append(divElem);
+
+      divElem = document.createElement("div");
+      divElem.className = "invoice-total-footer";
+      h4Elem = document.createElement("h4");
+      aElem = document.createElement("a");
+
+      h4Elem.style =
+        "font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between";
+
+      aElem.style = "color:grey;display:flex;flex-direction:column";
+
+      textElem = document.createTextNode("CGST " + parseFloat(elem) / 2 + " %");
+      spanElem = document.createElement("span");
+
+      spanElem.appendChild(textElem);
+
+      aElem.appendChild(spanElem);
+
+      textElem = document.createTextNode(
+        "(Amount: " +
+          convertToAccountingStandard(gstCalculationVal[parseFloat(elem)]) +
+          ")"
+      );
+      spanElem = document.createElement("span");
+
+      spanElem.style = "text-transform:capitaize;font-size:18px";
+      spanElem.appendChild(textElem);
+      aElem.appendChild(spanElem);
+
+      spanElem = document.createElement("span");
+
+      textElem = document.createTextNode(
+        toCurrency(fromCurrency(gstPercentageVal[index] + "") / 2).replace(
+          /[\$]/g,
+          ""
+        )
+      );
+
+      spanElem.appendChild(textElem);
+
+      spanElem.style = "color:grey";
+
+      h4Elem.appendChild(aElem);
+
+      h4Elem.appendChild(spanElem);
+
+      divElem.appendChild(h4Elem);
+
+      document.querySelector(".gstContainer").append(divElem);
+    });
+  }, [gstPercentageArr, gstPercentageVal]);
+
+  useEffect(() => {
+    let totalGstVal = 0;
+
+    gstPercentageVal.map((elem) => {
+      totalGstVal = roundNum(
+        roundNum(parseFloat(totalGstVal)) + roundNum(parseFloat(elem))
+      );
+    });
+
+    setFinalAmt(
+      roundNum(
+        parseFloat(totalTaxableAmt) + totalGstVal - fromCurrency(totalDiscount)
+      )
+    );
+  }, [totalTaxableAmt, totalDiscount]);
+
+  useEffect(() => {
+    debugger;
+    document.querySelector(".gstContainer").innerHTML = "";
+    let tempGstPercentageArr = [];
+    let tempGstPercentageVal = [];
+    let tempGstCalculationVal = {};
+    productUnits.map((prodUnit) => {
+      if (prodUnit.productName == undefined || prodUnit.productName == null)
+        return;
+
+      let index = tempGstPercentageArr.indexOf(prodUnit.tax);
+      if (index < 0) {
+        tempGstPercentageArr = [...tempGstPercentageArr, prodUnit.tax];
+        tempGstPercentageVal = [
+          ...tempGstPercentageVal,
+          roundNum((prodUnit.amount * prodUnit.tax) / 100),
+        ];
+        var tempTax = prodUnit.tax;
+        tempGstCalculationVal[tempTax] = prodUnit.amount;
+      } else {
+        tempGstPercentageVal[index] =
+          tempGstPercentageVal[index] +
+          roundNum((prodUnit.amount * prodUnit.tax) / 100);
+        tempGstCalculationVal[prodUnit.tax] =
+          tempGstCalculationVal[prodUnit.tax] + prodUnit.amount;
+      }
+    });
+    console.log("before");
+    console.log(tempGstPercentageArr);
+    //adding transport charge to gst calsulation
+    var tempTransportGstRate = roundNum(transportGstRate);
+    let index = tempGstPercentageArr.indexOf(tempTransportGstRate);
+    if (roundNum(transportCharge) > 0) {
+      if (index >= 0) {
+        tempGstPercentageVal[index] =
+          tempGstPercentageVal[index] +
+          roundNum(
+            (roundNum(transportCharge) * roundNum(tempTransportGstRate)) / 100
+          );
+        tempGstCalculationVal[tempTransportGstRate] =
+          tempGstCalculationVal[tempTransportGstRate] +
+          roundNum(transportCharge);
+      } else {
+        tempGstPercentageArr = [...tempGstPercentageArr, tempTransportGstRate];
+        tempGstPercentageVal = [
+          ...tempGstPercentageVal,
+          roundNum(
+            (roundNum(transportCharge) * roundNum(tempTransportGstRate)) / 100
+          ),
+        ];
+        tempGstCalculationVal[tempTransportGstRate] = roundNum(transportCharge);
+      }
+    }
+
+    //adding other charge to gst
+    var tempOtherChargesGstRate = roundNum(otherChargesGstRate);
+    index = tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
+    if (roundNum(otherCharge) > 0) {
+      if (index >= 0) {
+        tempGstPercentageVal[index] =
+          tempGstPercentageVal[index] +
+          roundNum(
+            (roundNum(otherCharge) * roundNum(tempOtherChargesGstRate)) / 100
+          );
+        tempGstCalculationVal[tempOtherChargesGstRate] =
+          tempGstCalculationVal[tempOtherChargesGstRate] +
+          roundNum(otherCharge);
+      } else {
+        tempGstPercentageArr = [
+          ...tempGstPercentageArr,
+          tempOtherChargesGstRate,
+        ];
+        tempGstPercentageVal = [
+          ...tempGstPercentageVal,
+          roundNum(
+            (roundNum(otherCharge) * roundNum(tempOtherChargesGstRate)) / 100
+          ),
+        ];
+        tempGstCalculationVal[tempOtherChargesGstRate] = roundNum(otherCharge);
+      }
+    }
+
+    console.log("after");
+    console.log(tempGstPercentageArr);
+
+    setGstPercentageArr(tempGstPercentageArr);
+    setGstPercentageVal(tempGstPercentageVal);
+    setGstCalculationVal(tempGstCalculationVal);
+
+    let tempTotalTaxableAmt =
+      parseFloat(roundNum(totalAmt)) +
+      parseFloat(roundNum(transportCharge)) +
+      parseFloat(roundNum(otherCharge));
+
+    setTotalTaxableAmt(tempTotalTaxableAmt);
+  }, [transportCharge, otherCharge, totalDiscount]);
+
+  useEffect(() => {
+    setTotalDiscount(
+      parseFloat(roundNum(discountInRuppes)) +
+        (totalAmt * parseFloat(roundNum(discountInPercentage))) / 100
+    );
+  }, [discountInPercentage, discountInRuppes]);
+
+  const onTransportChargeChange = (e) => {
     setTransportCharge(e.target.value);
-  }
+  };
 
-  const onOtherChargeChange=(e)=>{
+  const onOtherChargeChange = (e) => {
     setOtherCharge(fromCurrency(e.target.value));
     // document.getElementById("otherCharge").value=toCurrency(e.target.value).replace(/[\$]/g,'');
-  }
+  };
 
-  
-
-  const onDiscountInPercentageChange=(e)=>{
+  const onDiscountInPercentageChange = (e) => {
     setDiscountInPercentage(e.target.value);
-    
-  }
+  };
 
-  const onDiscountInRuppesChange=(e)=>{
+  const onDiscountInRuppesChange = (e) => {
     setDiscountInRupees(e.target.value);
-   
-  }
+  };
 
-  const onTermsAndConditionChange=(e)=>{
+  const onTermsAndConditionChange = (e) => {
     setTermsAndCondition(e.target.value);
-  }
+  };
 
-const onDescriptionChange=(e)=>{
-  var tr = e.target.parentElement.parentElement;
+  const onDescriptionChange = (e) => {
+    var tr = e.target.parentElement.parentElement;
     var productTrNo = tr.querySelector("#productId").value;
 
     let quantity = tr.querySelector("#description").value;
@@ -966,468 +1290,475 @@ const onDescriptionChange=(e)=>{
         prodUnit.productName != null &&
         prodUnit.productName != ""
       ) {
-        prodUnit.description=e.target.value;
+        prodUnit.description = e.target.value;
       }
     });
 
     setProductUnits(tempProdUnits);
-}
+  };
 
   function getCurrentFinancialYear() {
     var fiscalyear = "";
     var today = new Date();
     if (today.getMonth() + 1 <= 3) {
-      fiscalyear = today.getFullYear() - 1 + "-" + today.getFullYear();
+      fiscalyear =
+        today.getFullYear() -
+        1 +
+        "-" +
+        today.getFullYear().toString().substr(2);
     } else {
-      fiscalyear = today.getFullYear() + "-" + (today.getFullYear() + 1);
+      fiscalyear =
+        today.getFullYear() +
+        "-" +
+        (today.getFullYear() + 1).toString().substr(2);
     }
     return fiscalyear;
   }
 
-  const saveInvoice=(e)=>{
+  const saveInvoice = (e) => {
     e.preventDefault();
-    let totalSgst=0;
-    let totalCgst=0;
 
-    gstPercentageVal.map(elem=>{
-      totalSgst=roundNum(totalSgst+roundNum(parseFloat(elem)/2));
-      totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
-    })
+    let totalSgst = 0;
+    let totalCgst = 0;
 
-    let purchaseData={
-      purchaseProducts:productUnits,
-      purchaseNo:invoiceNumber,
-      purchaseId : invoiceId,
-      sgstValue:totalSgst,
-      cgstValue:totalCgst,
-      taxableValue:totalTaxableAmt,
-      purchaseValue:finalAmt,
-      transportCharges:transportCharge,
-      additionalCharges:otherCharge,
-      discount:discountInRuppes,
-      otherDiscount:(roundNum(totalAmt*discountInPercentage/100)),
-    //   shippingAddress:shippingAddress1+shippingAddress2,
-      billingAddress:fromAddr1+fromAddr2,
-      poNumber:poNumber,
-      supplierName:document.querySelector("#customer option:checked").innerText,
-      purchaseDate:invoiceDate,
-      poDate:poDate,
-      challanNumber:challanNumber,
-      challanDate:challanDate,
-      paymentTerms:paymentTermVal,
-      dueDate:dueDate,
-      transportMode:transportModeVal,
-      vehicleNumber:vehicleNumber,
-      remarks:remarks,
-      state:state,
-      gstNo:gstNo,
-      shippingGstNo:shippingGstNo,
-      serviceCheck:serviceCheck,
-    //   shippingState:shippingState,
-      termsAndCondition:termsAndCondition
-    }
-
-    console.log(purchaseData)
-
-    var token=localStorage.getItem("token");
-
-    axios.post('http://localhost:8080/savepurchase', purchaseData,{
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":'Bearer '+token
-      }
-    })
-    .then(function (response) {
-      console.log(response)
-      if(response!=null && response.data.res=='success'){
-      // setAlertMsg("Invoice created successfully!!")
-
-      Swal.fire(
-        '',
-        'Purchase created successfully!',
-        'success'
-      )
-
-      setIsSaved(1);
-
-      setTimeout(()=>{
-        setAlertMsg(null)
-      },2000)
-
-      }
-      else
-        alert("There is some issue in creating purchase. kindly check whether all the data is entered or not.")
-    })
-    .catch(function (error) {
-      console.log(error);
+    gstPercentageVal.map((elem) => {
+      totalSgst = roundNum(totalSgst + roundNum(parseFloat(elem) / 2));
+      totalCgst = roundNum(totalCgst + roundNum(parseFloat(elem) / 2));
     });
+
+    let invoiceData = {
+      purchaseProducts: productUnits,
+      purchaseNo: invoiceNumber,
+      purchaseId: invoiceId,
+      sgstValue: totalSgst,
+      cgstValue: totalCgst,
+      taxableValue: totalTaxableAmt,
+      invoiceValue: finalAmt,
+      transportCharges: transportCharge,
+      additionalCharges: otherCharge,
+      discount: discountInRuppes,
+      otherDiscount: roundNum((totalAmt * discountInPercentage) / 100),
+      shippingAddress: shippingAddress1 + shippingAddress2,
+      billingAddress: fromAddr1 + fromAddr2,
+      poNumber: poNumber,
+      supplierName: document.querySelector("#customer option:checked")
+        .innerText,
+      purchaseDate: invoiceDate,
+      poDate: poDate,
+      // challanNumber:challanNumber,
+      // challanDate:challanDate,
+      paymentTerms: paymentTermVal,
+      dueDate: dueDate,
+      // transportMode:transportModeVal,
+      // vehicleNumber:vehicleNumber,
+      remarks: remarks,
+      state: state,
+      gstNo: gstNo,
+      // shippingGstNo:shippingGstNo,
+      serviceCheck: serviceCheck,
+      // shippingState:shippingState,
+      termsAndCondition: termsAndCondition,
+      transportGstRate: transportGstRate,
+      otherChargesGstRate: otherChargesGstRate,
+      financialYear: document.querySelector("#financialYear").value,
+    };
+
+    console.log(invoiceData);
+
+    var token = localStorage.getItem("token");
+
+    axios
+      .post(`http://localhost:8080/savepurchase`, invoiceData, {
+        //save invoice //change
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+      .then(function (response) {
+        console.log(response);
+        if (response != null && response.data.res == "success") {
+          // setAlertMsg("Invoice created successfully!!")
+
+          Swal.fire("", "Invoice created successfully!", "success");
+
+          setIsSaved(1);
+
+          setTimeout(() => {
+            setAlertMsg(null);
+          }, 2000);
+        } else alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.");
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
+
+  const onInvoiceDateChange = (e) => {
+    var inDateArr = e.target.value.split("/");
+    var inDate = new Date(inDateArr[2], inDateArr[1] - 1, inDateArr[0]);
+    console.log(inDate);
+    inDate = inDate.addDays(parseInt(paymentTermVal.split(" ")[0]));
+    console.log(inDate);
+    inDate = getFormattedDate(inDate);
+
+    document.getElementById("dueDate").value = inDate;
+    setDueDate(inDate);
+
+    setInvoiceDate(e.target.value);
+  };
+
+  const onInvoiceDateChangeForCopyProduct = (date) => {
+    var inDateArr = date.split("/");
+    var inDate = new Date(inDateArr[2], inDateArr[1] - 1, inDateArr[0]);
+    console.log(inDate);
+    inDate = inDate.addDays(parseInt(paymentTermVal.split(" ")[0]));
+    console.log(inDate);
+    inDate = getFormattedDate(inDate);
+
+    document.getElementById("dueDate").value = inDate;
+    setDueDate(inDate);
+
+    setInvoiceDate(date);
+  };
+
+  function onInvoiceNumberChange(e) {
+    var invoiceNo = e.target.value;
+    setInvoiceNumber(invoiceNo);
   }
 
-  const onInvoiceDateChange=(e)=>{
-    debugger; 
-    var inDateArr=e.target.value.split("/")
-    var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
-    console.log(inDate)
-    inDate=inDate.addDays(parseInt(paymentTermVal.split(" ")[0]));
-    console.log(inDate)
-    inDate=getFormattedDate(inDate)
+  const onPoDateChange = (e) => {
+    setPoDate(e.target.value);
+  };
 
-    document.getElementById("dueDate").value=inDate
-    setDueDate(inDate)
-
-
-    setInvoiceDate(e.target.value)
-  }
-
-  const onPoDateChange=(e)=>{
-    setPoDate(e.target.value)
-  }
-
-  const onChallanDateChange=(e)=>{
+  const onChallanDateChange = (e) => {
     setChallanDate(e.target.value);
-  }
+  };
 
-  const onDueDateChange=(e)=>{
-    setDueDate(e.target.value)
-  }
+  const onDueDateChange = (e) => {
+    setDueDate(e.target.value);
+  };
 
-  const onChallanNumberChange=(e)=>{
+  const onChallanNumberChange = (e) => {
     setChallanNumber(e.target.value);
-  }
-  
-  const onServiceCheckChange=(e)=>{
-    console.log("printing")
-    console.log(document.getElementById("chkYes").checked)
-    setServiceCheck(document.getElementById("chkYes").checked==true?false:true)
-  }
+  };
 
-  const onPaymentTermsChange=(e)=>{
-    if(invoiceDate!=null && invoiceDate!=undefined && invoiceDate!='' && invoiceDate.length>0){
-      var inDateArr=invoiceDate.split("/")
-    var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
-    console.log(inDate)
-    inDate=inDate.addDays(parseInt(e.target.value.split(" ")[0]));
-    console.log(inDate)
-    inDate=getFormattedDate(inDate)
+  const onServiceCheckChange = (e) => {
+    console.log("printing");
+    console.log(document.getElementById("chkYes").checked);
+    setServiceCheck(
+      document.getElementById("chkYes").checked == true ? false : true
+    );
+  };
 
-    document.getElementById("dueDate").value=inDate
-    setDueDate(inDate)
+  const onPaymentTermsChange = (e) => {
+    if (
+      invoiceDate != null &&
+      invoiceDate != undefined &&
+      invoiceDate != "" &&
+      invoiceDate.length > 0
+    ) {
+      var inDateArr = invoiceDate.split("/");
+      var inDate = new Date(inDateArr[2], inDateArr[1] - 1, inDateArr[0]);
+      console.log(inDate);
+      inDate = inDate.addDays(parseInt(e.target.value.split(" ")[0]));
+      console.log(inDate);
+      inDate = getFormattedDate(inDate);
 
-
+      document.getElementById("dueDate").value = inDate;
+      setDueDate(inDate);
     }
     setPaymentTermVal(e.target.value);
-  }
+  };
 
-  const onTransportModeChange=(e)=>{
-    setTransportModeVal(e.target.value)
-  }
+  const onTransportModeChange = (e) => {
+    setTransportModeVal(e.target.value);
+  };
 
-  const onVehicleNumberChange=(e)=>{
-    setVehicleNumber(e.target.value)
-  }
+  const onVehicleNumberChange = (e) => {
+    setVehicleNumber(e.target.value);
+  };
 
-  const onTransportGstChange=(e)=>{
-    setTransportGstRate(e.target.value)
-  }
+  const onTransportGstChange = (e) => {
+    setTransportGstRate(e.target.value);
+  };
 
-  const onOtherChargeGstChange=(e)=>{
+  const onOtherChargeGstChange = (e) => {
     setOtherChargesGstRate(e.target.value);
-  }
+  };
 
-  const printButtonClicked=(e)=>{
-    if(isSaved==0)
-      alert("please save the invoice first!!.");
-    else
-     navigate("/viewInvoice?id="+invoiceNumber);
-  }
+  const printButtonClicked = (e) => {
+    if (isSaved == 0) alert("please save the invoice first!!.");
+    else navigate("/viewInvoice?id=" + invoiceNumber); //change
+  };
 
-
-  Date.prototype.addDays = function(days) {
+  Date.prototype.addDays = function (days) {
     var date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
-  }
+  };
 
   function getFormattedDate(date) {
     var year = date.getFullYear();
-  
+
     var month = (1 + date.getMonth()).toString();
-    month = month.length > 1 ? month : '0' + month;
-  
+    month = month.length > 1 ? month : "0" + month;
+
     var day = date.getDate().toString();
-    day = day.length > 1 ? day : '0' + day;
-    
-    return day + '/' + month + '/' + year;
+    day = day.length > 1 ? day : "0" + day;
+
+    return day + "/" + month + "/" + year;
   }
 
   // start code for edit invoice
-  
-  useEffect (() => {
- 
-   if(editref.current){
-    
-           
-          var url=new URL(window.location.href);
-          let invNoEdit=url.searchParams.get("InvNo");
-          let actionedit = url.searchParams.get("action");
 
-          var token=localStorage.getItem('token')
-          if(actionedit == "Edit" || actionedit == "Clone"){
+  function onCopyInvoiceAddInvoiceDetails() {
+    if (editref.current) {
 
-            axios.get("http://localhost:8081/erp/viewInvoice?invNo="+invNoEdit,{
-              headers:{
-                "Content-Type":"application/json",
-                "Authorization":'Bearer '+token
-              }
-            }).then((res) => {
-              console.log("after got data"+res.data.invoiceNo);
+      let tempCopyOtherDiscount=0;
+      let tempTotalAmt=0;
+      var url = new URL(window.location.href);
+      let invNoEdit = url.searchParams.get("InvNo");
+      let actionedit = url.searchParams.get("action");
 
+      var token = localStorage.getItem("token");
+      if (actionedit == "Edit" || actionedit == "Clone") {
+        document.querySelector("#prodtable").innerHTML = "";
 
-              if(res.data.invoiceId != null)
-               setInvoiceId(res.data.invoiceId);
-              
-              if(res.data.customerName != null){
-                const text = res.data.customerName;
-                const $select = document.querySelector('#customer');
-                const $options = Array.from($select.options);
-                const optionToSelect = $options.find(item => item.text ===text);
-                $select.value = optionToSelect.value;
-              }
-              
-              if(res.data.invoiceNo != null)
-              setInvoiceNumber(res.data.invoiceNo);
+        axios
+          .get(`http://localhost:8080/purchase/id/${invNoEdit}`, {
+            //change
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+          })
+          .then((res) => {
+            console.log("after got data" + res.data.purchaseNo);
+            debugger;
 
-              if(res.data.poNumber != null)
-              setPoNumber(res.data.poNumber);
+            if (res.data.purchaseId != null && actionedit == "Edit")
+              setInvoiceId(res.data.purchaseId);
 
-              if(res.data.invoiceDate != null){
-                let finvdate = getFormattedDate(new Date(res.data.invoiceDate));
-              setInvoiceDate(finvdate);
-              }
+            if (res.data.supplierName != null) {
+              const text = res.data.supplierName;
+              const $select = document.querySelector("#customer");
+              const $options = Array.from($select.options);
 
-              if(res.data.poDate != null){
-                let finvdate = getFormattedDate(new Date(res.data.poDate));
+              const optionToSelect = $options.find(
+                (item) => item.text === text
+              );
+              $select.value = optionToSelect.value;
+              //below code is used to dispatch change event on customer select box becuase i is not getting updated otherwise
+              var event = new Event("change");
+
+              // Dispatch it.
+              $select.dispatchEvent(event);
+            }
+
+            if (res.data.purchaseNo != null && actionedit == "Edit")
+              setInvoiceNumber(res.data.purchaseNo);
+
+            if (res.data.poNo != null) setPoNumber(res.data.poNo);
+
+            if (res.data.purchaseDate != null && actionedit == "Edit") {
+              let finvdate = getFormattedDate(new Date(res.data.purchaseDate));
+              onInvoiceDateChangeForCopyProduct(finvdate);
+            } else if (res.data.purchaseDate != null) {
+              let finvdate = getFormattedDate(new Date());
+              onInvoiceDateChangeForCopyProduct(finvdate);
+            }
+
+            if (res.data.poDate != null) {
+              let finvdate = getFormattedDate(new Date(res.data.poDate));
               setPoDate(finvdate);
-              }
+            }
 
-              if(res.data.billingAddress != null)
-              setFromAddr1(res.data.billingAddress);
+            if (res.data.address != null) setFromAddr1(res.data.address);
 
-              if(res.data.shippingAddress != null)
-              setShippingAddress1(res.data.shippingAddress);
+            // if(res.data.shippingAddress != null)
+            // setShippingAddress1(res.data.shippingAddress);
 
-              if(res.data.challanNo != null)
-              setChallanNumber(res.data.challanNo);
+            // if(res.data.challanNo != null)
+            // setChallanNumber(res.data.challanNo);
 
-              if(res.data.challanDate != null){
-                let finvdate = getFormattedDate(new Date(res.data.challanDate));
+            if (res.data.challanDate != null) {
+              let finvdate = getFormattedDate(new Date(res.data.challanDate));
               setChallanDate(finvdate);
-              }
+            }
 
-              if(res.data.transportMode != null){
-                const text = res.data.transportMode;
-                const $select = document.querySelector('#transportModes');
-                const $options = Array.from($select.options);
-                const optionToSelect = $options.find(item => item.text ===text);
-                $select.value = optionToSelect.value;
-              }
+            if (res.data.transportMode != null) {
+              const text = res.data.transportMode;
+              const $select = document.querySelector("#transportModes");
+              const $options = Array.from($select.options);
+              const optionToSelect = $options.find(
+                (item) => item.text === text
+              );
+              $select.value = optionToSelect.value;
+            }
 
-              if(res.data.paymentTerms != null)
-              {
-               // let payterm = (res.data.paymentTerms).replace('-'," ");
-                const text = res.data.paymentTerms;
-                const $select = document.querySelector('#paymentTerm');
-                const $options = Array.from($select.options);
-                const optionToSelect = $options.find(item => item.text ===text);
-                $select.value = optionToSelect.value;
-              }
+            if (res.data.paymentTerms != null) {
+              const text = res.data.paymentTerms;
+              const $select = document.querySelector("#paymentTerm");
+              const $options = Array.from($select.options);
+              const optionToSelect = $options.find(
+                (item) => item.text === text
+              );
+              $select.value = optionToSelect.value;
+            }
+
+            // if(res.data.vehicleNo != null)
+            // setVehicleNumber(res.data.vehicleNo);
+
+            if (res.data.transportCharges != null) {
+              var transportChargeTemp =
+                document.querySelector("#transportCharge");
+              transportChargeTemp.value = res.data.transportCharges;
+
+              setTransportCharge(fromCurrency(res.data.transportCharges));
+            }
+
+            if (res.data.additionalCharges != null) {
+              document.querySelector("#otherCharge").value =
+                res.data.additionalCharges;
+              setOtherCharge(fromCurrency(res.data.additionalCharges));
+            }
+
+            if (res.data.discount != null) {
+              document.querySelector("#otherDiscount").value =
+                res.data.discount;
+              setDiscountInRupees(res.data.discount);
+            }
+
+            if (res.data.otherDiscount != null) { //check here
               
-               if(res.data.dueDate != null){
-                let finvdate = getFormattedDate(new Date(res.data.dueDate));
-               setDueDate(finvdate);
-               }
-              
-
-              if(res.data.vehicleNo != null)
-              setVehicleNumber(res.data.vehicleNo);
-             
-              //start prod set code
-              window.fetchProdList();
-              
-              res.data.invoiceProductDO.map((elem,index)=>{
-                
-                console.log('product data '+ elem.productName+':index id :'+index);
-               
-              if(index == 0){
-                if(elem.productName != null)
-              {
-                const text = elem.productName;
-                const $select = document.querySelector('.prodListSelect1');
-                const $options = Array.from($select.options);
-                const optionToSelect = $options.find(item => item.text ===text);
-                $select.value = optionToSelect.value;
-              }
-               
-              // setdesc(elem.productDescription);
-                document.querySelector("#description").value=elem.productDescription;
-                document.querySelector("#hsnSac").value=elem.hsnSac;
-                document.querySelector("#quantity").value=elem.quantity;
-                document.querySelector("#unit").value=elem.unit;
-                document.querySelector("#price").value=elem.rate;
-                document.querySelector("#discount").value=elem.discount;
-                document.querySelector("#amount").value=elem.amount;
-                document.querySelector("#tax").value=elem.tax;
-
-                // var description = document.querySelector("#description").value;
-                // var hsnSac=document.querySelector("#hsnSac").value;
-                // var tax=fromCurrency(document.querySelector("#tax").value);
-                // var quantity = fromCurrency(document.querySelector("#quantity").value);
-                // var price = fromCurrency(document.querySelector("#price").value);
-                // var discount = fromCurrency(document.querySelector("#discount").value);
-                // var amount = fromCurrency(document.querySelector("#amount").value);
-                // var unit=document.querySelector("#unit").value;
-                //var productName = event.target.querySelector("option:checked").text;
-                //let productId = document.querySelector("#productId").value;
-
-                 }
-               
-                if(index > 0){
-                  window.addRowOnEdit(elem , index);
-              }
-              
-              // var temp = {
-              //   id: elem.invoiceProductId,
-              //   productName: elem.productName,
-              //   description: elem.productDescription,
-              //   hsnSac:elem.hsnSac,
-              //   tax:elem.tax,
-              //   quantity: elem.quantity,
-              //   price: elem.price,
-              //   amount: elem.amount,
-              //   discount: elem.discount,
-              //   unit:elem.unit
-              // };
-             
-              setProductUnits([...productUnits,{
-                id: elem.invoiceProductId,
-                productName: elem.productName,
-                description: elem.productDescription,
-                hsnSac:elem.hsnSac,
-                tax:elem.tax,
-                quantity: elem.quantity,
-                price: elem.price,
-                amount: elem.amount,
-                discount: elem.discount,
-                unit:elem.unit
-              }]);
+              tempCopyOtherDiscount=res.data.otherDiscount;
             
-              setProductCount(index+1);
-              //setProductUnits(newList);
-              console.log('product length ::::'+productUnits);
+            }
 
-              // let tempProdUnits = [...productUnits];
+            //start prod set code
+            // window.fetchProdList();
+            var productUnitsTemp = [];
 
-              // tempProdUnits.map((prodUnit) => {
-              //   // if (prodUnit.id == productId) {
-              //     prodUnit.description=elem.productDescription;
-              //     prodUnit.hsnSac=elem.hsnSac;
-              //     prodUnit.tax=elem.tax;
-              //     prodUnit.quantity = elem.quantity;
-              //     prodUnit.price = elem.price;
-              //     prodUnit.discount = elem.discount;
-              //     prodUnit.amount = elem.amount;
-              //     prodUnit.productName = elem.productName;
-              //     prodUnit.unit=elem.unit;
-              //  // }
-             // });
+            res.data.purchaseProductDOs &&
+              res.data.purchaseProductDOs.map((elem, index) => {
+                debugger;
+                console.log(
+                  "product data " + elem.productName + ":index id :" + index
+                );
 
-             // setProductUnits(tempProdUnits);
+                tempTotalAmt+=fromCurrency(elem.amount);
 
+                addProductForCopy(elem, index);
+
+                setProdCount(index + 1);
+
+                productUnitsTemp.push(elem);
               });
-              //end prod set code             
-             
-            }).catch(function (error) {
-              console.log(error);
-            });
 
-          }
-          editref.current = false;
-        }
-   });
-   
+            prodSelectOnChangeForCopy(productUnitsTemp);
+          })
+          .catch(function (error) {
+            console.log(error);
+          }).finally(()=>{
+              if(tempCopyOtherDiscount>0){
+
+                debugger;
+              
+                let temp=toCurrency((fromCurrency(tempCopyOtherDiscount)/fromCurrency(tempTotalAmt))*100).replace(/[\$]/g,'')
+
+              document.querySelector("#discountInPercentage").value =temp;
+  
+              setDiscountInPercentage(temp);
+              }
+          });
+      }
+      editref.current = false;
+    }
+  }
+
   // End code of edit invoice
 
   return (
     <>
-    <Navbar/>
-    <Alert msg={alertMsg}/>
-    <div>
-      <Sidebar />
-      <div className="page-wrapper">
-        <div className="content container-fluid">
-          <div className="page-header invoices-page-header">
-            <div className="row align-items-center">
-              <div className="col">
-                <ul className="breadcrumb invoices-breadcrumb">
-                  <li className="breadcrumb-item invoices-breadcrumb-item">
-                    <a href="invoices.html">
-                      <i className="fa fa-chevron-left"></i> Back to Purchase
-                      List
+      <ToastContainer />
+      <Navbar />
+      <Alert msg={alertMsg} />
+      <div>
+        <Sidebar />
+        <div className="page-wrapper">
+          <div className="content container-fluid">
+            <div className="page-header invoices-page-header">
+              <div className="row align-items-center">
+                <div className="col">
+                  <ul className="breadcrumb invoices-breadcrumb">
+                    <li className="breadcrumb-item invoices-breadcrumb-item">
+                      <a href="invoices.html">
+                        <i className="fa fa-chevron-left"></i> Back to Invoice
+                        List
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+                <div className="col-auto">
+                  <div className="invoices-create-btn">
+                    <a
+                      className="invoices-preview-link"
+                      href="#"
+                      data-bs-toggle="modal"
+                      data-bs-target="#invoices_preview"
+                    >
+                      <i className="fa fa-eye"></i> Preview
                     </a>
-                  </li>
-                </ul>
-              </div>
-              <div className="col-auto">
-                <div className="invoices-create-btn">
-                  <a
-                    className="invoices-preview-link"
-                    href="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#invoices_preview"
-                  >
-                    <i className="fa fa-eye"></i> Preview
-                  </a>
-                  <a
-                    href="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#delete_invoices_details"
-                    className="btn delete-invoice-btn"
-                  >
-                    Delete Purchase
-                  </a>
-                  <a
-                    href="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#save_invocies_details"
-                    className="btn save-invoice-btn"
-                  >
-                    Save Draft
-                  </a>
+                    <a
+                      href="#"
+                      data-bs-toggle="modal"
+                      data-bs-target="#delete_invoices_details"
+                      className="btn delete-invoice-btn"
+                    >
+                      Delete Invoice
+                    </a>
+                    <a
+                      href="#"
+                      data-bs-toggle="modal"
+                      data-bs-target="#save_invocies_details"
+                      className="btn save-invoice-btn"
+                    >
+                      Save Draft
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="row">
-            <div className="col-md-12">
-              <div className="card invoices-add-card">
-                <div className="card-body">
-                  <form className="invoices-form">
-                    <div className="invoices-main-form">
-                      <div className="row">
-                        <div className="col-xl-4 col-md-6 col-sm-12 col-12">
-                          <p class="mg-b-10">Supplier Name</p>
-                          <select
-                            class="form-control select2"
-                            name="product"
-                            id="customer"
-                          >
-                            <option value="-1">Select Supplier</option>
-                          </select>
-                          {/* <div className="form-group"> */}
-                          {/* <label>Customer Name</label> */}
+            <div className="row">
+              <div className="col-md-12">
+                <div className="card invoices-add-card">
+                  <div className="card-body">
+                    <form className="invoices-form">
+                      <div className="invoices-main-form">
+                        <div className="row">
+                          <div className="col-xl-4 col-md-6 col-sm-12 col-12">
+                            <p class="mg-b-10">Supplier Name</p>
+                            <select
+                              class="form-control select2"
+                              name="product"
+                              id="customer"
+                            >
+                              <option value="-1">Select Supplier</option>
+                            </select>
 
-                          {/* <div className="multipleSelection">
+                            <button
+                              class="btn btn-primary"
+                              style={{ fontSize: "12px", marginTop: "5px" }}
+                              onClick={handleClickOpenCustomer}
+                            >
+                              Create Customer
+                            </button>
+                            {/* <div className="form-group"> */}
+                            {/* <label>Customer Name</label> */}
+
+                            {/* <div className="multipleSelection">
                               <div className="selectBox">
                                 <p className="mb-0">Select Customer</p>
                                 <span className="down-icon">
@@ -1461,30 +1792,33 @@ const onDescriptionChange=(e)=>{
                                 </button>
                               </div>
                             </div> */}
-                          {/* </div> */}
+                            {/* </div> */}
 
-                          {/* <div className="inovices-month-info"> */}
-                          <div className="form-group mt-5">
-                            <label className="custom_check w-100">
-                              <input
-                                type="checkbox"
-                                id="enableTax"
-                                name="invoice"
-                              />
-                              <span className="checkmark"></span> Enable tax
-                            </label>
-                            <label className="custom_check w-100">
-                              <input
-                                type="checkbox"
-                                id="chkYes"
-                                name="invoice"
-                                checked = {serviceCheck}
-                              />
-                              <span onClick={onServiceCheckChange} className="checkmark"></span> Service
-                              Invoice
-                            </label>
-                          </div>
-                          {/*<div id="show-invoices">
+                            {/* <div className="inovices-month-info"> */}
+                            <div className="form-group mt-5">
+                              <label className="custom_check w-100">
+                                <input
+                                  type="checkbox"
+                                  id="enableTax"
+                                  name="invoice"
+                                />
+                                <span className="checkmark"></span> Enable tax
+                              </label>
+                              <label className="custom_check w-100">
+                                <input
+                                  type="checkbox"
+                                  id="chkYes"
+                                  name="invoice"
+                                  checked={serviceCheck}
+                                />
+                                <span
+                                  onClick={onServiceCheckChange}
+                                  className="checkmark"
+                                ></span>{" "}
+                                Service Invoice
+                              </label>
+                            </div>
+                            {/*<div id="show-invoices">
                                <div className="row">
                                 <div className="col-md-6">
                                   <div className="form-group">
@@ -1509,46 +1843,67 @@ const onDescriptionChange=(e)=>{
                                 </div>
                               </div>
                             </div>*/}
-                          {/* </div>  */}
-                        </div>
+                            {/* </div>  */}
+                          </div>
 
-                        <div className="col-xl-3 col-md-12 col-sm-12 col-12">
-                          <input type="hidden" />
-                        </div>
+                          <div className="col-xl-3 col-md-12 col-sm-12 col-12">
+                            <input type="hidden" />
+                          </div>
 
-                        <div className="col-xl-5 col-md-6 col-sm-12 col-12">
-                          <h4 className="invoice-details-title">
-                            Invoice details
-                          </h4>
-                          <div className="invoice-details-box">
-                            <div className="invoice-inner-head">
-                              <span>
-                                Puchase No.{" "}
-                                <a href="view-invoice.html">{invoiceNumber}</a>
-                              </span>
-                              <br />
-                              <br />
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                Purchase Date.{" "}
-                                <input
-                                  className="form-control datetimepicker"
-                                  type="text"
-                                  placeholder="Select Date"
-                                  value={invoiceDate}
-                                  id="invoiceDate"
-                                  style={{ border: "none", width: 120,color: "#9a55ff"}}
-                                />
-                              </span>
-                            </div>
-                            <div className="invoice-inner-footer">
-                              <div className="row align-items-center">
-                                <div className="col-lg-6 col-md-6">
-                                  {/* <div className="invoice-inner-date">
+                          <div className="col-xl-5 col-md-6 col-sm-12 col-12">
+                            <h4 className="invoice-details-title">
+                            Purchase details
+                            </h4>
+                            <div className="invoice-details-box">
+                              <div className="invoice-inner-head">
+                                <span>
+                                Purchase No.{" "}
+                                  {invoiceMode == "Auto" ? (
+                                    <a href="view-invoice.html">
+                                      {invoiceNumber}
+                                    </a>
+                                  ) : (
+                                    <input
+                                      className="form-control"
+                                      type="text"
+                                      placeholder="Enter Purchase Number"
+                                      value={invoiceNumber}
+                                      onChange={onInvoiceNumberChange}
+                                      style={{
+                                        border: "1px solid #9a55ff",
+                                        width: "100%",
+                                        padding: "10px",
+                                      }}
+                                    />
+                                  )}
+                                </span>
+                                <br />
+                                <br />
+                                <span
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  Purchase Date.{" "}
+                                  <input
+                                    className="form-control datetimepicker"
+                                    type="text"
+                                    placeholder="Select Date"
+                                    value={invoiceDate}
+                                    id="invoiceDate"
+                                    style={{
+                                      border: "none",
+                                      width: 120,
+                                      color: "#9a55ff",
+                                    }}
+                                  />
+                                </span>
+                              </div>
+                              <div className="invoice-inner-footer">
+                                <div className="row align-items-center">
+                                  <div className="col-lg-6 col-md-6">
+                                    {/* <div className="invoice-inner-date">
                                     <span>
                                       Date{" "}
                                       <input
@@ -1558,40 +1913,41 @@ const onDescriptionChange=(e)=>{
                                       />
                                     </span>
                                   </div> */}
-                                  <div className="invoice-inner-date">
-                                    <div className="form-group">
-                                      Po Number
-                                      <input
-                                        className="form-control"
-                                        type="text"
-                                        placeholder="Enter Reference Number"
-                                        value={poNumber}
-                                        style={{
-                                          border: "1px solid #9a55ff",
-                                          width: "100%",
-                                          padding: "10px",
-                                        }}
-                                      />
+                                    <div className="invoice-inner-date">
+                                      <div className="form-group">
+                                        Po Number
+                                        <input
+                                          className="form-control"
+                                          type="text"
+                                          placeholder="Enter Reference Number"
+                                          value={poNumber}
+                                          style={{
+                                            border: "1px solid #9a55ff",
+                                            width: "100%",
+                                            padding: "10px",
+                                          }}
+                                        />
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                                <div className="col-lg-6 col-md-6">
-                                  <div className="invoice-inner-date invoice-inner-datepic">
-                                    <div className="form-group">
-                                      <label>PO Date</label>
-                                      <br />
-                                      <input
-                                        className="form-control datetimepicker"
-                                        type="text"
-                                        placeholder="Select"
-                                        value={poDate}
-                                        id="poDate"
-                                        style={{
-                                          border: "1px solid #9a55ff",
-                                          width: "100%",
-                                          padding: "10px",
-                                        }}
-                                      />
+                                  <div className="col-lg-6 col-md-6">
+                                    <div className="invoice-inner-date invoice-inner-datepic">
+                                      <div className="form-group">
+                                        <label>PO Date</label>
+                                        <br />
+                                        <input
+                                          className="form-control datetimepicker"
+                                          type="text"
+                                          placeholder="Select"
+                                          value={poDate}
+                                          id="poDate"
+                                          style={{
+                                            border: "1px solid #9a55ff",
+                                            width: "100%",
+                                            padding: "10px",
+                                          }}
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
@@ -1600,77 +1956,153 @@ const onDescriptionChange=(e)=>{
                           </div>
                         </div>
                       </div>
-                    </div>
-    
-                    <div className="invoice-item" style={{border: "1px solid #E5E5E5",borderRadius: "10px", width: "100%",marginBottom:"15px", background: "#FFFFFF"}}>
-                      <div className="row" >
-                        <div className="col-xl-12 col-lg-12 col-md-12 h-100 " >
-                          <div className="invoice-info w-100" style={{marginBottom:"10px",padding:"20px 0px 0px 20px"}}>
-                            <strong className="customer-text">
-                              Billing Address{" "}
-                              <a className="small" href="edit-invoice.html">
+
+                      <div
+                        className="invoice-item"
+                        style={{
+                          border: "1px solid #E5E5E5",
+                          borderRadius: "10px",
+                          width: "100%",
+                          marginBottom: "15px",
+                          background: "#FFFFFF",
+                        }}
+                      >
+                        <div className="row">
+                          <div
+                            className="col-xl-6 col-lg-6 col-md-6 h-100 "
+                            style={{
+                              // borderRight: "1px solid #E5E5E5",
+                              marginBottom: "0px",
+                              padding: "30px 0px 0px 30px",
+                        
+                            }}
+                          >
+                            <div className="invoice-info w-100">
+                              <strong className="customer-text">
+                                Supplier Address{" "}
+                                {/* <a className="small" href="edit-invoice.html">
                                 Edit Address
-                              </a>
-                            </strong>
-                            <p
-                              id="fromAddress"
-                              className="invoice-details invoice-details-two"
-                            >
-                              {fromAddr1} <br />
-                              {fromAddr2}
-                              <br />
-                            </p>
-                          </div>
-                                      {/* address footer start */}
-                          <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex align-items-center" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                                       <a>GST No.</a>&nbsp;
-                                        <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                      GST No.&nbsp;
-                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div> */}
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex align-items-center" style={{marginBottom:"0px",padding:"20px"}}>
-                        State&nbsp;
-                        <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      </div>
+                              </a> */}
+                              </strong>
+                              <p
+                                id="fromAddress"
+                                className="invoice-details invoice-details-two"
+                              >
+                                {fromAddr1} <br />
+                                {fromAddr2}
+                                <br />
+                              </p>
+                            </div>
+                            {/* address footer start */}
+                            
+                           
                             {/* address footer end */}
-                        </div>
-                        <div className="col-xl-6 col-lg-6 col-md-6 h-100" style={{paddingLeft:"0px",display:'none'}}>
-                          <div className="invoice-info w-100" style={{marginBottom:"0px",padding:"20px"}} >
-                            <strong className="customer-text">
-                              Shipping Address
-                            </strong>
-                            <p
-                              id="toAddress"
-                              className="invoice-details invoice-details-two"
-                            >
-                              {shippingAddress1} <br />
-                              {shippingAddress2} <br />
-                            </p>
                           </div>
 
-                                         {/* address footer start */}
-                                         <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                                        GST No. &nbsp;
-                                        <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                          
+                    
+                          <div
+                            className="col-xl-6 col-lg-6 col-md-6 h-100 d-flex align-items-center">
+
+
+                          <div
+                            // className="col-xl-6 col-lg-6 col-md-6 h-100"
+                            style={{ paddingLeft: "0px", borderLeft: "1px solid #E5E5E5", borderRight: "1px solid #E5E5E5" }}
+                          >
+                           <div style={{display:'flex',alignItems:"start",flexDirection:'column'}}>
+                              <div
+                                className="d-flex"
+                                style={{
+                                  marginBottom: "0px",
+                                  padding: "20px",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                GST No. &nbsp;
+                                <input
+                                  class="form-control"
+                                  type="text"
+                                  value={gstNo}
+                                  style={{
+                                    border: "1px solid rgb(154, 85, 255)",
+                                    width: "100%",
+                                    padding: "10px",
+                                  }}
+                                ></input>
+                              </div>
+                              {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
                       GST No.&nbsp;
                       <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div> */}
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
-                        State&nbsp;
-                        <input class="form-control" type="text" value={shippingState} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      </div>
-                            {/* address footer end */}
+                              <div
+                                className="d-flex"
+                                style={{
+                                  marginBottom: "0px",
+                                  padding: "20px",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                }}
+                              >
+                                State&nbsp;
+                                <input
+                                  class="form-control"
+                                  type="text"
+                                  value={state}
+                                  style={{
+                                    border: "1px solid rgb(154, 85, 255)",
+                                    width: "100%",
+                                    padding: "10px",
+                                  }}
+                                ></input>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div style={{display:'flex',alignItems:'start',flexDirection:'column','justifyContent':'center'}}>
+                          <div style={{display:'flex',alignItems:'center','justifyContent':'center'}}>
+                              <div
+                                class="invoice-inner-date"
+                                style={{ border: "none",padding:'20px' }}
+                              >
+                                <div class="form-group  d-flex flex-column">
+                                  <label>Payment Terms</label>
+                                  {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
+                                  <select id="paymentTerm">
+                                    {paymentTerm.map((val, key) => {
+                                      return <option value={val}>{val}</option>;
+                                    })}
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div style={{display:'flex',alignItems:'center','justifyContent':'center'}}>
+                              <div
+                                class="invoice-inner-date invoice-inner-datepic"
+                                style={{padding:'10px'}}
+                              >
+                                <div class="form-group d-flex flex-column">
+                                  <label for="">Due Date</label>
+                                  <input
+                                    class="form-control datetimepicker"
+                                    style={{
+                                      border: "1px solid #9a55ff",
+                                      width: "100%",
+                                      padding: "10px",
+                                    }}
+                                    id="dueDate"
+                                    type="text"
+                                    placeholder="Select"
+                                    readOnly="true"
+                                  />
+                                </div>
+                              </div>
+                            </div>
                         </div>
-                      </div>
-                      {/* <div className="row">
+                        </div>
+
+                        </div>
+                        {/* <div className="row">
                       <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
                                         GST No. &nbsp;
                                         <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
@@ -1684,338 +2116,457 @@ const onDescriptionChange=(e)=>{
                         <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
                       </div> */}
+                      </div>
 
-                    </div>
+                      <div class="invoice-details-box d-none ">
+                        <div class="invoice-inner-footer">
+                          <div class="row d-flex align-items-center">
+                            <div class="col-lg-2 col-md-4 d-none">
+                              <div
+                                class="invoice-inner-date"
+                                style={{ border: "none" }}
+                              >
+                                <div class="form-group">
+                                  <label>Challan No.</label>
+                                  <input
+                                    value={challanNumber}
+                                    onChange={onChallanNumberChange}
+                                    style={{
+                                      border: "1px solid #9a55ff",
+                                      width: "100%",
+                                      padding: "10px",
+                                    }}
+                                    class="form-control"
+                                    type="text"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4 d-none">
+                              <div
+                                class="invoice-inner-date invoice-inner-datepic"
+                                style={{ borderRight: "1px solid #E5E5E5" }}
+                              >
+                                <div class="form-group">
+                                  <label for="">Challan Date</label>
+                                  <input
+                                    class="form-control datetimepicker"
+                                    style={{
+                                      border: "1px solid #9a55ff",
+                                      width: "100%",
+                                      padding: "10px",
+                                    }}
+                                    id="challanDate"
+                                    type="text"
+                                    value={challanDate}
+                                    placeholder="Select"
+                                  />
+                                </div>
+                              </div>
+                            </div>
 
+                            <div class="col-lg-2 col-md-4">
+                              <div
+                                class="invoice-inner-date"
+                                style={{ border: "none" }}
+                              >
+                                <div class="form-group">
+                                  <label>Payment Terms</label>
+                                  {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
+                                  <select id="paymentTerm">
+                                    {paymentTerm.map((val, key) => {
+                                      return <option value={val}>{val}</option>;
+                                    })}
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4">
+                              <div
+                                class="invoice-inner-date invoice-inner-datepic"
+                                style={{ borderRight: "1px solid #E5E5E5" }}
+                              >
+                                <div class="form-group">
+                                  <label for="">Due Date</label>
+                                  <input
+                                    class="form-control datetimepicker"
+                                    style={{
+                                      border: "1px solid #9a55ff",
+                                      width: "100%",
+                                      padding: "10px",
+                                    }}
+                                    id="dueDate"
+                                    type="text"
+                                    placeholder="Select"
+                                    readOnly="true"
+                                  />
+                                </div>
+                              </div>
+                            </div>
 
-                    <div class="invoice-details-box">
-<div class="invoice-inner-footer">
-<div class="row align-items-center">
+                            <div class="col-lg-2 col-md-4 d-none">
+                              <div
+                                class="invoice-inner-date"
+                                style={{ border: "none" }}
+                              >
+                                <div class="form-group">
+                                  <label>Transport Mode</label>
+                                  {/* <input value={transportMode} onChange={onTransportModeChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
+                                  <select
+                                    id="transportModes"
+                                    onChange={onTransportModeChange}
+                                    style={{
+                                      border: "1px solid #9a55ff",
+                                      width: "100%",
+                                      padding: "10px",
+                                    }}
+                                  >
+                                    {transportModes.map((val, key) => {
+                                      return <option value={val}>{val}</option>;
+                                    })}
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-lg-2 col-md-4 d-none">
+                              <div class="form-group">
+                                <label for="">Vehicle No.</label>
+                                <input
+                                  value={vehicleNumber}
+                                  onChange={onVehicleNumberChange}
+                                  style={{
+                                    border: "1px solid #9a55ff",
+                                    width: "90%",
+                                    padding: "10px",
+                                  }}
+                                  class="form-control"
+                                  type="text"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-<div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date">
-<div class="form-group">
-<label>Challan No.</label>
-<input value={challanNumber} onChange={onChallanNumberChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" />
-</div>
-</div>
-</div>
-<div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date invoice-inner-datepic">
-<div class="form-group">
-<label for="">Challan Date</label>
-<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="challanDate" type="text" value={challanDate}  placeholder="Select"/>
-</div>
-</div>
-</div>
-
-<div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date">
-<div class="form-group">
-<label>Payment Terms</label>
-{/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
-<select id="paymentTerm">
-
-{paymentTerm.map((val,key)=>{
-  return (<option value={val}>{val}</option>)
-})}
-
-</select>
-</div>
-</div>
-</div>
-<div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date invoice-inner-datepic">
-<div class="form-group">
-<label for="">Due Date</label>
-<input class="form-control datetimepicker" style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} id="dueDate" type="text"  placeholder="Select" readOnly="true"/>
-</div>
-</div>
-</div>
-
-<div class="col-lg-2 col-md-4">
-<div class="invoice-inner-date">
-<div class="form-group">
-<label>Transport Mode</label>
-{/* <input value={transportMode} onChange={onTransportModeChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
-<select id="transportModes" onChange={onTransportModeChange} style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}}>
-{
-  transportModes.map((val,key)=>{
-    return <option value={val}>{val}</option>
-  })
-}
-
-</select>
-</div>
-</div>
-</div>
-<div class="col-lg-2 col-md-4">
-<div class="form-group">
-<label for="">Vehicle No.</label>
-<input value={vehicleNumber} onChange={onVehicleNumberChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" />
-</div>
-</div>
-</div>
-</div>
-</div>
-
-
-
-
-
-                    <div className="invoice-add-table">
-                      <h4>Item Details</h4>
-                      <div className="table-responsive">
-                        <table className="table table-striped table-nowrap  mb-0 no-footer add-table-items">
-                          <thead>
-                            <tr>
-                              <th>Product</th>
-                              <th>Product Description</th>
-                              <th>HSN/SAC</th>
-                              <th>Quantity</th>
-                              <th>Unit</th>
-                              <th>Rate</th>
-                              <th>Discount</th>
-                              <th>Amount</th>
-                              <th>Tax</th>
-                              <th>Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody id ="prodtable">
-                            <tr className="add-row">
-                              <td>
-                                {/* <select class="form-select selectpicker form-select-lg mb-1" aria-label=".form-select-lg example">
+                      <div className="invoice-add-table">
+                        <h4>Item Details</h4>
+                        <div className="table-responsive">
+                          <table className="table table-striped table-nowrap  mb-0 no-footer add-table-items">
+                            <thead>
+                              <tr>
+                                <th>Product</th>
+                                <th>Product Description</th>
+                                <th>HSN/SAC</th>
+                                <th>Quantity</th>
+                                <th>Unit</th>
+                                <th>Rate</th>
+                                <th>Discount</th>
+                                <th>Amount</th>
+                                <th>GST Rate</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody id="prodtable">
+                              <tr className="add-row">
+                                <td>
+                                  {/* <select class="form-select selectpicker form-select-lg mb-1" aria-label=".form-select-lg example">
 								<option selected>Open this select menu</option>
   								<option value="1">One</option>
   								<option value="2">Two</option>
   								<option value="3">Three</option>
 							</select> */}
-                                <select
-                                  class="prodListSelect prodListSelect1"
-                                  name="state"
-                                >
-                                  <option value="-1">--Select--</option>
-                                </select>
-                                <input id="productId" type="hidden" value={1} />
-                              </td>
-                              <td>
-                                <input
-                                  id="description"
-                                  type="text"
-                                  className="form-control"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  id="hsnSac"
-                                  type="text"
-                                  className="form-control quantity1 alignEnd"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  id="quantity"
-                                  type="text"
-                                  className="form-control quantity1 alignEnd"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  id="unit"
-                                  type="text"
-                                  className="form-control quantity1"
-                                  readonly="true"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  id="price"
-                                  type="text"
-                                  className="form-control price1 alignEnd"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  id="discount"
-                                  type="text"
-                                  className="form-control discount1 alignEnd"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  id="amount"
-                                  type="text"
-                                  className="form-control alignEnd"
-                                  readonly="true"
-                                />
-                              </td>
-                              <td>
-                                <input
-                                  id="tax"
-                                  type="text"
-                                  className="form-control alignEnd"
-                                  readonly="true"
-                                />
-                              </td>
-                             
-                             
-                              <td className="add-remove text-end">
-                                <a
-                                  href="javascript:void(0);"
-                                  className="add-btns me-2"
-                                >
-                                  <i className="fas fa-plus-circle"></i>
-                                </a>
-                                <a href="#" className="copy-btn me-2">
-                                  <i className="fas fa-copy"></i>
-                                </a>
-                                <a
-                                  href="javascript:void(0);"
-                                  className="remove-btn"
-                                >
-                                  <i className="fa fa-trash-alt"></i>
-                                </a>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-lg-7 col-md-6">
-                        <div className="invoice-fields">
-                          <h4 className="field-title">More Fields</h4>
-                          <div className="field-box">
-                            <p>Payment Details</p>
-                            <a
-                              className="btn btn-primary"
-                              href="#"
-                              data-bs-toggle="modal"
-                              data-bs-target="#bank_details"
-                            >
-                              <i className="fas fa-plus-circle me-2"></i>Add
-                              Bank Details
-                            </a>
-                          </div>
-                        </div>
-                        <div className="invoice-faq">
-                          <div
-                            className="panel-group"
-                            id="accordion"
-                            role="tablist"
-                            aria-multiselectable="true"
-                          >
-                            <div className="faq-tab">
-                              <div className="panel panel-default">
-                                <div
-                                  className="panel-heading"
-                                  role="tab"
-                                  id="headingTwo"
-                                >
-                                  <p className="panel-title">
-                                    <a
-                                      className="collapsed"
-                                      data-bs-toggle="collapse"
-                                      data-bs-parent="#accordion"
-                                      href="#collapseTwo"
-                                      aria-expanded="false"
-                                      aria-controls="collapseTwo"
-                                    >
-                                      <i className="fas fa-plus-circle me-1"></i>{" "}
-                                      Add Terms & Conditions
-                                    </a>
-                                  </p>
-                                </div>
-                                <div
-                                  id="collapseTwo"
-                                  className="panel-collapse collapse"
-                                  role="tabpanel"
-                                  aria-labelledby="headingTwo"
-                                  data-bs-parent="#accordion"
-                                >
-                                  <div className="panel-body">
-                                    <textarea onChange={onTermsAndConditionChange} id="termsAndCondition" className="form-control"></textarea>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="faq-tab">
-                              <div className="panel panel-default">
-                                <div
-                                  className="panel-heading"
-                                  role="tab"
-                                  id="headingThree"
-                                >
-                                  <p className="panel-title">
-                                    <a
-                                      className="collapsed"
-                                      data-bs-toggle="collapse"
-                                      data-bs-parent="#accordion"
-                                      href="#collapseThree"
-                                      aria-expanded="false"
-                                      aria-controls="collapseThree"
-                                    >
-                                      <i className="fas fa-plus-circle me-1"></i>{" "}
-                                      Remarks
-                                    </a>
-                                  </p>
-                                </div>
-                                <div
-                                  id="collapseThree"
-                                  className="panel-collapse collapse"
-                                  role="tabpanel"
-                                  aria-labelledby="headingThree"
-                                  data-bs-parent="#accordion"
-                                >
-                                  <div className="panel-body">
-                                    <textarea id="remark" className="form-control"></textarea>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-5 col-md-6">
-                        <div
-                          class="invoice-total-card"
-                          action="save_data.php"
-                          method="post"
-                        >
-                          <h4 class="invoice-total-title" id="summary">
-                            Summary
-                          </h4>
-                          <div class="invoice-total-box" id="GrossTotal">
-                            <div class="invoice-total-inner">
-                              {/* <a onchange="finalSum(),calculateDiscount(),calculateSGST12onvalue(),start();finalamount(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),totalAmountWithTax(),calculateSGST28onvalue(),getNumberOFRowsInTable()"> */}
-                              <h4 style={{display:"flex",justifyContent:"space-between"}}>
-                                {" "}
-                                Gross Total
-                                <span style={{marginLeft:"10%"}} id="grossTotal" name="grossTotal">{toCurrency(totalAmt).replace(/[\$]/g,'')}</span>
-                              </h4>
-                              <hr />
-                              {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
-                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                                <p style={{marginBottom:"5px"}}>Transport charge</p>
-                                <span style={{display:"flex"}}>
+                                  <select
+                                    class="prodListSelect prodListSelect1"
+                                    name="state"
+                                  >
+                                    <option value="-1">--Select--</option>
+                                  </select>
                                   <input
-                                    style={{
-                                      width: "50px",
-
-                                      textAlign:"end"
-                                    }}
-                                    type="text"
-                                    id="transportCharge"
-                                    placeholder="0.00"
-                                    // value={toCurrency(transportCharge).replace(/[\$]/g,'')}
-                                    onChange={onTransportChargeChange}
+                                    id="productId"
+                                    type="hidden"
+                                    value={1}
                                   />
-                                 
-                                </span>
-                              </p>
+                                </td>
+                                <td>
+                                  <input
+                                    id="description"
+                                    type="text"
+                                    className="form-control"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    id="hsnSac"
+                                    type="text"
+                                    className="form-control hsnSac1 alignEnd"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    id="quantity"
+                                    type="text"
+                                    className="form-control quantity1 alignEnd"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    id="unit"
+                                    type="text"
+                                    className="form-control quantity1"
+                                    readonly="true"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    id="price"
+                                    type="text"
+                                    className="form-control price1 alignEnd"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    id="discount"
+                                    type="text"
+                                    className="form-control discount1 alignEnd"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    id="amount"
+                                    type="text"
+                                    className="form-control alignEnd"
+                                    readonly="true"
+                                  />
+                                </td>
+                                <td>
+                                  <input
+                                    id="tax"
+                                    type="text"
+                                    className="form-control alignEnd"
+                                    readonly="true"
+                                  />
+                                </td>
 
+                                <td className="add-remove text-end">
+                                  <a
+                                    href="javascript:void(0);"
+                                    className="add-btns me-2"
+                                  >
+                                    <i className="fas fa-plus-circle"></i>
+                                  </a>
+                                  <a href="#" className="copy-btn me-2">
+                                    <i
+                                      className="fas fa-cart-plus"
+                                      style={{ color: "navy" }}
+                                      onClick={AddProductDetails}
+                                    ></i>
+                                  </a>
+                                  <a
+                                    href="javascript:void(0);"
+                                    className="remove-btn"
+                                  >
+                                    <i className="fa fa-trash-alt"></i>
+                                  </a>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-lg-7 col-md-6">
+                          <div
+                            className="invoice-fields"
+                            style={{ display: "none" }}
+                          >
+                            <h4 className="field-title">More Fields</h4>
+                            <div className="field-box">
+                              <p>Payment Details</p>
+                              <a
+                                className="btn btn-primary"
+                                href="#"
+                                data-bs-toggle="modal"
+                                data-bs-target="#bank_details"
+                              >
+                                <i className="fas fa-plus-circle me-2"></i>Add
+                                Bank Details
+                              </a>
+                            </div>
+                          </div>
+                          <div className="invoice-faq">
+                            <div
+                              className="panel-group"
+                              id="accordion"
+                              role="tablist"
+                              aria-multiselectable="true"
+                            >
+                              <div className="faq-tab">
+                                <div className="panel panel-default">
+                                  <div
+                                    className="panel-heading"
+                                    role="tab"
+                                    id="headingThree"
+                                  >
+                                    <p className="panel-title">
+                                      <a
+                                        className="collapsed"
+                                        data-bs-toggle="collapse"
+                                        data-bs-parent="#accordion"
+                                        href="#collapseThree"
+                                        aria-expanded="false"
+                                        aria-controls="collapseThree"
+                                      >
+                                        <i className="fas fa-plus-circle me-1"></i>{" "}
+                                        Remarks
+                                      </a>
+                                    </p>
+                                  </div>
+                                  <div
+                                    id="collapseThree"
+                                    className="panel-collapse collapse"
+                                    role="tabpanel"
+                                    aria-labelledby="headingThree"
+                                    data-bs-parent="#accordion"
+                                  >
+                                    <div className="panel-body">
+                                      <textarea
+                                        id="remark"
+                                        className="form-control"
+                                      ></textarea>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="faq-tab">
+                                <div className="panel panel-default">
+                                  <div
+                                    className="panel-heading"
+                                    role="tab"
+                                    id="headingTwo"
+                                  >
+                                    <p className="panel-title">
+                                      <a
+                                        className="collapsed"
+                                        data-bs-toggle="collapse"
+                                        data-bs-parent="#accordion"
+                                        href="#collapseTwo"
+                                        aria-expanded="false"
+                                        aria-controls="collapseTwo"
+                                      >
+                                        <i className="fas fa-plus-circle me-1"></i>{" "}
+                                        Add Terms & Conditions
+                                      </a>
+                                    </p>
+                                  </div>
+                                  <div
+                                    id="collapseTwo"
+                                    className="panel-collapse collapse"
+                                    role="tabpanel"
+                                    aria-labelledby="headingTwo"
+                                    data-bs-parent="#accordion"
+                                  >
+                                    <div className="panel-body">
+                                      <textarea
+                                        onChange={onTermsAndConditionChange}
+                                        id="termsAndCondition"
+                                        className="form-control"
+                                      ></textarea>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              {/* here */}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-lg-5 col-md-6">
+                          <div
+                            class="invoice-total-card"
+                            action="save_data.php"
+                            method="post"
+                          >
+                            <h4 class="invoice-total-title" id="summary">
+                              Summary
+                            </h4>
+                            <div class="invoice-total-box" id="GrossTotal">
+                              <div class="invoice-total-inner">
+                                {/* <a onchange="finalSum(),calculateDiscount(),calculateSGST12onvalue(),start();finalamount(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),totalAmountWithTax(),calculateSGST28onvalue(),getNumberOFRowsInTable()"> */}
+                                <h4
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                  }}
+                                >
+                                  {" "}
+                                  Gross Total
+                                  <span
+                                    style={{ marginLeft: "10%" }}
+                                    id="grossTotal"
+                                    name="grossTotal"
+                                  >
+                                    {toCurrency(totalAmt).replace(/[\$]/g, "")}
+                                  </span>
+                                </h4>
+                                <hr />
+                                {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
+                                <p
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                  }}
+                                >
+                                  <p style={{ marginBottom: "5px" }}>
+                                    Transport charge
+                                  </p>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyItems: "center",
+                                    }}
+                                  >
+                                    <span style={{ display: "flex" }}>
+                                      <input
+                                        style={{
+                                          width: "90px",
+                                          height: "30px",
+                                          border: "1px solid #9a55ff",
+                                          borderRadius: "6px",
+                                          marginRight: "5px",
+                                          textAlign: "end",
+                                        }}
+                                        type="text"
+                                        id="transportCharge"
+                                        placeholder="0.00"
+                                        // value={toCurrency(transportCharge).replace(/[\$]/g,'')}
+                                        onChange={onTransportChargeChange}
+                                      />
+                                    </span>
 
-                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                                    <span>
+                                      <select
+                                        style={{
+                                          width: "50px",
+                                          height: "30px",
+                                          border: "1px solid #9a55ff",
+                                          borderRadius: "6px",
+                                          textAlign: "end",
+                                        }}
+                                        onChange={onTransportGstChange}
+                                      >
+                                        {gstRates.map((elem) => {
+                                          return (
+                                            <option value={elem}>
+                                              {elem}%
+                                            </option>
+                                          );
+                                        })}
+                                      </select>
+                                    </span>
+                                  </div>
+                                </p>
+                                {/* <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                               <p style={{marginBottom:"5px"}}>Transport charge GST</p>
                                 <span>
                                   <select  style={{
@@ -2033,30 +2584,72 @@ const onDescriptionChange=(e)=>{
 
                                   </select>
                                 </span>
-                              </p>
-
-
-                              {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
-                              <p>
-                                Other charge
-                                <span>
-                                  <input
+                              </p> */}
+                                {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
+                                <p
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                  }}
+                                >
+                                  <p
                                     style={{
-                                      width: "50px",
-                                      marginLeft: "200px",
-                                      textAlign:"end"
+                                      marginBottom: "5px",
+                                      widht: "-webkit-fill-available",
                                     }}
-                                    type="text"
-                                    id="otherCharge"
-                                    name="othercharges"
-                                    placeholder="0.00"
-                                    // value={toCurrency(otherCharge).replace(/[\$]/g,'')}
-                                    onChange={onOtherChargeChange}
-                                  />
-                                </span>
-                              </p>{" "}
+                                  >
+                                    Other charge
+                                  </p>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyItems: "center",
+                                    }}
+                                  >
+                                    <span>
+                                      <input
+                                        style={{
+                                          width: "90px",
+                                          height: "30px",
+                                          border: "1px solid #9a55ff",
+                                          borderRadius: "6px",
+                                          marginRight: "5px",
+                                          textAlign: "end",
+                                        }}
+                                        type="text"
+                                        id="otherCharge"
+                                        name="othercharges"
+                                        placeholder="0.00"
+                                        // value={toCurrency(otherCharge).replace(/[\$]/g,'')}
+                                        onChange={onOtherChargeChange}
+                                      />
+                                    </span>
 
-                              <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                                    <span>
+                                      <select
+                                        style={{
+                                          width: "50px",
+                                          height: "30px",
+                                          border: "1px solid #9a55ff",
+                                          borderRadius: "6px",
+                                          textAlign: "end",
+                                        }}
+                                        onChange={onOtherChargeGstChange}
+                                      >
+                                        {gstRates.map((elem) => {
+                                          return (
+                                            <option value={elem}>
+                                              {elem}%
+                                            </option>
+                                          );
+                                        })}
+                                      </select>
+                                    </span>
+                                  </div>
+                                </p>{" "}
+                                {/* <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                               <p style={{marginBottom:"5px"}}>Other charge GST</p>
                                 <span>
                                   <select  style={{
@@ -2074,119 +2667,136 @@ const onDescriptionChange=(e)=>{
 
                                   </select>
                                 </span>
-                              </p>
-
-                              <hr />
-                              {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),"> */}
-                              <p>
-                                Other Discount
-                                <span>
-                                  <input
+                              </p> */}
+                                <hr />
+                                {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),"> */}
+                                <p>
+                                  Other Discount
+                                  <span>
+                                    <input
+                                      style={{
+                                        width: "90px",
+                                        height: "30px",
+                                        border: "1px solid #9a55ff",
+                                        borderRadius: "6px",
+                                        textAlign: "end",
+                                      }}
+                                      type="text"
+                                      id="otherDiscount"
+                                      placeholder="0.00"
+                                      // value={toCurrency(discountInRuppes).replace(/[\$]/g,'')}
+                                      onChange={onDiscountInRuppesChange}
+                                    />
+                                  </span>
+                                </p>
+                                {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),TotalAmountTax()"> */}
+                                <p>
+                                  Discount in %
+                                  <span>
+                                    <input
+                                      style={{
+                                        width: "90px",
+                                        height: "30px",
+                                        border: "1px solid #9a55ff",
+                                        borderRadius: "6px",
+                                        textAlign: "end",
+                                      }}
+                                      type="text"
+                                      id="discountInPercentage"
+                                      placeholder="0.00"
+                                      // value={discountInPercentage}
+                                      onChange={onDiscountInPercentageChange}
+                                    />
+                                  </span>
+                                </p>
+                                <p>
+                                  Total Discount in $
+                                  <span id="finalDiscount">
+                                    {toCurrency(
+                                      fromCurrency(totalDiscount + "")
+                                    ).replace(/[\$]/g, "")}
+                                  </span>
+                                </p>
+                                {/* </p> */}
+                                <div class="invoice-total-footer">
+                                  <h4
                                     style={{
-                                      width: "50px",
-                                      marginLeft: "200px",
-                                      textAlign:"end"
+                                      fontFamily:
+                                        "Times New Roman, Times, serif",
                                     }}
-                                    type="text"
-                                    id="otherDiscount"
-                                    placeholder="0.00"
-                                    // value={toCurrency(discountInRuppes).replace(/[\$]/g,'')}
-                                    onChange={onDiscountInRuppesChange}
-                                  />
-                                </span>
-                              </p>
-                              {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),TotalAmountTax()"> */}
-                              <p>
-                                Discount in %
-                                <span>
-                                  <input
-                                    style={{
-                                      width: "50px",
-                                      marginLeft: "200px",
-                                      textAlign:"end"
-                                    }}
-                                    type="text"
-                                    id="discountInPercentage"
-                                    placeholder="0.00"
-                                    // value={discountInPercentage}
-                                    onChange={onDiscountInPercentageChange}
-                                  />
-                                </span>
-                              </p>
-                              <p>
-                                Total Discount in $<span id="finalDiscount">{toCurrency(fromCurrency(totalDiscount+"")).replace(/[\$]/g,'')}</span>
-                              </p>
-                              {/* </p> */}
-                              <div class="invoice-total-footer">
-                                <h4
-                                  style={{
-                                    fontFamily: "Times New Roman, Times, serif",
-                                  }}
-                                >
-                                  <a
-                                    style={{ color: "grey" }}
-                                    href="javascript:void(0);"
-                                    onchange="updatemount(), calculateSGST12onvalue(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"
                                   >
-                                    Taxable Amount <span id="finalTotal">{toCurrency(fromCurrency(totalTaxableAmt+"")).replace(/[\$]/g,'')}</span>
-                                  </a>
-                                </h4>
-                              </div>
-                              <div className="gstContainer">
+                                    <a
+                                      style={{ color: "grey" }}
+                                      href="javascript:void(0);"
+                                      onchange="updatemount(), calculateSGST12onvalue(),calculateSGST12(),calculateSGST18(),calculateSGST18onvalue(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"
+                                    >
+                                      Taxable Amount{" "}
+                                      <span id="finalTotal">
+                                        {toCurrency(
+                                          fromCurrency(totalTaxableAmt + "")
+                                        ).replace(/[\$]/g, "")}
+                                      </span>
+                                    </a>
+                                  </h4>
+                                </div>
+                                <div className="gstContainer">
+                                  <div class="invoice-total-footer" id="cgst18">
+                                    <h4
+                                      style={{
+                                        fontFamily:
+                                          "Times New Roman, Times, serif",
+                                      }}
+                                    >
+                                      <a style={{ color: "grey" }}>
+                                        CGST 9%<span id="cgstAmount181"></span>
+                                      </a>
+                                    </h4>
+                                    <span id="cgstAmount18"></span>
+                                  </div>
 
-                              <div class="invoice-total-footer" id="cgst18">
-                                <h4
-                                  style={{
-                                    fontFamily: "Times New Roman, Times, serif",
-                                  }}
-                                >
-                                  <a style={{ color: "grey" }}>
-                                    CGST 9%<span id="cgstAmount181"></span>
-                                  </a>
-                                </h4>
-                                <span id="cgstAmount18"></span>
-                              </div>
-                              
-                              <div class="invoice-total-footer" id="sgst18">
-                                <h4
-                                  style={{
-                                    fontFamily: "Times New Roman, Times, serif",
-                                  }}
-                                >
-                                  <a style={{ color: "grey" }}>
-                                    SGST 9%<span id="sgstAmount181"></span>
-                                  </a>
-                                </h4>
-                                <span id="sgstAmount18"></span>
-                              </div>
+                                  <div class="invoice-total-footer" id="sgst18">
+                                    <h4
+                                      style={{
+                                        fontFamily:
+                                          "Times New Roman, Times, serif",
+                                      }}
+                                    >
+                                      <a style={{ color: "grey" }}>
+                                        SGST 9%<span id="sgstAmount181"></span>
+                                      </a>
+                                    </h4>
+                                    <span id="sgstAmount18"></span>
+                                  </div>
 
-                              <div class="invoice-total-footer" id="sgst18">
-                                <h4
-                                  style={{
-                                    fontFamily: "Times New Roman, Times, serif",
-                                  }}
-                                >
-                                  <a style={{ color: "grey" }}>
-                                    SGST 18%<span id="sgstAmount181"></span>
-                                  </a>
-                                </h4>
-                                <span id="sgstAmount18"></span>
-                              </div>
-
-                              </div>
-
-
-                              <div class="invoice-total-footer">
-                                <h4>
-                                  Total Amount <span id="totalAmount">{toCurrency(fromCurrency(finalAmt+"")).replace(/[\$]/g,'')}</span>
-                                </h4>
+                                  <div class="invoice-total-footer" id="sgst18">
+                                    <h4
+                                      style={{
+                                        fontFamily:
+                                          "Times New Roman, Times, serif",
+                                      }}
+                                    >
+                                      <a style={{ color: "grey" }}>
+                                        SGST 18%<span id="sgstAmount181"></span>
+                                      </a>
+                                    </h4>
+                                    <span id="sgstAmount18"></span>
+                                  </div>
+                                </div>
+                                <div class="invoice-total-footer">
+                                  <h4>
+                                    Total Amount{" "}
+                                    <span id="totalAmount">
+                                      {toCurrency(
+                                        fromCurrency(finalAmt + "")
+                                      ).replace(/[\$]/g, "")}
+                                    </span>
+                                  </h4>
+                                </div>
                               </div>
                             </div>
-                           
                           </div>
-                        </div>
 
-                        {/* <div className="invoice-total-card">
+                          {/* <div className="invoice-total-card">
                           <h4 className="invoice-total-title">Summary</h4>
                           <div className="invoice-total-box">
                             <div className="invoice-total-inner">
@@ -2241,21 +2851,23 @@ const onDescriptionChange=(e)=>{
                             </div>
                           </div>
                         </div> */}
-                        <div className="upload-sign">
-                          <div className="form-group service-upload">
-                            <span>Upload Sign</span>
-                            <input type="file" multiple />
-                          </div>
-                          <div className="form-group">
-                            <input
-                              type="text"
-                              className="form-control"
-                              placeholder="Name of the Signatuaory"
-                            />
-                          </div>
+                          <div
+                            className="upload-sign"
+                            style={{ display: "none" }}
+                          >
+                            <div className="form-group service-upload">
+                              <span>Upload Sign</span>
+                              <input type="file" multiple />
+                            </div>
+                            <div className="form-group">
+                              <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Name of the Signatuaory"
+                              />
+                            </div>
 
-
-                          {/* <div class="col-lg-12 col-md-12"><a style={{color:'grey'}}/>
+                            {/* <div class="col-lg-12 col-md-12"><a style={{color:'grey'}}/>
 <div class="form-group float-end mb-0">
 <button className="btn btn-success" onClick={saveInvoice}>
                               Save Invoice
@@ -2269,430 +2881,464 @@ const onDescriptionChange=(e)=>{
 </div>
 </div> */}
 
-
-
-
-
-
-
-
-
-                          {/* <div className="form-group float-end mb-0">
+                            {/* <div className="form-group float-end mb-0">
                             
                           </div> */}
-                        </div>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="page-header invoices-page-header">
-<div class="row align-items-center">
-<div class="col-lg-3">
-<ul class="breadcrumb invoices-breadcrumb">
-<li class="breadcrumb-item invoices-breadcrumb-item">
-<a href="invoices.html">
-<i class="fa fa-chevron-left"></i> Back to Invoice List
-</a>
-</li>
-</ul>
-</div>
-<div class="col-lg-9 col-md-12"><a style={{color:'grey'}}/>
-<div class="form-group float-end mb-0">
-<button class="btn btn-danger" id="submitButton" type="submit" value="Submit">Cancel</button>
-</div>
-<div class="form-group float-end mb-0">
-<button class="btn btn-primary" onClick={printButtonClicked} id="submitButton" type="submit" value="Submit">Print</button>
-</div>
-<div class="form-group float-end mb-0">
-<button className="btn btn-success" onClick={saveInvoice}>
-                              Save Purchase
-                            </button>
-</div>
-</div>
-</div>
-</div>
-
-
-
-
-        </div>
-      </div>
-
-      {/* <!-- Invoices Preview Modal --> */}
-      <div
-        className="modal custom-modal fade invoices-preview"
-        id="invoices_preview"
-        role="dialog"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-xl">
-          <div className="modal-content">
-            <div className="modal-body">
-              <div className="row justify-content-center">
-                <div className="col-lg-12">
-                  <div className="card invoice-info-card">
-                    <div className="card-body pb-0">
-                      <div className="invoice-item invoice-item-one">
-                        <div className="row">
-                          <div className="col-md-6">
-                            <div className="invoice-logo">
-                              <img src="assets/img/logo.png" alt="logo" />
-                            </div>
-                          </div>
-                          <div className="col-md-6">
-                            <div className="invoice-info">
-                              <div className="invoice-head">
-                                <h2 className="text-primary">Invoice</h2>
-                                <p>Invoice Number : In983248782</p>
-                              </div>
-                            </div>
                           </div>
                         </div>
                       </div>
-
-                      {/* <!-- Invoice Item --> */}
-                      <div className="invoice-item invoice-item-bg">
-                        <div className="invoice-circle-img">
-                          <img
-                            src="assets/img/invoice-circle1.png"
-                            alt=""
-                            className="invoice-circle1"
-                          />
-                          <img
-                            src="assets/img/invoice-circle2.png"
-                            alt=""
-                            className="invoice-circle2"
-                          />
-                        </div>
-                        <div className="row">
-                          <div className="col-lg-4 col-md-12">
-                            <div className="invoice-info">
-                              <strong className="customer-text-one">
-                                Billed to
-                              </strong>
-                              <h6 className="invoice-name">Customer Name</h6>
-                              <p className="invoice-details invoice-details-two">
-                                9087484288 <br />
-                                Address line 1, <br />
-                                Address line 2 <br />
-                                Zip code ,City - Country
-                              </p>
-                            </div>
-                          </div>
-                          <div className="col-lg-4 col-md-12">
-                            <div className="invoice-info">
-                              <strong className="customer-text-one">
-                                Invoice From
-                              </strong>
-                              <h6 className="invoice-name">Company Name</h6>
-                              <p className="invoice-details invoice-details-two">
-                                9087484288 <br />
-                                Address line 1, <br />
-                                Address line 2 <br />
-                                Zip code ,City - Country
-                              </p>
-                            </div>
-                          </div>
-                          <div className="col-lg-4 col-md-12">
-                            <div className="invoice-info invoice-info-one border-0">
-                              <p>Issue Date : 27 Jul 2022</p>
-                              <p>Due Date : 27 Aug 2022</p>
-                              <p>Due Amount : $ 1,54,22 </p>
-                              <p>Recurring Invoice : 15 Months</p>
-                              <p className="mb-0">PO Number : 54515454</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* <!-- /Invoice Item --> */}
-
-                      {/* <!-- Invoice Item --> */}
-                      <div className="invoice-item invoice-table-wrap">
-                        <div className="row">
-                          <div className="col-md-12">
-                            <div className="table-responsive">
-                              <table className="invoice-table table table-center mb-0">
-                                <thead>
-                                  <tr>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Rate/Item</th>
-                                    <th>Quantity</th>
-                                    <th>Discount (%)</th>
-                                    <th className="text-end">Amount</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  <tr>
-                                    <td>Dell Laptop</td>
-                                    <td>Laptop</td>
-                                    <td>$1,110</td>
-                                    <td>2</td>
-                                    <td>2%</td>
-                                    <td className="text-end">$400</td>
-                                  </tr>
-                                  <tr>
-                                    <td>HP Laptop</td>
-                                    <td>Laptop</td>
-                                    <td>$1,500</td>
-                                    <td>3</td>
-                                    <td>6%</td>
-                                    <td className="text-end">$3,000</td>
-                                  </tr>
-                                  <tr>
-                                    <td>Apple Ipad</td>
-                                    <td>Ipad</td>
-                                    <td>$11,500</td>
-                                    <td>1</td>
-                                    <td>10%</td>
-                                    <td className="text-end">$11,000</td>
-                                  </tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      {/* <!-- /Invoice Item --> */}
-
-                      <div className="row align-items-center justify-content-center">
-                        <div className="col-lg-6 col-md-6">
-                          <div className="invoice-payment-box">
-                            <h4>Payment Details</h4>
-                            <div className="payment-details">
-                              <p>Debit Card XXXXXXXXXXXX-2541 HDFC Bank</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="col-lg-6 col-md-6">
-                          <div className="invoice-total-card">
-                            <div className="invoice-total-box">
-                              <div className="invoice-total-inner">
-                                <p>
-                                  Taxable <span>$6,660.00</span>
-                                </p>
-                                <p>
-                                  Additional Charges <span>$6,660.00</span>
-                                </p>
-                                <p>
-                                  Discount <span>$3,300.00</span>
-                                </p>
-                                <p className="mb-0">
-                                  Sub total <span>$3,300.00</span>
-                                </p>
-                              </div>
-                              <div className="invoice-total-footer">
-                                <h4>
-                                  Total Amount <span>$143,300.00</span>
-                                </h4>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="invoice-sign-box">
-                        <div className="row">
-                          <div className="col-lg-8 col-md-8">
-                            <div className="invoice-terms">
-                              <h6>Notes:</h6>
-                              <p className="mb-0">
-                                Enter customer notes or any other details
-                              </p>
-                            </div>
-                            <div className="invoice-terms mb-0">
-                              <h6>Terms and Conditions:</h6>
-                              <p className="mb-0">
-                                Enter customer notes or any other details
-                              </p>
-                            </div>
-                          </div>
-                          <div className="col-lg-4 col-md-4">
-                            <div className="invoice-sign text-end">
-                              <img
-                                className="img-fluid d-inline-block"
-                                src="assets/img/signature.png"
-                                alt="sign"
-                              />
-                              <span className="d-block">Harristemp</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    </form>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-      {/* <!-- /Invoices Preview Modal --> */}
 
-      {/* <!-- Add Invoices Modal --> */}
-      <div
-        className="modal custom-modal fade bank-details"
-        id="bank_details"
-        role="dialog"
-      >
-        <div className="modal-dialog modal-dialog-centered modal-lg">
-          <div className="modal-content">
-            <div className="modal-header">
-              <div className="form-header text-start mb-0">
-                <h4 className="mb-0">Add Bank Details</h4>
-              </div>
-              <button
-                type="button"
-                className="close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="bank-inner-details">
-                <div className="row">
-                  <div className="col-lg-6 col-md-6">
-                    <div className="form-group">
-                      <label>Account Holder Name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Add Name"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-lg-6 col-md-6">
-                    <div className="form-group">
-                      <label>Bank name</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Add Bank name"
-                      />
-                    </div>
-                  </div>
-                  <div className="col-lg-6 col-md-6">
-                    <div className="form-group">
-                      <label>IFSC Code</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
-                  <div className="col-lg-6 col-md-6">
-                    <div className="form-group">
-                      <label>Account Number</label>
-                      <input type="text" className="form-control" />
-                    </div>
-                  </div>
+            <div class="page-header invoices-page-header">
+              <div class="row align-items-center">
+                <div class="col-lg-3">
+                  <ul class="breadcrumb invoices-breadcrumb">
+                    <li class="breadcrumb-item invoices-breadcrumb-item">
+                      <a href="invoices.html">
+                        <i class="fa fa-chevron-left"></i> Back to Invoice List
+                      </a>
+                    </li>
+                  </ul>
                 </div>
-              </div>
-            </div>
-            <div className="modal-footer">
-              <div className="bank-details-btn">
-                <a
-                  href="javascript:void(0);"
-                  data-bs-dismiss="modal"
-                  className="btn bank-cancel-btn me-2"
-                >
-                  Cancel
-                </a>
-                <a href="javascript:void(0);" className="btn bank-save-btn">
-                  Save Item
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* <!-- /Add Invoices Modal --> */}
-
-      {/* <!-- Delete Invoices Modal --> */}
-      <div
-        className="modal custom-modal fade"
-        id="delete_invoices_details"
-        role="dialog"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-body">
-              <div className="form-header">
-                <h3>Delete Invoice Details</h3>
-                <p>Are you sure want to delete?</p>
-              </div>
-              <div className="modal-btn delete-action">
-                <div className="row">
-                  <div className="col-6">
-                    <a
-                      href="javascript:void(0);"
-                      data-bs-dismiss="modal"
-                      className="btn btn-primary paid-continue-btn"
-                    >
-                      Delete
-                    </a>
-                  </div>
-                  <div className="col-6">
-                    <a
-                      href="javascript:void(0);"
-                      data-bs-dismiss="modal"
-                      className="btn btn-primary paid-cancel-btn"
+                <div class="col-lg-9 col-md-12">
+                  <a style={{ color: "grey" }} />
+                  <div class="form-group float-end mb-0">
+                    <button
+                      class="btn btn-danger"
+                      id="submitButton"
+                      type="submit"
+                      value="Submit"
                     >
                       Cancel
-                    </a>
+                    </button>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* <!-- /Delete Invoices Modal --> */}
-
-      {/* <!-- Save Invoices Modal --> */}
-      <div
-        className="modal custom-modal fade"
-        id="save_invocies_details"
-        role="dialog"
-      >
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-body">
-              <div className="form-header">
-                <h3>Save Invoice Details</h3>
-                <p>Are you sure want to save?</p>
-              </div>
-              <div className="modal-btn delete-action">
-                <div className="row">
-                  <div className="col-6">
-                    <a
-                      href="javascript:void(0);"
-                      data-bs-dismiss="modal"
-                      className="btn btn-primary paid-continue-btn"
+                  <div
+                    class="form-group float-end mb-0"
+                    style={{ marginRight: "5px" }}
+                  >
+                    <button
+                      class="btn btn-primary"
+                      onClick={printButtonClicked}
+                      id="submitButton"
+                      type="submit"
+                      value="Submit"
                     >
+                      Print
+                    </button>
+                  </div>
+                  <div
+                    class="form-group float-end mb-0"
+                    style={{ marginRight: "5px" }}
+                  >
+                    <button className="btn btn-success" onClick={saveInvoice}>
                       Save
-                    </a>
-                  </div>
-                  <div className="col-6">
-                    <a
-                      href="javascript:void(0);"
-                      data-bs-dismiss="modal"
-                      className="btn btn-primary paid-cancel-btn"
-                    >
-                      Cancel
-                    </a>
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      {/* <!-- /Save Invoices Modal --> */}
 
-      <iframe id="ifmcontentstoprint" style={{height: '0px', width: '0px', position: 'absolute'}}></iframe>
-    </div>
+        {/* <!-- Invoices Preview Modal --> */}
+        <div
+          className="modal custom-modal fade invoices-preview"
+          id="invoices_preview"
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered modal-xl">
+            <div className="modal-content">
+              <div className="modal-body">
+                <div className="row justify-content-center">
+                  <div className="col-lg-12">
+                    <div className="card invoice-info-card">
+                      <div className="card-body pb-0">
+                        <div className="invoice-item invoice-item-one">
+                          <div className="row">
+                            <div className="col-md-6">
+                              <div className="invoice-logo">
+                                <img src="assets/img/logo. png" alt="logo" />
+                              </div>
+                            </div>
+                            <div className="col-md-6">
+                              <div className="invoice-info">
+                                <div className="invoice-head">
+                                  <h2 className="text-primary">Invoice</h2>
+                                  <p>Invoice Number : In983248782</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* <!-- Invoice Item --> */}
+                        <div className="invoice-item invoice-item-bg">
+                          <div className="invoice-circle-img">
+                            <img
+                              src="assets/img/invoice-circle1.png"
+                              alt=""
+                              className="invoice-circle1"
+                            />
+                            <img
+                              src="assets/img/invoice-circle2.png"
+                              alt=""
+                              className="invoice-circle2"
+                            />
+                          </div>
+                          <div className="row">
+                            <div className="col-lg-4 col-md-12">
+                              <div className="invoice-info">
+                                <strong className="customer-text-one">
+                                  Billed to
+                                </strong>
+                                <h6 className="invoice-name">Customer Name</h6>
+                                <p className="invoice-details invoice-details-two">
+                                  9087484288 <br />
+                                  Address line 1, <br />
+                                  Address line 2 <br />
+                                  Zip code ,City - Country
+                                </p>
+                              </div>
+                            </div>
+                            <div className="col-lg-4 col-md-12">
+                              <div className="invoice-info">
+                                <strong className="customer-text-one">
+                                  Invoice From
+                                </strong>
+                                <h6 className="invoice-name">Company Name</h6>
+                                <p className="invoice-details invoice-details-two">
+                                  9087484288 <br />
+                                  Address line 1, <br />
+                                  Address line 2 <br />
+                                  Zip code ,City - Country
+                                </p>
+                              </div>
+                            </div>
+                            <div className="col-lg-4 col-md-12">
+                              <div className="invoice-info invoice-info-one border-0">
+                                <p>Issue Date : 27 Jul 2022</p>
+                                <p>Due Date : 27 Aug 2022</p>
+                                <p>Due Amount : $ 1,54,22 </p>
+                                <p>Recurring Invoice : 15 Months</p>
+                                <p className="mb-0">PO Number : 54515454</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* <!-- /Invoice Item --> */}
+
+                        {/* <!-- Invoice Item --> */}
+                        <div className="invoice-item invoice-table-wrap">
+                          <div className="row">
+                            <div className="col-md-12">
+                              <div className="table-responsive">
+                                <table className="invoice-table table table-center mb-0">
+                                  <thead>
+                                    <tr>
+                                      <th>Description</th>
+                                      <th>Category</th>
+                                      <th>Rate/Item</th>
+                                      <th>Quantity</th>
+                                      <th>Discount (%)</th>
+                                      <th className="text-end">Amount</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td>Dell Laptop</td>
+                                      <td>Laptop</td>
+                                      <td>$1,110</td>
+                                      <td>2</td>
+                                      <td>2%</td>
+                                      <td className="text-end">$400</td>
+                                    </tr>
+                                    <tr>
+                                      <td>HP Laptop</td>
+                                      <td>Laptop</td>
+                                      <td>$1,500</td>
+                                      <td>3</td>
+                                      <td>6%</td>
+                                      <td className="text-end">$3,000</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Apple Ipad</td>
+                                      <td>Ipad</td>
+                                      <td>$11,500</td>
+                                      <td>1</td>
+                                      <td>10%</td>
+                                      <td className="text-end">$11,000</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {/* <!-- /Invoice Item --> */}
+
+                        <div className="row align-items-center justify-content-center">
+                          <div className="col-lg-6 col-md-6">
+                            <div className="invoice-payment-box">
+                              <h4>Payment Details</h4>
+                              <div className="payment-details">
+                                <p>Debit Card XXXXXXXXXXXX-2541 HDFC Bank</p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="col-lg-6 col-md-6">
+                            <div className="invoice-total-card">
+                              <div className="invoice-total-box">
+                                <div className="invoice-total-inner">
+                                  <p>
+                                    Taxable <span>$6,660.00</span>
+                                  </p>
+                                  <p>
+                                    Additional Charges <span>$6,660.00</span>
+                                  </p>
+                                  <p>
+                                    Discount <span>$3,300.00</span>
+                                  </p>
+                                  <p className="mb-0">
+                                    Sub total <span>$3,300.00</span>
+                                  </p>
+                                </div>
+                                <div className="invoice-total-footer">
+                                  <h4>
+                                    Total Amount <span>$143,300.00</span>
+                                  </h4>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="invoice-sign-box">
+                          <div className="row">
+                            <div className="col-lg-8 col-md-8">
+                              <div className="invoice-terms">
+                                <h6>Notes:</h6>
+                                <p className="mb-0">
+                                  Enter customer notes or any other details
+                                </p>
+                              </div>
+                              <div className="invoice-terms mb-0">
+                                <h6>Terms and Conditions:</h6>
+                                <p className="mb-0">
+                                  Enter customer notes or any other details
+                                </p>
+                              </div>
+                            </div>
+                            <div className="col-lg-4 col-md-4">
+                              <div className="invoice-sign text-end">
+                                <img
+                                  className="img-fluid d-inline-block"
+                                  src="assets/img/signature.png"
+                                  alt="sign"
+                                />
+                                <span className="d-block">Harristemp</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <!-- /Invoices Preview Modal --> */}
+
+        {/* <!-- Add Invoices Modal --> */}
+        <div
+          className="modal custom-modal fade bank-details"
+          id="bank_details"
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <div className="form-header text-start mb-0">
+                  <h4 className="mb-0">Add Bank Details</h4>
+                </div>
+                <button
+                  type="button"
+                  className="close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="bank-inner-details">
+                  <div className="row">
+                    <div className="col-lg-6 col-md-6">
+                      <div className="form-group">
+                        <label>Account Holder Name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Add Name"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-lg-6 col-md-6">
+                      <div className="form-group">
+                        <label>Bank name</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Add Bank name"
+                        />
+                      </div>
+                    </div>
+                    <div className="col-lg-6 col-md-6">
+                      <div className="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                    <div className="col-lg-6 col-md-6">
+                      <div className="form-group">
+                        <label>Account Number</label>
+                        <input type="text" className="form-control" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <div className="bank-details-btn">
+                  <a
+                    href="javascript:void(0);"
+                    data-bs-dismiss="modal"
+                    className="btn bank-cancel-btn me-2"
+                  >
+                    Cancel
+                  </a>
+                  <a href="javascript:void(0);" className="btn bank-save-btn">
+                    Save Item
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <!-- /Add Invoices Modal --> */}
+
+        {/* <!-- Delete Invoices Modal --> */}
+        <div
+          className="modal custom-modal fade"
+          id="delete_invoices_details"
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-body">
+                <div className="form-header">
+                  <h3>Delete Invoice Details</h3>
+                  <p>Are you sure want to delete?</p>
+                </div>
+                <div className="modal-btn delete-action">
+                  <div className="row">
+                    <div className="col-6">
+                      <a
+                        href="javascript:void(0);"
+                        data-bs-dismiss="modal"
+                        className="btn btn-primary paid-continue-btn"
+                      >
+                        Delete
+                      </a>
+                    </div>
+                    <div className="col-6">
+                      <a
+                        href="javascript:void(0);"
+                        data-bs-dismiss="modal"
+                        className="btn btn-primary paid-cancel-btn"
+                      >
+                        Cancel
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <!-- /Delete Invoices Modal --> */}
+
+        {/* <!-- Save Invoices Modal --> */}
+        <div
+          className="modal custom-modal fade"
+          id="save_invocies_details"
+          role="dialog"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-body">
+                <div className="form-header">
+                  <h3>Save Invoice Details</h3>
+                  <p>Are you sure want to save?</p>
+                </div>
+                <div className="modal-btn delete-action">
+                  <div className="row">
+                    <div className="col-6">
+                      <a
+                        href="javascript:void(0);"
+                        data-bs-dismiss="modal"
+                        className="btn btn-primary paid-continue-btn"
+                      >
+                        Save
+                      </a>
+                    </div>
+                    <div className="col-6">
+                      <a
+                        href="javascript:void(0);"
+                        data-bs-dismiss="modal"
+                        className="btn btn-primary paid-cancel-btn"
+                      >
+                        Cancel
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* <!-- /Save Invoices Modal --> */}
+
+        <iframe
+          id="ifmcontentstoprint"
+          style={{ height: "0px", width: "0px", position: "absolute" }}
+        ></iframe>
+      </div>
+
+      {/*  add product dialog box code start onClose={handleClose} */}
+
+      <Dialog open={isOpenAddProduct}>
+        <AddProduct
+          toChild={isOpenAddProduct}
+          sendToParent={prodData}
+        ></AddProduct>
+      </Dialog>
+
+      {/* add product dialog code end  */}
+
+      {/*   add product details code start */}
+
+      <Dialog open={isOpenCustomer}>
+        <AddCustomer
+          toChild={isOpenCustomer}
+          sendToParent={custData}
+        ></AddCustomer>
+      </Dialog>
+      {/* add product code end */}
     </>
   );
 }

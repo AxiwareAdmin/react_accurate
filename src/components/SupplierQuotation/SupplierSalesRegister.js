@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
 
 
-export default function SalesRegisterQuotation () {
+export default function SupplierSalesRegisterQuotation () {
 
   const navigate=useNavigate();
 
@@ -147,7 +147,7 @@ export default function SalesRegisterQuotation () {
 
         var tempTotal=0;
         
-        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegQuotation`,header).then((res) =>{
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegSupplierQuotation`,header).then((res) =>{
         if(res.data.res) return;  
         res.data && res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
@@ -159,7 +159,7 @@ export default function SalesRegisterQuotation () {
             )
 
         }).finally(()=>{
-        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegQuotation`,header).then((res) =>{
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegSupplierQuotation`,header).then((res) =>{
             if(res.data.res) return;
         res.data && res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -169,12 +169,12 @@ export default function SalesRegisterQuotation () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/QuotationList?month=${obj.month}`);
+                navigate(`/SupplierQuotationList?month=${obj.month}`);
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");
               aEle.className="text-decoration-none";
-              aEle.href = `/QuotationList?month=${obj.month}`;
+              aEle.href = `/SupplierQuotationList?month=${obj.month}`;
               let iEle = document.createElement("i");
               iEle.className = "fa fa-star";
               iEle.ariaHidden = "true";
@@ -207,7 +207,7 @@ export default function SalesRegisterQuotation () {
               tdEle = document.createElement("td");
               tdEle.className='textAlignEnd'
               aEle = document.createElement("a");
-              aEle.href = `/QuotationList?month=${obj.month}`;
+              aEle.href = `/SupplierQuotationList?month=${obj.month}`;
             //   aEle.setAttribute(data-bs-toggle,"modal");
             //   aEle.setAttribute(data-bs-target,"#system-user");
             let tempTotInvoiceVal=toCurrency(fromCurrency(obj.totalInv)).replace(/[\$]/g,'');
@@ -310,12 +310,12 @@ export default function SalesRegisterQuotation () {
                         <h3 class="page-title m-0">
                         <span class="page-title-icon bg-gradient-primary text-white me-2">
                           <i class="feather-check-square"></i>
-                        </span>Customer Quotation Register </h3>
+                        </span> Supplier Quotation Register </h3>
                     </div>
                     <div class="col p-0 text-end">
                         <ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
                             <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                            <li class="breadcrumb-item active">Customer Quotation Register</li>
+                            <li class="breadcrumb-item active">Supplier Quotation Register</li>
                         </ul>
                     </div>
                 </div>
@@ -337,7 +337,7 @@ export default function SalesRegisterQuotation () {
                                     </div>
                                 </li>
                                 <li class="list-inline-item">
-                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to={`/CreateQuotation`}>Create Quotation</Link>
+                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to={`/CreateSupplierQuotation`}>Create Invoice</Link>
                                 </li>
                             </ul>
                         </div>

@@ -19,7 +19,7 @@ import AddCustomer from "../Manage/AddCustomer";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function CreateQuotation(props) {
+export default function CreateSupplierQuotation(props) {
 
 
  
@@ -662,7 +662,7 @@ window.onTransportModeChange=(e)=>{
 var token=localStorage.getItem("token")
 //it was GET method earlier
 
-axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/Quotation",{//change
+axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/supplierQuotation",{//change
   headers:{
     "Content-Type":"application/json",
     "Authorization":'Bearer '+token
@@ -692,7 +692,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/Quotation",{//change
     var adder=parseInt(series);
 
 
-    axios.get(process.env.REACT_APP_LOCAL_URL+`/Quotations/year/`+document.querySelector("#financialYear").value,{//change
+    axios.get(process.env.REACT_APP_LOCAL_URL+`/supplierQuotations/year/`+document.querySelector("#financialYear").value,{//change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -948,7 +948,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/Quotation",{//change
 
   const [termsAndCondition, setTermsAndCondition]=useState("");
 
-  const [invoiceMode,setInvoiceMode]=useState("Manual");
+  const [invoiceMode,setInvoiceMode]=useState("Auto");
   
 
   const navigate=useNavigate();
@@ -1025,7 +1025,6 @@ useEffect(()=>{
       document.querySelector(".gstContainer").innerHTML='';
       //change here based on invoicetype
 
-      if(invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE) return;
 
       gstPercentageArr.map((elem)=>{
         let index=gstPercentageArr.indexOf(elem);
@@ -1269,8 +1268,6 @@ const onDescriptionChange=(e)=>{
       totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
     })
 
-    debugger;
-
     let invoiceData={
       invoiceProducts:productUnits,
       invoiceNo:invoiceNumber,
@@ -1311,7 +1308,7 @@ const onDescriptionChange=(e)=>{
 
     var token=localStorage.getItem("token");
 
-    axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveQuotation"}`, invoiceData,{//save invoice //change
+    axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveSupplierQuotation"}`, invoiceData,{//save invoice //change
       headers:{
         "Content-Type":"application/json",
         "Authorization":'Bearer '+token
@@ -1438,7 +1435,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the invoice first!!.");
     else
-     navigate("/viewInvoice?id="+invoiceNumber);//change
+     navigate("/viewSupplierInvoice?id="+invoiceId);//change
   }
 
 
@@ -1479,7 +1476,7 @@ const onDescriptionChange=(e)=>{
        document.querySelector("#prodtable").innerHTML=''
            
 
-            axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewQuotation?invId=${invNoEdit}`,{//change
+            axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSupplierQuotation?invId=${invNoEdit}`,{//change
               headers:{
                 "Content-Type":"application/json",
                 "Authorization":'Bearer '+token
@@ -1640,7 +1637,7 @@ const onDescriptionChange=(e)=>{
                 <ul className="breadcrumb invoices-breadcrumb">
                   <li className="breadcrumb-item invoices-breadcrumb-item">
                     <a href="invoices.html">
-                      <i className="fa fa-chevron-left"></i> Back to Quotation
+                      <i className="fa fa-chevron-left"></i> Back to Supplier Quotation
                       List
                     </a>
                   </li>
@@ -1662,7 +1659,7 @@ const onDescriptionChange=(e)=>{
                     data-bs-target="#delete_invoices_details"
                     className="btn delete-invoice-btn"
                   >
-                    Delete Quotation
+                    Delete Supplier Quotation
                   </a>
                   <a
                     href="#"
@@ -1684,13 +1681,12 @@ const onDescriptionChange=(e)=>{
                   <form className="invoices-form">
                     <div className="invoices-main-form">
                       <div className="row">
-                        <div className="col-xl-6 col-md-8 col-sm-12 col-12">
+                        <div className="col-xl-4 col-md-6 col-sm-12 col-12">
                           <p class="mg-b-10">Customer Name</p>
                           <select
                             class="form-control select2"
                             name="product"
                             id="customer"
-                            style={{width:'80%'}}
                           >
                             <option value="-1">Select Customer</option>
                           </select>
@@ -1698,57 +1694,116 @@ const onDescriptionChange=(e)=>{
                           <button class="btn btn-primary" style={{fontSize:'12px',marginTop:'5px'}} onClick={handleClickOpenCustomer}>
                            Create Customer
                            </button>
-                          
-                         
-                           <div className="mt-4" style={{ height: "100%" }}>
-                              <p
-                                style={{
-                                  fontSize: ".9375rem",
-                                  color: " #1f1f1f",
-                                  marginBottom: "0px",
-                                }}
-                              >
-                                Billing Address{" "}
-                              </p>
-                              <div
-                                className="w-100 invoice-details-box p-2"
-                                style={{ height: "43%", marginTop: "2px" }}
-                              >
-                                <p
-                                  id="fromAddress"
-                                  className="invoice-details invoice-details-two"
-                                >
-                                  {fromAddr1} <br />
-                                  {fromAddr2}
-                                  <br />
-                                </p>
+                          {/* <div className="form-group"> */}
+                          {/* <label>Customer Name</label> */}
+
+                          {/* <div className="multipleSelection">
+                              <div className="selectBox">
+                                <p className="mb-0">Select Customer</p>
+                                <span className="down-icon">
+                                  <i data-feather="chevron-down"></i>
+                                </span>
                               </div>
-                            </div>
-                        
+                              <div id="checkBoxes-one">
+                                <p className="checkbox-title">
+                                  Customer Search
+                                </p>
+                                <div className="form-custom">
+                                  <input
+                                    type="text"
+                                    className="form-control bg-grey"
+                                    placeholder="Enter Customer Name"
+                                  />
+                                </div>
+                                <div className="selectBox-cont"></div>
+                                <button
+                                  type="submit"
+                                  className="btn w-100 btn-primary"
+                                  onClick={selectCustomer}
+                                >
+                                  Apply
+                                </button>
+                                <button
+                                  type="reset"
+                                  className="btn w-100 btn-grey"
+                                >
+                                  Reset
+                                </button>
+                              </div>
+                            </div> */}
+                          {/* </div> */}
+
+                          {/* <div className="inovices-month-info"> */}
+                          <div className="form-group mt-5">
+                            <label className="custom_check w-100">
+                              <input
+                                type="checkbox"
+                                id="enableTax"
+                                name="invoice"
+                              />
+                              <span className="checkmark"></span> Enable tax
+                            </label>
+                            <label className="custom_check w-100">
+                              <input
+                                type="checkbox"
+                                id="chkYes"
+                                name="invoice"
+                                checked = {serviceCheck}
+                              />
+                              <span onClick={onServiceCheckChange} className="checkmark"></span> Service
+                              Invoice
+                            </label>
+                          </div>
+                          {/*<div id="show-invoices">
+                               <div className="row">
+                                <div className="col-md-6">
+                                  <div className="form-group">
+                                    <select className="select">
+                                      <option>By month</option>
+                                      <option>March</option>
+                                      <option>April</option>
+                                      <option>May</option>
+                                      <option>June</option>
+                                      <option>July</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div className="col-md-6">
+                                  <div className="form-group">
+                                    <input
+                                      className="form-control"
+                                      type="text"
+                                      placeholder="Enter Months"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>*/}
+                          {/* </div>  */}
                         </div>
 
-                        <div className="col-xl-1 col-md-10 col-sm-12 col-12">
+                        <div className="col-xl-3 col-md-12 col-sm-12 col-12">
                           <input type="hidden" />
                         </div>
 
                         <div className="col-xl-5 col-md-6 col-sm-12 col-12">
                           <h4 className="invoice-details-title">
-                            Quotation details
+                           Supplier Quotation details
                           </h4>
                           <div className="invoice-details-box">
                             <div className="invoice-inner-head">
-                              <span className="d-flex align-items-center justify-content-between">
-                                Quotation No.{" "}
+                              <span>
+                                Supplier Quotation No.{" "}
                                {invoiceMode=='Auto'?<a href="view-invoice.html">{invoiceNumber}</a>:
                                 <input
                                 className="form-control"
                                 type="text"
-                                placeholder="Enter Quotation Number"
+                                placeholder="Enter Supplier Quotation Number"
                                 value={invoiceNumber}
                                 onChange={onInvoiceNumberChange}
                                 style={{
                                   border: "1px solid #9a55ff",
-                                  width: "65%",
+                                  width: "100%",
                                   padding: "10px",
                                 }}
                               />
@@ -1756,20 +1811,21 @@ const onDescriptionChange=(e)=>{
                                 
                               </span>
                               <br />
-                              <span className="d-flex align-items-center justify-content-between"
+                              <br />
+                              <span
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
                               >
-                                Quotation Date.{" "}
+                                Supplier Quotation Date.{" "}
                                 <input
                                   className="form-control datetimepicker"
                                   type="text"
                                   placeholder="Select Date"
                                   value={invoiceDate}
                                   id="invoiceDate"
-                                  style={{
-                                    border: "1px solid #9a55ff",
-                                    width: "65%",
-                                    color: "#9a55ff",
-                                  }}
+                                  style={{ border: "none", width: 120,color: "#9a55ff"}}
                                 />
                               </span>
                             </div>
@@ -1830,93 +1886,90 @@ const onDescriptionChange=(e)=>{
                       </div>
                     </div>
     
-                    <div
-                        className="invoice-item"
-                        style={{
-                          border: "1px solid #E5E5E5",
-                          borderRadius: "10px",
-                          width: "100%",
-                          marginBottom: "15px",
-                          background: "#FFFFFF",
-                        }}
-                      >
-                        <div className="row">
-                          <div className="col-xl-12 col-lg-12 col-md-12 h-100 d-flex align-items-center">
-                            <div
-                              className="d-flex"
-                              style={{
-                                marginBottom: "0px",
-                                padding: "20px",
-                                display: "flex",
-                                flexDirection: "column",
-                              }}
+                    <div className="invoice-item" style={{border: "1px solid #E5E5E5",borderRadius: "10px", width: "100%",marginBottom:"15px", background: "#FFFFFF"}}>
+                      <div className="row">
+                        <div className="col-xl-6 col-lg-6 col-md-6 h-100 " style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px 0px 0px 20px"}}>
+                          <div className="invoice-info w-100" >
+                            <strong className="customer-text">
+                              Billing Address{" "}
+                              <a className="small" href="edit-invoice.html">
+                                Edit Address
+                              </a>
+                            </strong>
+                            <p
+                              id="fromAddress"
+                              className="invoice-details invoice-details-two"
                             >
-                              GST No. &nbsp;
-                              <input
-                                class="form-control"
-                                type="text"
-                                value={gstNo}
-                                style={{
-                                  border: "1px solid rgb(154, 85, 255)",
-                                  width: "100%",
-                                  padding: "10px",
-                                }}
-                              ></input>
-                            </div>
-
-                            <div
-                              className="d-flex"
-                              style={{
-                                marginBottom: "0px",
-                                padding: "20px",
-                                display: "flex",
-                                flexDirection: "column",
-                              }}
-                            >
-                              State&nbsp;
-                              <input
-                                class="form-control"
-                                type="text"
-                                value={state}
-                                style={{
-                                  border: "1px solid rgb(154, 85, 255)",
-                                  width: "100%",
-                                  padding: "10px",
-                                }}
-                              ></input>
-                            </div>
-
-                          
-                              <div class="invoice-inner-date form-group  d-flex flex-column" style={{border:'none',padding:'20px',marginBottom:'0px',width:'230px'}}>
-                                <label>Payment Terms</label>
-                                {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
-                                <select id="paymentTerm" style={{width:'100%'}}>
-                                  {paymentTerm.map((val, key) => {
-                                    return <option value={val}>{val}</option>;
-                                  })}
-                                </select>
-                              </div>
-
-                          
-                              <div style={{ padding: "10px",marginBottom:'0px' }} class="invoice-inner-date invoice-inner-datepic form-group d-flex flex-column">
-                                <label for="">Due Date</label>
-                                <input
-                                  class="form-control datetimepicker"
-                                  style={{
-                                    border: "1px solid #9a55ff",
-                                    width: "100%",
-                                    padding: "10px",
-                                  }}
-                                  id="dueDate"
-                                  type="text"
-                                  placeholder="Select"
-                                  readOnly="true"
-                                />
-                              </div>
+                              {fromAddr1} <br />
+                              {fromAddr2}
+                              <br />
+                            </p>
                           </div>
+                                      {/* address footer start */}
+                          <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      GST No.&nbsp;
+                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div> */}
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      </div>
+                            {/* address footer end */}
+                        </div>
+                        <div className="col-xl-6 col-lg-6 col-md-6 h-100" style={{paddingLeft:"0px"}}>
+                          <div className="invoice-info w-100" style={{marginBottom:"0px",padding:"20px"}} >
+                            <strong className="customer-text">
+                              Shipping Address
+                            </strong>
+                            <p
+                              id="toAddress"
+                              className="invoice-details invoice-details-two"
+                            >
+                              {shippingAddress1} <br />
+                              {shippingAddress2} <br />
+                            </p>
+                          </div>
+
+                                         {/* address footer start */}
+                                         <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      GST No.&nbsp;
+                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div> */}
+                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value={shippingState} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      </div>
+                            {/* address footer end */}
                         </div>
                       </div>
+                      {/* <div className="row">
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+                      GST No.&nbsp;
+                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      </div> */}
 
+                    </div>
 
 
                     <div class="invoice-details-box">

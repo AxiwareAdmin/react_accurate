@@ -27,11 +27,19 @@ import { useNavigate,Navigate } from "react-router-dom";
 import axios from "axios";
 import SalesCashRegister from "./components/SalesCashRegister";
 import CashInvoiceList from "./components/CashInvoiceList";
+
 import CreateQuotation from "./components/Quotation/createQuotation";
 import SalesRegisterQuotation from "./components/Quotation/SalesRegister";
 import QuotationList from "./components/Quotation/QuotationList";
 import ViewQuotation from "./components/Quotation/ViewQuotation";
 import ViewQuotationTriplet from "./components/Quotation/ViewQuotationTriplet";
+
+
+import CreateSupplierQuotation from "./components/SupplierQuotation/CreateSupplierQuotation";
+import SalesRegisterSupplierQuotation from "./components/SupplierQuotation/SupplierSalesRegister";
+import SupplierQuotationList from "./components/SupplierQuotation/SupplierQuotationList";
+import ViewSupplierQuotation from "./components/SupplierQuotation/ViewSupplierQuotation";
+import ViewSupplierQuotationTriplet from "./components/SupplierQuotation/ViewSupplierQuotationTriplet";
 
 
 function App() {
@@ -106,6 +114,14 @@ function App() {
           <Route path="/QuotationList" element={<QuotationList/>} /> 
           <Route path="/ViewQuotation" element={<ViewQuotation/>} /> 
           <Route path="/ViewQuotationTriplet" element={<ViewQuotationTriplet/>} /> 
+
+          <Route path="/CreateSupplierQuotation" element={<CreateSupplierQuotation/>} />
+          <Route path="/SalesRegisterSupplierQuotation" element={<SalesRegisterSupplierQuotation/>} />
+          <Route path="/SupplierQuotationList" element={<SupplierQuotationList/>} /> 
+          <Route path="/ViewSupplierQuotation" element={<ViewSupplierQuotation/>} /> 
+          <Route path="/ViewSupplierQuotationTriplet" element={<ViewSupplierQuotationTriplet/>} /> 
+
+
           <Route  path="/" element={<Login/>} />
         </Routes>
         )

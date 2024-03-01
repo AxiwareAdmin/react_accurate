@@ -804,7 +804,9 @@ export default function ViewQuotation() {
   const downloadpdf= (invoiceNo) => {
     html2canvas(invoicepdf.current).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
+      const pdf = new jsPDF({
+        compress: true
+      });
       pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
       pdf.save(invoiceNo + ".pdf");
 
@@ -820,7 +822,9 @@ export default function ViewQuotation() {
 
       setDisplayFlag(true);
       const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF();
+      const pdf = new jsPDF({
+        compress: true
+      });
       pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
 
       var pdfblod= pdf.output('blob')

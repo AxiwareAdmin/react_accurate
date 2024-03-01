@@ -1,43 +1,45 @@
 import React,{useEffect ,useState , createContext , useRef} from "react";
-import Sidebar from "./Sidebar";
+import Sidebar from "../Sidebar";
 import axios from "axios";
-import InvoicesPaid from "./InvoicesPaid";
-import InvoicesOverDue from "./InvoicesOverDue";
-import InvoicesDraft from "./InvoicesDraft";
-import invoicesRecurring from "./invoicesRecurring";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useNavigate,useLocation } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "../Navbar";
 import Swal from "sweetalert2";
 import { render } from "react-dom";
 import ExcelJS from 'exceljs';
 
 
-export default function InvoiceList () {
+export default function SupplierQuotationList () {
 
 	var token=localStorage.getItem("token");
 
 	const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    const initialInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+    //const initialInvoiceType = queryParams.get(process.env.REACT_APP_QUOTATION);
   
 
-    const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+   // const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
 
-    useEffect(() => {
-      console.log("changing")
-      const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
-      setInvoiceType(newInvoiceType);
-    }, [location.search]);
+    // useEffect(() => {
+    //   console.log("changing")
+    //   //const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
+    //   setInvoiceType(process.env.REACT_APP_QUOTATION);
+    // }, [location.search]);
 
+	// var header={
+    //     headers:{
+    //       "Content-Type":"application/json",
+    //       "Authorization":'Bearer '+token
+    //     }
+    //   }
 
-	var header={
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":'Bearer '+token
-        }
-      }
+	var header = {
+		headers: {
+		  "Content-Type": "application/json",
+		  Authorization: "Bearer " + token,
+		},
+	  };
 
 	const [month , setMonth] = useState("");
 	const [allInv , setAllInv] = useState(0);
@@ -88,31 +90,31 @@ export default function InvoiceList () {
 			// return false;
 		  });
 
-		  if(customerName!=null && customerName.length>0 && customerName!='--Select Supplier--')
+		  if(customerName!=null && customerName.length>0 && customerName!='--Select Customer--')
 		tempInvoiceDo=tempInvoiceDo.filter(elem=>{
-			  return elem.supplierName==customerName
+			  return elem.customerName==customerName
 			// return false;
 		  });
 
 		  if(status!=null && status.length>0 && status!='--Select Status--'){
 			tempInvoiceDo=tempInvoiceDo.filter(elem=>{
-				return elem.purchaseStatus==status
+				return elem.invoiceStatus==status
 			  // return false;
 			});
 		  }
 
 		  if(searchText!=null && searchText.length>0){
 			  tempInvoiceDo=tempInvoiceDo.filter(elem=>{
-				  console.log(elem.supplierName.toString().toLowerCase()+" "+searchText.toLowerCase())
+				  console.log(elem.customerName.toString().toLowerCase()+" "+searchText.toLowerCase())
 				  return (elem.igstValue && elem.igstValue.toString().toLowerCase().includes(searchText.toLowerCase()))
-			  || (elem.purchaseDate && formatDate(elem.purchaseDate).toString().toLowerCase().includes(searchText.toLowerCase()))
-			  || (elem.supplierName && elem.supplierName.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.invoiceDate && formatDate(elem.invoiceDate).toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.customerName && elem.customerName.toString().toLowerCase().includes(searchText.toLowerCase()))
 			  || (elem.invoiceValue && elem.invoiceValue.toString().toLowerCase().includes(searchText.toLowerCase()))
 			  || (elem.taxableValue && elem.taxableValue.toString().toLowerCase().includes(searchText.toLowerCase()))
 			  || (elem.cgstValue && elem.cgstValue.toString().toLowerCase().includes(searchText.toLowerCase()))
 			  || (elem.sgstValue && elem.sgstValue.toString().toLowerCase().includes(searchText.toLowerCase()))
-			  || (elem.purchaseStatus && elem.purchaseStatus.toString().toLowerCase().includes(searchText.toLowerCase()))
-			  ||(elem.purchaseNo && elem.purchaseNo.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  || (elem.invoiceStatus && elem.invoiceStatus.toString().toLowerCase().includes(searchText.toLowerCase()))
+			  ||(elem.invoiceNo && elem.invoiceNo.toString().toLowerCase().includes(searchText.toLowerCase()))
 		  });
 		}
 	
@@ -143,13 +145,24 @@ export default function InvoiceList () {
     }
 
 
+// const exportToExcelOld = () => {
+// 	const fileName='invoices';
+// 	const columnHeaders=['Invoice No','Date','Customer Name','Gross Total','Sub Total',
+// 	'CGST','SGST','IGST','Status'];
+// 	const extraLines=2;
+// 	const ws = XLSX.utils.json_to_sheet(invoicedo, { header: columnHeaders });
 
+//     // Add extra lines before the header
+//     ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: extraLines - 1, c: columnHeaders.length - 1 } }];
+
+//     const wb = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+//     XLSX.writeFile(wb, `${fileName}.xlsx`);
+// };
 
 const exportToExcel = async () => {
-
-	debugger;
 	
-	const columnHeaders=['Sr. No.','Purchase No','Date','Supplier Name','Gross Total','Sub Total',
+	const columnHeaders=['Sr. No.','Invoice No','Date','Customer Name','Gross Total','Sub Total',
 	'CGST','SGST','IGST','Status'];
 	const fileName='invoices';
 
@@ -183,11 +196,11 @@ const exportToExcel = async () => {
 
     filteredInvoiceList.forEach(row => {
 		
-		tempRow=[rowCount++,row['purchaseNo'], formatDate(row['purchaseDate']),row['supplierName'],row['invoiceValue'],row['taxableValue'],
+		tempRow=[rowCount++,row['invoiceNo'], formatDate(row['invoiceDate']),row['customerName'],row['invoiceValue'],row['taxableValue'],
 		row['cgstValue'],
 		row['sgstValue'],
 		row['igstValue'],
-		row['purchaseStatus']
+		row['invoiceStatus']
 		]
       worksheet.addRow(tempRow);
     });
@@ -208,13 +221,13 @@ const exportToExcel = async () => {
 
 	
 
-	//   worksheet.columns.forEach(column => {
-	// 	column.eachCell({ includeEmpty: true }, cell => {
-	// 	  const cellContentLength = cell.value ? cell.value.toString().length : 10; // Default width for empty cells
-	// 	  column.width = Math.max(column.width || 0, cellContentLength + 2); // Set minimum width for better visibility
-	// 	});
-	// 	console.log("column width:"+column.width);
-	//   });
+	  worksheet.columns.forEach(column => {
+		column.eachCell({ includeEmpty: true }, cell => {
+		  const cellContentLength = cell.value ? cell.value.toString().length : 10; // Default width for empty cells
+		  column.width = Math.max(column.width || 0, cellContentLength + 2); // Set minimum width for better visibility
+		});
+		console.log("column width:"+column.width);
+	  });
   
 
     // Save the workbook
@@ -239,6 +252,7 @@ const exportToExcel = async () => {
 
 
 	useEffect(()=>{
+		// if(filteredInvoiceList.length<=0 && firstTimePageLoad=='true') return;
 		console.log("considered useEffect start")
 		if(firstTimePageLoad=='true'){
 
@@ -326,14 +340,14 @@ const exportToExcel = async () => {
 
 	   
 
-	   if(elem.purchaseStatus == "Paid")
+	   if(elem.invoiceStatus == "Paid")
 	   {
 	   paidinvs = paidinvs + 1;
 	   setPaidInv(paidinvs);
 	   paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
 	   setPaidInvVal(paidinvvals);
 	   }
-	   if(elem.purchaseStatus == "Overdue")
+	   if(elem.invoiceStatus == "Overdue")
 	   {
 	   unpaidinvs = unpaidinvs + 1;
 	   setUnPaidInv(unpaidinvs);
@@ -341,7 +355,7 @@ const exportToExcel = async () => {
 	   setUnpaidInvVal(unpaidinvvals);
 	   }
 
-	   if(elem.purchaseStatus == "Cancelled")
+	   if(elem.invoiceStatus == "Cancelled")
 	   {
 	   cancelinvs = cancelinvs + 1;
 	   setCanInv(cancelinvs);
@@ -357,13 +371,13 @@ const exportToExcel = async () => {
 		trElem.appendChild(tdElem);
 
 		tdElem=document.createElement("td");
-		textElem=document.createTextNode(elem.purchaseNo );
+		textElem=document.createTextNode(elem.invoiceNo );
 
 		let aElem=document.createElement("a"); 
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/viewPurchaseTriplet?id=${elem.purchaseId}`);
+			navigate(`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`);
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -375,12 +389,12 @@ const exportToExcel = async () => {
 
 
 		tdElem=document.createElement("td");
-		textElem=document.createTextNode(formatDate(elem.purchaseDate));
+		textElem=document.createTextNode(formatDate(elem.invoiceDate));
 		tdElem.appendChild(textElem);
 		trElem.appendChild(tdElem);
 
 		tdElem=document.createElement("td");
-		textElem=document.createTextNode(elem.supplierName);
+		textElem=document.createTextNode(elem.customerName);
 		tdElem.appendChild(textElem);
 		trElem.appendChild(tdElem)
 		
@@ -417,17 +431,17 @@ const exportToExcel = async () => {
 		tdElem=document.createElement("td");
 		let spanElem=document.createElement("span")
 		 
-		 if(elem.purchaseStatus == "Paid" || elem.purchaseStatus =="" || elem.purchaseStatus == null)
+		 if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
 		 spanElem.className="badge bg-success-light" 
-		 if(elem.purchaseStatus == "Overdue")
+		 if(elem.invoiceStatus == "Overdue")
 		 spanElem.className="badge bg-danger-light";
-		 if(elem.purchaseStatus == "Cancelled")
+		 if(elem.invoiceStatus == "Cancelled")
 		 spanElem.className="badge bg-primary-light";
-		 if(elem.purchaseStatus == "Draft")
+		 if(elem.invoiceStatus == "Draft")
 		 spanElem.className="badge bg-warning";
 
 
-		 textElem=document.createTextNode(elem.purchaseStatus);
+		 textElem=document.createTextNode(elem.invoiceStatus);
 
 		 spanElem.appendChild(textElem)
 
@@ -460,7 +474,7 @@ const exportToExcel = async () => {
 			aEle.className = "dropdown-item"
 			aEle.href=ele.path;
 			aEle.addEventListener('click',(e)=>{
-				rendercommon(e,ele.name,elem.purchaseId);
+				rendercommon(e,ele.name,elem.invoiceId);
 			})
 			// aEle.setAttribute("Onclick","function demo(e){rendercommon(e,'"+ele.name+"','"+elem.invoiceId+"')}");
 			iEle.className = ele.classname;
@@ -500,6 +514,11 @@ const exportToExcel = async () => {
 			 textElem=document.createTextNode("");
 			 tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
+
+			// tdElem = document.createElement("td");
+			//  textElem=document.createTextNode("");
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
 
 			tdElem = document.createElement("td");
 			tdElem.style='color: #ffffff;font-weight:bold;text-align:end'
@@ -595,10 +614,10 @@ const exportToExcel = async () => {
 		  let caninvvals = 0;
           let srNo = 0;
 		  let subTotal = 0;
-		  let igst= 0;
+		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.get(`http://localhost:8080/purchases/${month1}`,header).then((res) => {
+        axios.get(`http://localhost:8080/supplierQuotations/${month1}`,header).then((res) => {
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -641,14 +660,14 @@ const exportToExcel = async () => {
 		   setAllInvVal(allinvvals);
 
 
-		   if(elem.purchaseStatus == "Paid")
+		   if(elem.invoiceStatus == "Paid")
 		   {
 		   paidinvs = paidinvs + 1;
 		   setPaidInv(paidinvs);
 		   paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
 		   setPaidInvVal(paidinvvals);
 		   }
-		   if(elem.purchaseStatus == "Overdue")
+		   if(elem.invoiceStatus == "Overdue")
 		   {
 		   unpaidinvs = unpaidinvs + 1;
 		   setUnPaidInv(unpaidinvs);
@@ -656,7 +675,7 @@ const exportToExcel = async () => {
 		   setUnpaidInvVal(unpaidinvvals);
 		   }
 
-		   if(elem.purchaseStatus == "Cancelled")
+		   if(elem.invoiceStatus == "Cancelled")
 		   {
 		   cancelinvs = cancelinvs + 1;
 		   setCanInv(cancelinvs);
@@ -672,14 +691,14 @@ const exportToExcel = async () => {
 			trElem.appendChild(tdElem);
 
 			tdElem=document.createElement("td");
-            textElem=document.createTextNode(elem.purchaseNo );
+            textElem=document.createTextNode(elem.invoiceNo );
 
             let aElem=document.createElement("a"); 
 			aElem.className="invoice-link";
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/viewPurchaseTriplet?id=${elem.purchaseId}`);
+                navigate(`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`);
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -690,12 +709,12 @@ const exportToExcel = async () => {
 	
 
 			tdElem=document.createElement("td");
-			textElem=document.createTextNode(formatDate(elem.purchaseDate));
+			textElem=document.createTextNode(formatDate(elem.invoiceDate));
             tdElem.appendChild(textElem);
             trElem.appendChild(tdElem);
 
 			tdElem=document.createElement("td");
-            textElem=document.createTextNode(elem.supplierNameName);
+            textElem=document.createTextNode(elem.customerName);
             tdElem.appendChild(textElem);
             trElem.appendChild(tdElem)
 			
@@ -732,17 +751,17 @@ const exportToExcel = async () => {
 			tdElem=document.createElement("td");
 			let spanElem=document.createElement("span")
 			 
-			 if(elem.purchaseStatus == "Paid" || elem.purchaseStatus =="" || elem.purchaseStatus == null)
+			 if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
 			 spanElem.className="badge bg-success-light" 
-			 if(elem.purchaseStatus == "Overdue")
+			 if(elem.invoiceStatus == "Overdue")
 			 spanElem.className="badge bg-danger-light";
-			 if(elem.purchaseStatus == "Cancelled")
+			 if(elem.invoiceStatus == "Cancelled")
 			 spanElem.className="badge bg-primary-light";
-			 if(elem.purchaseStatus == "Draft")
+			 if(elem.invoiceStatus == "Draft")
 			 spanElem.className="badge bg-warning";
  
  
-			 textElem=document.createTextNode(elem.purchaseStatus);
+			 textElem=document.createTextNode(elem.invoiceStatus);
  
 			 spanElem.appendChild(textElem)
  
@@ -775,7 +794,7 @@ const exportToExcel = async () => {
 				aEle.className = "dropdown-item"
 				aEle.href=ele.path;
 				aEle.addEventListener('click',(e)=>{
-					rendercommon(e,ele.name,elem.purchaseId);
+					rendercommon(e,ele.name,elem.invoiceId);
 				})
 				// aEle.setAttribute("Onclick","function demo(e){rendercommon(e,'"+ele.name+"','"+elem.invoiceId+"')}");
 				iEle.className = ele.classname;
@@ -819,6 +838,10 @@ const exportToExcel = async () => {
 			 tdElem.appendChild(textElem);
 			trElem.appendChild(tdElem);
 
+			// tdElem = document.createElement("td");
+			//  textElem=document.createTextNode("");
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
 
 			tdElem = document.createElement("td");
 			tdElem.style='color: #ffffff;font-weight:bold;text-align:end'
@@ -866,12 +889,12 @@ const exportToExcel = async () => {
 
 		  })
 
-		axios.get("http://localhost:8080/suppliers",header).then((res) => {
+		axios.get("http://localhost:8080/customers",header).then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
         var option = document.createElement("option");
-        option.value = a.supplierId;
-        option.append(document.createTextNode(a.supplierName));
+        option.value = a.customerId;
+        option.append(document.createTextNode(a.customerName));
         document.querySelector("#customer").append(option);
 			});
 		}).catch((e)=>{
@@ -897,11 +920,13 @@ const exportToExcel = async () => {
           if(res.data!='client not found'){
             setClientDetails(res.data);
           }
-        })
+        }).catch((e)=>{
+            console.log(e)
+          })
 
 	// },3000)	
 		
-      },[]);
+      }, []);
 
 	  useEffect(()=>{
 
@@ -1027,14 +1052,14 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			navigate(`/add-purchase?InvNo=${invt}&action=Edit`)
+			navigate(`/CreateSupplierQuotation?InvNo=${invt}&action=Edit`)
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/viewPurchaseTriplet?id=${invt}`);
+                navigate(`/ViewSupplierQuotationTriplet?invNo=${invt}`);
 		 }else if(name == "Delete"){
-			axios.get(`http://localhost:8080/deletePurchase/${invt}`,header).then((res) => {
+			axios.get(`http://localhost:8080/deleteSupplierQuo?QuoId=${invt}`,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1056,13 +1081,18 @@ const exportToExcel = async () => {
 				  })	   
 		    });
 		 } else if(name == "Cancel"){
+			//old code
+			// navigate("/InvoicesCancelled");
 			
+			//new code
 			console.log(e)
-			axios.post(`http://localhost:8080/cancelPurchase/${invt}`,{},header).then((res)=>{
+			// axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
+                debugger;
+			axios.get(`http://localhost:8080/cancelSupplierQuotation?QuoId=${invt}`,header).then((res)=>{
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
-						'Invoice cancelled successfully!!',
+						'Quotation cancelled successfully!!',
 						'success'
 					  )	
 
@@ -1095,18 +1125,73 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-				
-					navigate(`/viewPurchase?invNo=${invt}&custName=Samarth Industries&action=send`);
+					// axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
+					// console.log(res.data);
+					// if(res!=null && res.data.res=='sucess'){
+						
+					// 	Swal.fire(
+					// 		'',
+					// 		'Invoice mail send successfully!!',
+					// 		'success'
+					// 	  )	  
+					// 	}
+					// 	else	   
+
+					// 	Swal.fire({
+					// 		icon: 'error',
+					// 		title: 'Oops...',
+					// 		text: 'There is some issue to send invoice mail',
+					// 		footer: ''
+					// 	  })	
+					navigate(`/viewSupplierQuotation?invNo=${invt}&custName=Samarth Industries&action=send`);
 
 					
 				
 		 } else if(name == "Copy"){
-			 navigate(`/add-purchase?InvNo=${invt}&action=Clone`);
-		
+			 navigate(`/CreateSupplierQuotation?InvNo=${invt}&action=Clone`);
+			 //comented temporarily	  
+		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
+					console.log(res.data);
+					if(res!=null && res.data.res=='sucess'){
+						// alert("Invoice Copied successfully!!");	
+
+						 Swal.fire(
+        '',
+        'Invoice Copied successfully!!',
+        'success'
+      )
+						}
+						else
+						// alert("There is some issue Copy invoice.");		
+					
+						Swal.fire({
+							icon: 'error',
+							title: 'Oops...',
+							text: 'There is some issue Copy invoice.',
+							footer: ''
+						  })	
+				}).catch(function(error) {
+					console.log(error);
+				});*/
 		 }else if(name == "Download"){
 
-			navigate(`/viewPurchase?invNo=${invt}&action=download`);
+			navigate(`/ViewSupplierQuotation?invNo=${invt}&action=download`);
+			// navigate("/viewInvoice?id="+invt+"&action=download");
 
+			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
+			// 	document.body.appendChild(canvas);  
+			// 	const imgData = canvas.toDataURL('image/png');
+			// 	const pdf = new jsPDF();
+			// 	pdf.addImage(imgData, 'PNG', 0, 0,210,310);
+			// 	pdf.save("download.pdf"); 
+			// });
+
+				// html2canvas(inputRef.current).then((canvas) => {
+				// 	const imgData = canvas.toDataURL("image/png");
+				// 	const pdf = new jsPDF();
+				// 	pdf.addImage(imgData, "JPEG", 0, 0,210,310);
+				// 	pdf.save("download.pdf");
+				//   });
 			
 		 }
 	  };
@@ -1146,6 +1231,33 @@ const exportToExcel = async () => {
 		exportToExcel();
 	  }
 
+	  function onReportButtonClickedOld(e){
+		e.preventDefault();
+		var data={
+			customerName,
+			userId,
+			fromDate,
+			toDate,
+			status,
+			category
+		}
+		axios.post('http://localhost:8080/excel/SupplierQuotations', data,{
+			method: 'GET',
+			responseType: 'blob', // important
+			...header
+		}).then((response) => {
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			// alert(url);	
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', `${Date.now()}.xlsx`);
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+		});
+
+		refreshDataTable(data);
+	  }
 	  function toCurrency(value) {
         try {
           if( isNaN(Number(value)) ) return value;
@@ -1164,7 +1276,330 @@ const exportToExcel = async () => {
           throw err;
         }
       }
+	  //This function is loading the filtered invoice data into datatable.
+	  function refreshDataTable(data){
+		
+		//clearing table body
+		document.querySelector(".invoicelisttable tbody").innerHTML='';
+
+		//clearing table footer
+		document.querySelector(".invoicelisttable tfoot").innerHTML=''
+
+
+		var url=new URL(window.location.href);
+          let month1=url.searchParams.get("month");
+          setMonth(month1);
+		  let allinvs = 0;
+		  let paidinvs = 0;
+		  let unpaidinvs = 0;
+		  let cancelinvs = 0;
+		  let allinvvals = 0;
+		  let paidinvvals = 0;
+		  let unpaidinvvals = 0;
+		  let caninvvals = 0;
+          let srNo = 0;
+		  let subTotal = 0;
+		  let igst = 0;
+		  let cgst = 0;
+		  let sgst = 0;
+        axios.post("http://localhost:8080/getFilterInvoices",data,{
+			...header
+		}).then((res) => {
+			setInvoicedo(res.data);
+			filteredInvoiceList(res.data)
+			
+            res.data.map(elem=>{
+
+				srNo = srNo + 1;
+
+				//totat of sub total
+				subTotal = subTotal + parseInt(elem.taxableValue);
+				setSubTotal(subTotal);
+
+				//totat of sub total
+				igst = igst + parseInt(elem.igstValue);
+				setIgst(igst);
+
+				//totat of sub total
+				cgst = cgst + parseInt(elem.cgstValue);
+				setCgst(cgst);
+
+				//totat of sub total
+				sgst = sgst + parseInt(elem.sgstValue);
+				setSgst(sgst);
+				
+           allinvs = allinvs + 1;
+		   setAllInv(allinvs);
+		   allinvvals = allinvvals + parseInt(elem.invoiceValue);
+		   setAllInvVal(allinvvals);
+
+				
+		   if(elem.invoiceStatus == "Paid")
+		   {
+		   paidinvs = paidinvs + 1;
+		   setPaidInv(paidinvs);
+		   paidinvvals = paidinvvals + parseInt(elem.invoiceValue);
+		   setPaidInvVal(paidinvvals);
+		   }
+		   if(elem.invoiceStatus == "Overdue")
+		   {
+		   unpaidinvs = unpaidinvs + 1;
+		   setUnPaidInv(unpaidinvs);
+		   unpaidinvvals = unpaidinvvals + parseInt(elem.invoiceValue);
+		   setUnpaidInvVal(unpaidinvvals);
+		   }
+
+		   if(elem.invoiceStatus == "Cancelled")
+		   {
+		   cancelinvs = cancelinvs + 1;
+		   setCanInv(cancelinvs);
+		   caninvvals = caninvvals + parseInt(elem.invoiceValue);
+		   setCanInvVal(caninvvals);
+		   }
+
+            let trElem=document.createElement("tr");
+
+			let tdElem = document.createElement("td");
+			let textElem =  document.createTextNode(srNo);
+			tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(elem.invoiceNo );//set data
+            //let inputElem=document.createElement("input");
+           // let spanElem=document.createElement("span");
+          //  let labelElem=document.createElement("label")
+           // labelElem.className="custom_check";
+           // inputElem.type="checkbox";
+          //  inputElem.name="invoice";
+            //spanElem.className="checkmark";
+           // labelElem.appendChild(inputElem);
+           // labelElem.appendChild(spanElem);
+          //  tdElem.appendChild(labelElem);
+            let aElem=document.createElement("a"); 
+			aElem.className="invoice-link";
+			aElem.addEventListener('click',()=>{
+
+                navigate(`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`);
+            })
+		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
+            aElem.appendChild(textElem); 
+			tdElem.appendChild(aElem);
+            trElem.appendChild(tdElem);
+
+			
+
 	
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(formatDate(elem.createdDate));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+
+			tdElem=document.createElement("td");
+            textElem=document.createTextNode(elem.customerName);
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem)
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.invoiceValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.taxableValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.cgstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem);
+			
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.sgstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+			tdElem=document.createElement("td");
+            tdElem.className="text-primary";
+            textElem=document.createTextNode(accountingFormat(elem.igstValue));
+            tdElem.appendChild(textElem);
+            trElem.appendChild(tdElem); 
+
+            //invoice category
+		// 	tdElem=document.createElement("td");
+        //     textElem=document.createTextNode("Advertising")
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem);
+
+        //     tdElem=document.createElement("td");
+        //     textElem=document.createTextNode(formatDate(elem.dueDate));
+        //     tdElem.appendChild(textElem);
+        //     trElem.appendChild(tdElem)             
+            
+            tdElem=document.createElement("td");
+           let spanElem=document.createElement("span")
+            
+			if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
+            spanElem.className="badge bg-success-light" 
+			if(elem.invoiceStatus == "Overdue")
+			spanElem.className="badge bg-danger-light";
+			if(elem.invoiceStatus == "Cancelled")
+			spanElem.className="badge bg-primary-light";
+		    if(elem.invoiceStatus == "Draft")
+			spanElem.className="badge bg-warning";
+
+
+            textElem=document.createTextNode(elem.invoiceStatus);
+
+            spanElem.appendChild(textElem)
+
+            tdElem.appendChild(spanElem);
+
+            trElem.appendChild(tdElem)  
+
+            tdElem=document.createElement("td");
+            tdElem.className="text-end";
+			let divEle = document.createElement("div");
+			divEle.className = "dropdown dropdown-action";
+			let aEle = document.createElement("a");
+            aEle.className = "action-icon dropdown-toggle";
+			aEle.href = "#";
+			aEle.setAttribute("data-bs-toggle" , "dropdown");
+			aEle.setAttribute("aria-expanded" , "false");
+			let iEle = document.createElement("i");
+			iEle.className = "fas fa-ellipsis-v";
+			aEle.appendChild(iEle);
+			divEle.appendChild(aEle);
+			let innerDiv = document.createElement("div");
+			innerDiv.className = "dropdown-menu dropdown-menu-end";
+			innerDiv.style = "";
+			actionmap.map(ele =>{
+				aEle = document.createElement("a");
+				iEle = document.createElement("i");
+				aEle.className = "dropdown-item"
+				aEle.href=ele.path;
+				aEle.addEventListener('click',(e)=>{
+					rendercommon(e,ele.name,elem.invoiceId);
+				})
+				// aEle.setAttribute("Onclick","function demo(e){rendercommon(e,'"+ele.name+"','"+elem.invoiceId+"')}");
+				iEle.className = ele.classname;
+				textElem = document.createTextNode(ele.name);
+				aEle.appendChild(iEle);
+				aEle.appendChild(textElem);
+				innerDiv.appendChild(aEle);
+			});
+			divEle.appendChild(innerDiv);
+			tdElem.appendChild(divEle);
+            trElem.appendChild(tdElem) 
+
+            document.querySelector(".datatable tbody").appendChild(trElem);
+			
+        })
+
+		console.log("all invoice:"+allinvvals+" paid invoice:"+paidinvvals);
+
+          }).catch((e)=>{
+			console.log(e)
+		  }).finally(()=>{
+			
+			setPaidInvVal(paidinvvals);
+			setPaidInv(paidinvs)
+
+			setUnPaidInv(unpaidinvs);
+			setUnpaidInvVal(unpaidinvvals);
+
+			setCanInv(cancelinvs);
+			setCanInvVal(caninvvals);
+
+			let trElem = document.createElement("tr");
+			trElem.style='background-color: #9292a6;'
+			let tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			let textElem=document.createTextNode("Grand Total");
+			
+			tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			// tdElem = document.createElement("td");
+			//  textElem=document.createTextNode("");
+			//  tdElem.appendChild(textElem);
+			// trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(allinvvals));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(subTotal));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(cgst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(sgst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			tdElem.style='color: #ffffff;font-weight:bold'
+			 textElem=document.createTextNode(accountingFormat(igst));
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+
+			tdElem = document.createElement("td");
+			 textElem=document.createTextNode("");
+			 tdElem.appendChild(textElem);
+			trElem.appendChild(tdElem);
+	
+			tdElem = document.createElement("td");
+			textElem=document.createTextNode("");
+			tdElem.appendChild(textElem);
+		   trElem.appendChild(tdElem);
+			
+	
+			document.querySelector("#tableFooter").appendChild(trElem); 
+			if (document.querySelector('.datatable') && document.querySelector('.datatable').length > 0) {
+				document.querySelector('.datatable').DataTable({
+					"bFilter": false,
+				});
+			}
+			if (document.querySelector('.datatables') && document.querySelector('.datatables').length > 0) {
+				document.querySelector('.datatables').DataTable({
+					"bFilter": true,
+				});
+			}
+		  })
+	  }
 
 
   return (
@@ -1184,12 +1619,12 @@ const exportToExcel = async () => {
                 			<h3 class="page-title m-0">
 			                <span class="page-title-icon bg-gradient-primary text-white me-2">
 			                  <i class="fa fa-file" aria-hidden="true"></i>
-			                </span>{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Purchase</h3>
+			                </span>Supplier Quotation </h3>
                 		</div>
                         <div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
 								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-								<li class="breadcrumb-item active">{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Purchase</li>
+								<li class="breadcrumb-item active">Supplier Quotation</li>
 							</ul>
                 		</div>
                     </div>
@@ -1238,7 +1673,7 @@ const exportToExcel = async () => {
 												{/*<i style={{position: "absolute",zIndex: "1",marginTop: "7%",marginLeft:"4%",color: "#9a55ff"}}data-feather="user-plus" class="me-1 select-icon"></i> */}
 												<select class="form-control select2 invoiceListCustomerOption"
 					                              name="product"	id="customer">
-												  <option  value="-1" >--Select Supplier--</option>
+												  <option  value="-1" >--Select Customer--</option>
 												  </select>	</span>  
 												{/* <div id="checkBoxes">
 													<form action="#">
@@ -1479,7 +1914,7 @@ const exportToExcel = async () => {
 										<div class="invoices-tabs">
 											<ul>
 												
-												<li><a href="#" class="active">All Purchases</a></li>
+												<li><a href="#" class="active">All Supplier Quotations</a></li>
 												{/* <li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
 												<li><a href="#" onClick={rendertoInvOverDue}>Overdue</a></li>		
 												<li><a href="#" onClick={rendertoInvDraft}>Draft</a></li>	
@@ -1493,8 +1928,8 @@ const exportToExcel = async () => {
 											<a href="invoices-settings.html" class="invoices-settings-icon">
 												<i data-feather="settings"></i>
 											</a>
-											<a href="/add-invoice" class="btn">
-												<i data-feather="plus-circle"></i> New Purchase
+											<a href="/CreateSupplierQuotation" class="btn">
+												<i data-feather="plus-circle"></i> New Supplier Quotation
 											</a>
 										</div>
 									</div>
@@ -1514,7 +1949,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(allInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>All Purchases <div style={{fontSize:'15px'}}>{accountingFormat(allInv)}</div></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap',textAlign:'center'}}>All Supplier Quotations <div style={{fontSize:'15px'}}>{accountingFormat(allInv)}</div></p>
 								</div>
 							</div>
 						</div>
@@ -1529,7 +1964,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(paidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Paid Purchases <span style={{fontSize:'15px'}}>{accountingFormat(paidInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap',textAlign:'center'}}>Paid Supplier Quotations <span style={{fontSize:'15px'}}>{accountingFormat(paidInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1544,7 +1979,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(unpaidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Unpaid Purchases <span style={{fontSize:'15px'}}>{accountingFormat(unPaidInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap',textAlign:'center'}}>Unpaid Supplier Quotations <span style={{fontSize:'15px'}}>{accountingFormat(unPaidInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1559,7 +1994,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(canInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'16px',display:'flex',justifyContent:'space-around',alignItems:'end',flexWrap:'wrap'}}>Cancelled Purchases <span style={{fontSize:'14px'}}>{accountingFormat(canInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'16px',display:'flex',justifyContent:'space-around',alignItems:'end',flexWrap:'wrap',textAlign:'center'}}>Cancelled Supplier Quotations <span style={{fontSize:'14px'}}>{accountingFormat(canInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1574,9 +2009,9 @@ const exportToExcel = async () => {
 											<thead class="thead-light">
 												<tr style={{background: "linear-gradient(90deg, rgba(67,203,255,1) 25%, rgba(151,8,204,1) 100%)",color:"white"}}>
 													<th>Sr No</th>
-													<th>Purchase No</th>
+													<th>Supplier Quotation No</th>
 													<th>Date</th>
-												    <th>Supplier Name</th>
+												    <th>Customer Name</th>
 												    <th>Gross Total</th>
 												    <th>Sub Total</th>
 												    <th>CGST</th>

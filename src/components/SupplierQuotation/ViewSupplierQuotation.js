@@ -1,15 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
-import Sidebar from "./Sidebar";
+import Sidebar from "../Sidebar";
 import axios from "axios";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
+import Navbar from "../Navbar";
 import userEvent from "@testing-library/user-event";
-import Loader from "./Loader";
+import Loader from "../Loader";
 import Swal from "sweetalert2";
 
-export default function ViewInvoice() {
+export default function ViewSupplierQuotation() {
   var token = localStorage.getItem("token");
   var header = {
     headers: {
@@ -97,7 +97,7 @@ export default function ViewInvoice() {
     // }
     console.log(invoicepdf.current)
     invoicepdf.current.querySelector("#signatureContainer").style.display='none'
-    debugger;
+    
     html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
       const imgData = canvas.toDataURL('image/png');
 
@@ -471,9 +471,9 @@ export default function ViewInvoice() {
     if (!initilized.current) {
       initilized.current = true;
       axios
-        .get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewCashInvoice':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewProformaInvoice':'viewInvoice'}?invId=` + invId, header)
+        .get(`http://localhost:8080/viewSupplierQuotation?invId=` + invId, header)
         .then((res) => {
-          debugger;
+          
 
           setInvoiceDetails(res.data);
 
@@ -768,7 +768,9 @@ export default function ViewInvoice() {
           if(res.data!='client not found'){
             setClientDetails(res.data);
           }
-        })
+        }).catch((error)=>{
+            console.log(error)
+          })
 
         axios.get("http://localhost:8080/user",header)
         .then((res)=>{
@@ -803,7 +805,7 @@ export default function ViewInvoice() {
     html2canvas(invoicepdf.current).then((canvas) => {
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
-        compress:true
+        compress: true
       });
       pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
       pdf.save(invoiceNo + ".pdf");
@@ -816,12 +818,12 @@ export default function ViewInvoice() {
   const sendMail=  (invoiceNo,custName) => {
     html2canvas(invoicepdf.current).then((canvas) => {
       
-      debugger;
+      
 
       setDisplayFlag(true);
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
-        compress:true
+        compress: true
       });
       pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
 
@@ -837,7 +839,7 @@ export default function ViewInvoice() {
       const pdfData = pdf.output('datauristring');
 
       // Send PDF data to Spring Boot backend
-      axios.post('http://localhost:8080/sendmail', formData ,{
+      axios.post('http://localhost:8080/sendmailSupplierQuotation', formData ,{
         headers: {
           Authorization: "Bearer " + token,
         },

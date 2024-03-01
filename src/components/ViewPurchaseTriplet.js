@@ -65,7 +65,7 @@ export default function ViewInvoiceTriplet() {
         var imgHeight = canvas.height * imgWidth / canvas.width;
         var heightLeft = imgHeight;
   
-        var doc = new jsPDF('p', 'mm');
+        var doc = new jsPDF('p', 'mm',null,true);
         var position = 0;
   
         doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
@@ -191,7 +191,7 @@ export default function ViewInvoiceTriplet() {
       <ViewInvoice id={fetchId()} setInvoiceNumber={setInvoiceNumber} productTableId="productTable1" gstContainerId="gstContainer1" label="Original"/>
       <ViewInvoice id={fetchId()} productTableId="productTable2" gstContainerId="gstContainer2" label="Duplicate"/>
       <ViewInvoice id={fetchId()} productTableId="productTable3" gstContainerId="gstContainer3" label="Tripicate"/>
-     
+     v</div>
       <div class="page-header invoices-page-header">
             <div class="row">
               <div class="col-lg-11 col-md-12">
@@ -234,7 +234,7 @@ export default function ViewInvoiceTriplet() {
               </div>
             </div>
             </div>
-    </div>
+    
     </div>
     
   )

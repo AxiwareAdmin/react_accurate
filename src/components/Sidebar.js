@@ -135,7 +135,7 @@ export default function Sidebar() {
 									<li><a href="/SalesRegisterQuotation" >All Quotation</a></li> */}
 
 									<li><a href="/SalesRegisterQuotation" >Customer Quotation</a></li>
-									<li><a href="/add-purchase">Supplier Quotation</a></li>
+									<li><a href="/SalesRegisterSupplierQuotation">Supplier Quotation</a></li>
 									<li><a href="invoice.html">Create Customer</a></li>
 									<li><a href="invoice.html">Create Supplier</a></li>
 									<li><a href="invoice.html">Products And Services</a></li>

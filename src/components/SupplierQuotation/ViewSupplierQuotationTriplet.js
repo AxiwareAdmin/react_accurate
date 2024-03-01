@@ -7,7 +7,7 @@ import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Loader from "../Loader";
 import Navbar from "../Navbar";
 
-export default function ViewQuotationTriplet() {
+export default function ViewSupplierQuotationTriplet() {
 
   
   // const location=useLocation();
@@ -574,7 +574,7 @@ function ViewQuotation(props) {
         initilized.current = true;
         
         axios
-          .get(`http://localhost:8080/viewQuotation?invId=` + quoId, header)
+          .get(`http://localhost:8080/viewSupplierQuotation?invId=` + quoId, header)
           .then((res) => {
             
   
@@ -904,7 +904,7 @@ function ViewQuotation(props) {
                       <div class="col-md-12">
                           <div class="invoice-info" style={{borderBottom:'1px solid black',display:'flex'}}>
                             <strong class="customer-text-one" style={{textAlign:'center',flexGrow:'1'}}>
-                             TAX QUOTATION
+                             TAX SUPPLIER QUOTATION
                             </strong>
 
                             {/* <strong class="customer-text-one" style={{textAlign:'end'}}>
@@ -947,8 +947,8 @@ function ViewQuotation(props) {
                           style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                         >
                           <div class="invoice-item-box">
-                            <p>Quotation No. : {invNo}</p>
-                            <p class="mb-0">Quotation Date : {invoiceDate}</p>
+                            <p>Supplier Quotation No. : {invNo}</p>
+                            <p class="mb-0">Supplier Quotation Date : {invoiceDate}</p>
                           </div>
   
                           <div class="invoice-item-box">

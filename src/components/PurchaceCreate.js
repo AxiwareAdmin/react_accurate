@@ -1738,12 +1738,13 @@ export default function InvoicePageWrapper(props) {
                     <form className="invoices-form">
                       <div className="invoices-main-form">
                         <div className="row">
-                          <div className="col-xl-4 col-md-6 col-sm-12 col-12">
+                          <div className="col-xl-6 col-md-8 col-sm-12 col-12">
                             <p class="mg-b-10">Supplier Name</p>
                             <select
                               class="form-control select2"
                               name="product"
                               id="customer"
+                              style={{width:'80%'}}
                             >
                               <option value="-1">Select Supplier</option>
                             </select>
@@ -1753,111 +1754,49 @@ export default function InvoicePageWrapper(props) {
                               style={{ fontSize: "12px", marginTop: "5px" }}
                               onClick={handleClickOpenCustomer}
                             >
-                              Create Customer
+                              Create Supplier
                             </button>
-                            {/* <div className="form-group"> */}
-                            {/* <label>Customer Name</label> */}
+                        
 
-                            {/* <div className="multipleSelection">
-                              <div className="selectBox">
-                                <p className="mb-0">Select Customer</p>
-                                <span className="down-icon">
-                                  <i data-feather="chevron-down"></i>
-                                </span>
-                              </div>
-                              <div id="checkBoxes-one">
-                                <p className="checkbox-title">
-                                  Customer Search
+                            <div className="mt-5" style={{ height: "100%" }}>
+                              <p
+                                style={{
+                                  fontSize: ".9375rem",
+                                  color: " #1f1f1f",
+                                  marginBottom: "0px",
+                                }}
+                              >
+                                Biling Address{" "}
+                              </p>
+                              <div
+                                className="w-100 invoice-details-box p-2"
+                                style={{ height: "43%", marginTop: "2px" }}
+                              >
+                                <p
+                                  id="fromAddress"
+                                  className="invoice-details invoice-details-two"
+                                >
+                                  {fromAddr1} <br />
+                                  {fromAddr2}
+                                  <br />
                                 </p>
-                                <div className="form-custom">
-                                  <input
-                                    type="text"
-                                    className="form-control bg-grey"
-                                    placeholder="Enter Customer Name"
-                                  />
-                                </div>
-                                <div className="selectBox-cont"></div>
-                                <button
-                                  type="submit"
-                                  className="btn w-100 btn-primary"
-                                  onClick={selectCustomer}
-                                >
-                                  Apply
-                                </button>
-                                <button
-                                  type="reset"
-                                  className="btn w-100 btn-grey"
-                                >
-                                  Reset
-                                </button>
                               </div>
-                            </div> */}
-                            {/* </div> */}
-
-                            {/* <div className="inovices-month-info"> */}
-                            <div className="form-group mt-5">
-                              <label className="custom_check w-100">
-                                <input
-                                  type="checkbox"
-                                  id="enableTax"
-                                  name="invoice"
-                                />
-                                <span className="checkmark"></span> Enable tax
-                              </label>
-                              <label className="custom_check w-100">
-                                <input
-                                  type="checkbox"
-                                  id="chkYes"
-                                  name="invoice"
-                                  checked={serviceCheck}
-                                />
-                                <span
-                                  onClick={onServiceCheckChange}
-                                  className="checkmark"
-                                ></span>{" "}
-                                Service Invoice
-                              </label>
                             </div>
-                            {/*<div id="show-invoices">
-                               <div className="row">
-                                <div className="col-md-6">
-                                  <div className="form-group">
-                                    <select className="select">
-                                      <option>By month</option>
-                                      <option>March</option>
-                                      <option>April</option>
-                                      <option>May</option>
-                                      <option>June</option>
-                                      <option>July</option>
-                                    </select>
-                                  </div>
-                                </div>
-                                <div className="col-md-6">
-                                  <div className="form-group">
-                                    <input
-                                      className="form-control"
-                                      type="text"
-                                      placeholder="Enter Months"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>*/}
-                            {/* </div>  */}
+                           
                           </div>
 
-                          <div className="col-xl-3 col-md-12 col-sm-12 col-12">
+                          <div className="col-xl-1 col-md-10 col-sm-12 col-12">
                             <input type="hidden" />
                           </div>
 
                           <div className="col-xl-5 col-md-6 col-sm-12 col-12">
                             <h4 className="invoice-details-title">
-                            Purchase details
+                              Purchase details
                             </h4>
                             <div className="invoice-details-box">
                               <div className="invoice-inner-head">
-                                <span>
-                                Purchase No.{" "}
+                                <span className="d-flex align-items-center justify-content-between">
+                                  Purchase No.{" "}
                                   {invoiceMode == "Auto" ? (
                                     <a href="view-invoice.html">
                                       {invoiceNumber}
@@ -1871,20 +1810,14 @@ export default function InvoicePageWrapper(props) {
                                       onChange={onInvoiceNumberChange}
                                       style={{
                                         border: "1px solid #9a55ff",
-                                        width: "100%",
+                                        width: "65%",
                                         padding: "10px",
                                       }}
                                     />
                                   )}
                                 </span>
                                 <br />
-                                <br />
-                                <span
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
+                                <span className="d-flex align-items-center justify-content-between">
                                   Purchase Date.{" "}
                                   <input
                                     className="form-control datetimepicker"
@@ -1893,8 +1826,8 @@ export default function InvoicePageWrapper(props) {
                                     value={invoiceDate}
                                     id="invoiceDate"
                                     style={{
-                                      border: "none",
-                                      width: 120,
+                                      border: "1px solid #9a55ff",
+                                      width: "65%",
                                       color: "#9a55ff",
                                     }}
                                   />
@@ -1968,139 +1901,79 @@ export default function InvoicePageWrapper(props) {
                         }}
                       >
                         <div className="row">
-                          <div
-                            className="col-xl-6 col-lg-6 col-md-6 h-100 "
-                            style={{
-                              // borderRight: "1px solid #E5E5E5",
-                              marginBottom: "0px",
-                              padding: "30px 0px 0px 30px",
-                        
-                            }}
-                          >
-                            <div className="invoice-info w-100">
-                              <strong className="customer-text">
-                                Supplier Address{" "}
-                                {/* <a className="small" href="edit-invoice.html">
-                                Edit Address
-                              </a> */}
-                              </strong>
-                              <p
-                                id="fromAddress"
-                                className="invoice-details invoice-details-two"
-                              >
-                                {fromAddr1} <br />
-                                {fromAddr2}
-                                <br />
-                              </p>
+                          <div className="col-xl-12 col-lg-12 col-md-12 h-100 d-flex align-items-center">
+                            <div
+                              className="d-flex"
+                              style={{
+                                marginBottom: "0px",
+                                padding: "20px",
+                                display: "flex",
+                                flexDirection: "column",
+                              }}
+                            >
+                              GST No. &nbsp;
+                              <input
+                                class="form-control"
+                                type="text"
+                                value={gstNo}
+                                style={{
+                                  border: "1px solid rgb(154, 85, 255)",
+                                  width: "100%",
+                                  padding: "10px",
+                                }}
+                              ></input>
                             </div>
-                            {/* address footer start */}
-                            
-                           
-                            {/* address footer end */}
-                          </div>
+
+                            <div
+                              className="d-flex"
+                              style={{
+                                marginBottom: "0px",
+                                padding: "20px",
+                                display: "flex",
+                                flexDirection: "column",
+                              }}
+                            >
+                              State&nbsp;
+                              <input
+                                class="form-control"
+                                type="text"
+                                value={state}
+                                style={{
+                                  border: "1px solid rgb(154, 85, 255)",
+                                  width: "100%",
+                                  padding: "10px",
+                                }}
+                              ></input>
+                            </div>
 
                           
-                    
-                          <div
-                            className="col-xl-6 col-lg-6 col-md-6 h-100 d-flex align-items-center">
+                              <div class="invoice-inner-date form-group  d-flex flex-column" style={{border:'none',padding:'20px',marginBottom:'0px',width:'230px'}}>
+                                <label>Payment Terms</label>
+                                {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
+                                <select id="paymentTerm" style={{width:'100%'}}>
+                                  {paymentTerm.map((val, key) => {
+                                    return <option value={val}>{val}</option>;
+                                  })}
+                                </select>
+                              </div>
 
-
-                          <div
-                            // className="col-xl-6 col-lg-6 col-md-6 h-100"
-                            style={{ paddingLeft: "0px", borderLeft: "1px solid #E5E5E5", borderRight: "1px solid #E5E5E5" }}
-                          >
-                           <div style={{display:'flex',alignItems:"start",flexDirection:'column'}}>
-                              <div
-                                className="d-flex"
-                                style={{
-                                  marginBottom: "0px",
-                                  padding: "20px",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                }}
-                              >
-                                GST No. &nbsp;
+                          
+                              <div style={{ padding: "10px",marginBottom:'0px' }} class="invoice-inner-date invoice-inner-datepic form-group d-flex flex-column">
+                                <label for="">Due Date</label>
                                 <input
-                                  class="form-control"
-                                  type="text"
-                                  value={gstNo}
+                                  class="form-control datetimepicker"
                                   style={{
-                                    border: "1px solid rgb(154, 85, 255)",
+                                    border: "1px solid #9a55ff",
                                     width: "100%",
                                     padding: "10px",
                                   }}
-                                ></input>
-                              </div>
-                              {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                      GST No.&nbsp;
-                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div> */}
-                              <div
-                                className="d-flex"
-                                style={{
-                                  marginBottom: "0px",
-                                  padding: "20px",
-                                  display: "flex",
-                                  flexDirection: "column",
-                                }}
-                              >
-                                State&nbsp;
-                                <input
-                                  class="form-control"
+                                  id="dueDate"
                                   type="text"
-                                  value={state}
-                                  style={{
-                                    border: "1px solid rgb(154, 85, 255)",
-                                    width: "100%",
-                                    padding: "10px",
-                                  }}
-                                ></input>
+                                  placeholder="Select"
+                                  readOnly="true"
+                                />
                               </div>
-                            </div>
                           </div>
-
-                          <div style={{display:'flex',alignItems:'start',flexDirection:'column','justifyContent':'center'}}>
-                          <div style={{display:'flex',alignItems:'center','justifyContent':'center'}}>
-                              <div
-                                class="invoice-inner-date"
-                                style={{ border: "none",padding:'20px' }}
-                              >
-                                <div class="form-group  d-flex flex-column">
-                                  <label>Payment Terms</label>
-                                  {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
-                                  <select id="paymentTerm">
-                                    {paymentTerm.map((val, key) => {
-                                      return <option value={val}>{val}</option>;
-                                    })}
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                            <div style={{display:'flex',alignItems:'center','justifyContent':'center'}}>
-                              <div
-                                class="invoice-inner-date invoice-inner-datepic"
-                                style={{padding:'10px'}}
-                              >
-                                <div class="form-group d-flex flex-column">
-                                  <label for="">Due Date</label>
-                                  <input
-                                    class="form-control datetimepicker"
-                                    style={{
-                                      border: "1px solid #9a55ff",
-                                      width: "100%",
-                                      padding: "10px",
-                                    }}
-                                    id="dueDate"
-                                    type="text"
-                                    placeholder="Select"
-                                    readOnly="true"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                        </div>
-                        </div>
-
                         </div>
                         {/* <div className="row">
                       <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>

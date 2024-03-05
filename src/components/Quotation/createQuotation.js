@@ -1750,6 +1750,7 @@ const onDescriptionChange=(e)=>{
                                   border: "1px solid #9a55ff",
                                   width: "65%",
                                   padding: "10px",
+                                  color: "#9a55ff"
                                 }}
                               />
                                } 

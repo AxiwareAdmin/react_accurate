@@ -377,7 +377,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`);
+			navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -698,7 +698,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`);
+                navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1380,7 +1380,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`);
+                navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 

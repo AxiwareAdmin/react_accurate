@@ -70,7 +70,7 @@ export default function ViewSupplierQuotation() {
 
   // const [gstCalculationVal,setGstCalculationVal]=useState({})
 
-  const [serviceCheck, setServiceCheck] = useState("false");
+  const [serviceCheck, setServiceCheck] = useState("true");
 
   const [additionalTerms,setAdditionalTerms]=useState("");
 
@@ -473,6 +473,8 @@ export default function ViewSupplierQuotation() {
       axios
         .get(`http://localhost:8080/viewSupplierQuotation?invId=` + invId, header)
         .then((res) => {
+
+          debugger;
           
 
           setInvoiceDetails(res.data);
@@ -483,7 +485,7 @@ export default function ViewSupplierQuotation() {
 
           setPoDate(getFormattedDate(new Date(res.data.poDate)));
 
-          setServiceCheck(res.data.serviceCheck);
+          // setServiceCheck(res.data.serviceCheck);
 
           let billingaddr = res.data.billingAddress;
           if (
@@ -788,7 +790,7 @@ export default function ViewSupplierQuotation() {
   useEffect(()=>{
       if(custName==null) return;
 
-      axios.get(`http://localhost:8080/customer/custname/${custName}`,header).then((res)=>{
+      axios.get(`http://localhost:8080/supplier/suppliername/${custName}`,header).then((res)=>{
           if(res!='Customers not found'){
             setCustomerDetails(res.data);
           }
@@ -958,26 +960,7 @@ export default function ViewSupplierQuotation() {
                             <p />
                           </div>
                         </div>
-                      {/* <div class={`col-md-${serviceCheck == "false" ? 6 : 12}`}> */}
-                        {/* <div class="invoice-info invoice-info2"> */}
-
-                          {/* <p class="invoice-details"/>
-                          Debit Card <br/>
-                          XXXXXXXXXXXX-2541 <br/>
-                          HDFC Bank
-                        <p/> */}
-                          {/*
-                        check it again
-                        <div class="invoice-item-box">
-                          <p>Recurring : {payTerm}</p>
-                          <p class="mb-0">PO Number : {poNum}</p>
-                        </div> */}
-
-                       
-                        {/* </div> */}
-
-                        
-                      {/* </div> */}
+                    
 
                       {serviceCheck == "false" && (
                         <div class="col-md-6" style={{borderLeft:'1px solid black'}}>
@@ -1023,8 +1006,8 @@ export default function ViewSupplierQuotation() {
                 </div> */}
 
                   <div class="invoice-issues-box">
-                    <div class="row">
-                      <div class="col-lg-2 col-md-2">
+                    <div class="row d-flex justify-content-around">
+                      <div class="col-lg-2 col-md-2 d-none">
                         <div class="invoice-issues-date">
                           <p>
                             Challan No. <br /> {challanNumber}
@@ -1032,7 +1015,7 @@ export default function ViewSupplierQuotation() {
                         </div>
                       </div>
 
-                      <div class="col-lg-2 col-md-2">
+                      <div class="col-lg-2 col-md-2 d-none">
                         <div class="invoice-issues-date">
                           <p>
                             Challan Date <br /> {challanDate}
@@ -1040,7 +1023,7 @@ export default function ViewSupplierQuotation() {
                         </div>
                       </div>
 
-                      <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
+                      <div class="col-lg-2 col-md-2">
                         <div class="invoice-issues-date">
                           <p>
                             Payment Terms <br /> {payTerm}
@@ -1056,7 +1039,7 @@ export default function ViewSupplierQuotation() {
                         </div>
                       </div>
 
-                      <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
+                      <div class="col-lg-2 col-md-2 d-none" style={{borderLeft:'1px solid black'}}>
                         <div class="invoice-issues-date">
                           <p>
                             Transport Mode <br /> {transportMode}
@@ -1064,7 +1047,7 @@ export default function ViewSupplierQuotation() {
                         </div>
                       </div>
 
-                      <div class="col-lg-2 col-md-2">
+                      <div class="col-lg-2 col-md-2 d-none">
                         <div class="invoice-issues-date">
                           <p>
                             Vehicle No. <br /> {vehicleNumber}

@@ -291,7 +291,7 @@ function ViewQuotation(props) {
   
     // const [gstCalculationVal,setGstCalculationVal]=useState({})
   
-    const [serviceCheck, setServiceCheck] = useState("false");
+    const [serviceCheck, setServiceCheck] = useState("true");
   
     const [additionalTerms,setAdditionalTerms]=useState("");
   
@@ -588,7 +588,7 @@ function ViewQuotation(props) {
   
             setPoDate(getFormattedDate(new Date(res.data.poDate)));
   
-            setServiceCheck(res.data.serviceCheck);
+            // setServiceCheck(res.data.serviceCheck);
   
             let billingaddr = res.data.billingAddress;
             if (
@@ -1045,8 +1045,8 @@ function ViewQuotation(props) {
                   </div> */}
   
                     <div class="invoice-issues-box">
-                      <div class="row">
-                        <div class="col-lg-2 col-md-2">
+                      <div class="row d-flex justify-content-around">
+                        <div class="col-lg-2 col-md-2 d-none">
                           <div class="invoice-issues-date">
                             <p>
                               Challan No. <br /> {challanNumber}
@@ -1054,7 +1054,7 @@ function ViewQuotation(props) {
                           </div>
                         </div>
   
-                        <div class="col-lg-2 col-md-2">
+                        <div class="col-lg-2 col-md-2 d-none">
                           <div class="invoice-issues-date">
                             <p>
                               Challan Date <br /> {challanDate}
@@ -1062,7 +1062,7 @@ function ViewQuotation(props) {
                           </div>
                         </div>
   
-                        <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
+                        <div class="col-lg-2 col-md-2">
                           <div class="invoice-issues-date">
                             <p>
                               Payment Terms <br /> {payTerm}
@@ -1078,7 +1078,7 @@ function ViewQuotation(props) {
                           </div>
                         </div>
   
-                        <div class="col-lg-2 col-md-2" style={{borderLeft:'1px solid black'}}>
+                        <div class="col-lg-2 col-md-2 d-none" style={{borderLeft:'1px solid black'}}>
                           <div class="invoice-issues-date">
                             <p>
                               Transport Mode <br /> {transportMode}
@@ -1086,7 +1086,7 @@ function ViewQuotation(props) {
                           </div>
                         </div>
   
-                        <div class="col-lg-2 col-md-2">
+                        <div class="col-lg-2 col-md-2 d-none">
                           <div class="invoice-issues-date">
                             <p>
                               Vehicle No. <br /> {vehicleNumber}

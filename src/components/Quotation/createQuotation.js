@@ -1919,7 +1919,7 @@ const onDescriptionChange=(e)=>{
 
 
 
-                    <div class="invoice-details-box">
+                    <div class="invoice-details-box d-none">
 <div class="invoice-inner-footer">
 <div class="row align-items-center">
 

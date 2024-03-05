@@ -1380,7 +1380,7 @@ export default function InvoicePageWrapper(props) {
         if (response != null && response.data.res == "success") {
           // setAlertMsg("Invoice created successfully!!")
 
-          Swal.fire("", "Invoice created successfully!", "success");
+          Swal.fire("", "Purchase created successfully!", "success");
 
           setIsSaved(1);
 

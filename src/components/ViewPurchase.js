@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 import userEvent from "@testing-library/user-event";
 import Loader from "./Loader";
 import Swal from "sweetalert2";
+import Theme from "./Theme/Theme";
 
 export default function ViewInvoice() {
   var token = localStorage.getItem("token");
@@ -471,7 +472,7 @@ export default function ViewInvoice() {
     if (!initilized.current) {
       initilized.current = true;
       axios
-        .get(`http://localhost:8080/purchase/id/${invId}`, header)
+        .get(`${process.env.REACT_APP_LOCAL_URL}/purchase/id/${invId}`, header)
         .then((res) => {
           debugger;
 
@@ -763,14 +764,14 @@ export default function ViewInvoice() {
           console.log(e);
         });
 
-        axios.get("http://localhost:8080/getClientDOForUser",header)
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/getClientDOForUser`,header)
         .then((res)=>{
           if(res.data!='client not found'){
             setClientDetails(res.data);
           }
         })
 
-        axios.get("http://localhost:8080/user",header)
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/user`,header)
         .then((res)=>{
             setUserDetails(res.data);
         }).catch((error)=>{
@@ -786,7 +787,7 @@ export default function ViewInvoice() {
   useEffect(()=>{
       if(custName==null) return;
 
-      axios.get(`http://localhost:8080/supplier/suppliername/${custName}`,header).then((res)=>{
+      axios.get(`${process.env.REACT_APP_LOCAL_URL}/supplier/suppliername/${custName}`,header).then((res)=>{
         debugger;
           if(res!='Customers not found'){
             setCustomerDetails(res.data);
@@ -838,7 +839,7 @@ export default function ViewInvoice() {
       const pdfData = pdf.output('datauristring');
 
       // Send PDF data to Spring Boot backend
-      axios.post('http://localhost:8080/sendmail', formData ,{
+      axios.post(`${process.env.REACT_APP_LOCAL_URL}/sendmail`, formData ,{
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -874,6 +875,7 @@ export default function ViewInvoice() {
   
   return (
     <div>
+      <Theme/>
       <Navbar />
       <Sidebar />
       <Loader display={displayFlag}/>

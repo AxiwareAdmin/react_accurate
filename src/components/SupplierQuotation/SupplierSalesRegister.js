@@ -4,6 +4,7 @@ import Sidebar from "../Sidebar";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
+import Theme from "../Theme/Theme";
 
 
 export default function SupplierSalesRegisterQuotation () {
@@ -147,7 +148,7 @@ export default function SupplierSalesRegisterQuotation () {
 
         var tempTotal=0;
         
-        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegSupplierQuotation`,header).then((res) =>{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegSupplierQuotation`,{financialYear:localStorage.getItem("financialYear")},header).then((res) =>{
         if(res.data.res) return;  
         res.data && res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
@@ -159,7 +160,7 @@ export default function SupplierSalesRegisterQuotation () {
             )
 
         }).finally(()=>{
-        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegSupplierQuotation`,header).then((res) =>{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegSupplierQuotation`,{financialYear:localStorage.getItem("financialYear")},header).then((res) =>{
             if(res.data.res) return;
         res.data && res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -297,6 +298,7 @@ export default function SupplierSalesRegisterQuotation () {
 
       
         <div>
+          <Theme/>
              <Navbar/>
             <Sidebar />
              

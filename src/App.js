@@ -40,7 +40,50 @@ import SalesRegisterSupplierQuotation from "./components/SupplierQuotation/Suppl
 import SupplierQuotationList from "./components/SupplierQuotation/SupplierQuotationList";
 import ViewSupplierQuotation from "./components/SupplierQuotation/ViewSupplierQuotation";
 import ViewSupplierQuotationTriplet from "./components/SupplierQuotation/ViewSupplierQuotationTriplet";
+import SalesRegisterCustomerPO from "./components/CustomerPurchaseOrder/SalesRegister";
+import CreateCustomerPo from "./components/CustomerPurchaseOrder/CreateCustomerPO";
+import CustomerPurchaseOrderList from "./components/CustomerPurchaseOrder/CustomerPurchaseOrderList";
+import ViewCustomerPurchaseOrder from "./components/CustomerPurchaseOrder/ViewCustomerPurchaseOrder";
+import ViewCustomerPurchaseOrderTriplet from "./components/CustomerPurchaseOrder/ViewCustomerPurchaseOrderTriplet";
 
+
+import CreateSupplierPo from "./components/SupplierPurchaseOrder/CreateSupplierPurchaseOrder";
+import SalesRegisterSupplierPo from "./components/SupplierPurchaseOrder/SupplierPoSalesRegister";
+import SupplierPoList from "./components/SupplierPurchaseOrder/SupplierPurchaseOrderList";
+import ViewSupplierPo from "./components/SupplierPurchaseOrder/ViewSupplierPo";
+import ViewSupplierPoTriplet from "./components/SupplierPurchaseOrder/ViewSupplierPoTriplet";
+
+
+import CreateMaterialInward from "./components/MaterialInward/CreateMaterialInward";
+import SalesRegisterMaterialInward from "./components/MaterialInward/MaterialInwardSalesRegister";
+import MaterialInwardList from "./components/MaterialInward/MaterialInwardList";
+import ViewMaterialInward from "./components/MaterialInward/ViewMaterialInward";
+import ViewMaterialInwardTriplet from "./components/MaterialInward/ViewMaterialInwardTriplet";
+
+
+import CreateMaterialOutward from "./components/MaterialOutward/CreateMaterialOutward";
+import SalesRegisterMaterialOutward from "./components/MaterialOutward/SalesRegister";
+import MaterialOutwardList from "./components/MaterialOutward/MaterialOutwardList";
+import ViewMaterialOutward from "./components/MaterialOutward/ViewMaterialOutward";
+import ViewMaterialOutwardTriplet from "./components/MaterialOutward/ViewMaterialOutwardTriplet";
+
+
+import CreateDebitNote from "./components/DebitNote/CreateDebitNote";
+import SalesRegisterDebitNote from "./components/DebitNote/SalesRegister";
+import DebitNoteList from "./components/DebitNote/DebitNoteList";
+import ViewDebitNote from "./components/DebitNote/viewDebitNote";
+import ViewDebitNoteTriplet from "./components/DebitNote/ViewDebitNoteTriplet";
+
+
+import CreateCreditNote from "./components/CreditNote/CreateCreditNote";
+import SalesRegisterCreditNote from "./components/CreditNote/SalesRegister";
+import CreditNoteList from "./components/CreditNote/CreditNoteList";
+import ViewCreditNote from "./components/CreditNote/ViewCreditNote";
+import ViewCreditNoteTriplet from "./components/CreditNote/ViewCreditNoteTriplet";
+import Landing from "./components/Landing";
+import Dashboard from "./components/Dashboard/Dashboard";
+import GeneralSettings from "./components/Profile/GeneralSettings";
+import UserSettings from "./components/Profile/UserSettings";
 
 function App() {
 
@@ -59,7 +102,7 @@ function App() {
 
     var http=new XMLHttpRequest();
 
-    var url=BACKEND_SERVER+"/validate";
+    var url=`${process.env.REACT_APP_LOCAL_URL}/validate`;
 
     var params='token='+token;
 
@@ -106,7 +149,7 @@ function App() {
           <Route path="/InvoicesDraft" element={<InvoicesDraft/>} />
           <Route path="/invoicesRecurring" element={<InvoicesRecurring/>} />
           <Route path="/InvoicesCancelled" element={<InvoicesCancelled/>} />
-          <Route  path="/dashboard" element={<Index1 />} />
+          <Route  path="/dashboard" element={<Dashboard/>} />
           <Route  path="/register" element={<Register/>} />
 	        <Route path="/DocumentSequence" element={<DocumentSequence/>} />
           <Route path="/CreateQuotation" element={<CreateQuotation/>} />
@@ -121,8 +164,55 @@ function App() {
           <Route path="/ViewSupplierQuotation" element={<ViewSupplierQuotation/>} /> 
           <Route path="/ViewSupplierQuotationTriplet" element={<ViewSupplierQuotationTriplet/>} /> 
 
+          <Route path="/SalesRegisterCustomerPO" element={<SalesRegisterCustomerPO/>} />
+          <Route path="/CreateCustomerPo" element={<CreateCustomerPo/>} />
+          <Route path="/CustomerPoList" element={<CustomerPurchaseOrderList/>} /> 
+          <Route path="/ViewCustomerPo" element={<ViewCustomerPurchaseOrder/>} /> 
+          <Route path="/ViewCustomerPoTriplet" element={<ViewCustomerPurchaseOrderTriplet/>} />
 
-          <Route  path="/" element={<Login/>} />
+
+          <Route path="/CreateSupplierPo" element={<CreateSupplierPo/>} />
+          <Route path="/SalesRegisterSupplierPo" element={<SalesRegisterSupplierPo/>} />
+          <Route path="/SupplierPoList" element={<SupplierPoList/>} /> 
+          <Route path="/ViewSupplierPo" element={<ViewSupplierPo/>} /> 
+          <Route path="/ViewSupplierPoTriplet" element={<ViewSupplierPoTriplet/>} /> 
+
+
+
+          <Route path="/CreateMaterialInward" element={<CreateMaterialInward/>} />
+          <Route path="/SalesRegisterMaterialInward" element={<SalesRegisterMaterialInward/>} />
+          <Route path="/MaterialInwardList" element={<MaterialInwardList/>} /> 
+          <Route path="/ViewMaterialInward" element={<ViewMaterialInward/>} /> 
+          <Route path="/ViewMaterialInwardTriplet" element={<ViewMaterialInwardTriplet/>} /> 
+
+
+          <Route path="/CreateMaterialOutward" element={<CreateMaterialOutward/>} />
+          <Route path="/SalesRegisterMaterialOutward" element={<SalesRegisterMaterialOutward/>} />
+          <Route path="/MaterialOutwardList" element={<MaterialOutwardList/>} /> 
+          <Route path="/ViewMaterialOutward" element={<ViewMaterialOutward/>} /> 
+          <Route path="/ViewMaterialOutwardTriplet" element={<ViewMaterialOutwardTriplet/>} /> 
+
+
+
+
+          <Route path="/CreateDebitNote" element={<CreateDebitNote/>} />
+          <Route path="/SalesRegisterDebitNote" element={<SalesRegisterDebitNote/>} />
+          <Route path="/DebitNoteList" element={<DebitNoteList/>} /> 
+          <Route path="/ViewDebitNote" element={<ViewDebitNote/>} /> 
+          <Route path="/ViewDebitNoteTriplet" element={<ViewDebitNoteTriplet/>} /> 
+
+          <Route path="/CreateCreditNote" element={<CreateCreditNote/>} />
+          <Route path="/SalesRegisterCreditNote" element={<SalesRegisterCreditNote/>} />
+          <Route path="/CreditNoteList" element={<CreditNoteList/>} /> 
+          <Route path="/ViewCreditNote" element={<ViewCreditNote/>} /> 
+          <Route path="/ViewCreditNoteTriplet" element={<ViewCreditNoteTriplet/>} /> 
+
+
+          <Route path="/generalSettings" element={<GeneralSettings/>} /> 
+          <Route path="/userSettings" element={<UserSettings/>} /> 
+
+  {/* <Route path="/" element={<Login/>} /> */}
+          <Route path="/" element={<Landing/>} />
         </Routes>
         )
         :
@@ -130,7 +220,9 @@ function App() {
 
         {/* <Route  path="/*" element={<Login/>} /> */}
         {/* <Navigate replace to="/" /> */}
-        <Route path="/" element={<Login/>} />
+        {/* <Route path="/" element={<Login/>} /> */}
+
+        <Route path="/" element={<Landing/>} />
         <Route path="/*" element={<Navigate replace to="/" />} />
         {/* <Redirect to='/login'/> */}
         </Routes>

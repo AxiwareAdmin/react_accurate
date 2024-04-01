@@ -12,6 +12,7 @@ import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import { render } from "react-dom";
 import ExcelJS from 'exceljs';
+import Theme from "./Theme/Theme";
 
 
 export default function CashInvoiceList () {
@@ -597,7 +598,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.get("http://localhost:8080/cashInvoices/"+month1,header).then((res) => {
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/cashInvoices/`+month1,header).then((res) => {
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -869,7 +870,7 @@ const exportToExcel = async () => {
 
 		  })
 
-		axios.get("http://localhost:8080/customers",header).then((res) => {
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/customers`,header).then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
         var option = document.createElement("option");
@@ -882,7 +883,7 @@ const exportToExcel = async () => {
 		  })
 
 
-		  axios.get("http://localhost:8080/getusersbyregistrid",header).then((res) => {
+		  axios.get(`${process.env.REACT_APP_LOCAL_URL}/getusersbyregistrid`,header).then((res) => {
 			console.log(res.data);
 			res.data.map((a) => {
 			var option = document.createElement("option");
@@ -895,7 +896,7 @@ const exportToExcel = async () => {
 			  })
 
 
-		axios.get("http://localhost:8080/getClientDOForUser",header)
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/getClientDOForUser`,header)
         .then((res)=>{
           if(res.data!='client not found'){
             setClientDetails(res.data);
@@ -1033,7 +1034,7 @@ const exportToExcel = async () => {
 		 }else if(name == "View" || name == "Print"){
 			navigate(`/viewInvoiceTriplet?id=${invt}&invoiceType=cash`);
 		 }else if(name == "Delete"){
-			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteInv?invNo=`+invt,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1060,7 +1061,7 @@ const exportToExcel = async () => {
 			
 			//new code
 			console.log(e)
-			axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
+			axios.post(`${process.env.REACT_APP_LOCAL_URL}/cancelInvoice/`+invt,{},header).then((res)=>{
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
@@ -1097,7 +1098,7 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-					axios.get("http://localhost:8080/sendmail?invNo="+invt+"&custName=Samarth Industries",header).then((res) => {
+					axios.get(`${process.env.REACT_APP_LOCAL_URL}/sendmail?invNo=`+invt+"&custName=Samarth Industries",header).then((res) => {
 					console.log(res.data);
 					if(res!=null && res.data.res=='sucess'){
 						// alert("Invoice mail send successfully!!");	
@@ -1213,7 +1214,7 @@ const exportToExcel = async () => {
 			status,
 			category
 		}
-		axios.post('http://localhost:8080/excel/invoices', data,{
+		axios.post(`${process.env.REACT_APP_LOCAL_URL}/excel/invoices`, data,{
 			method: 'GET',
 			responseType: 'blob', // important
 			...header
@@ -1274,7 +1275,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.post("http://localhost:8080/getFilterInvoices",data,{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/getFilterInvoices`,data,{
 			...header
 		}).then((res) => {
 			setInvoicedo(res.data);
@@ -1575,6 +1576,7 @@ const exportToExcel = async () => {
 
   return (
     <div>
+		<Theme/>
 		 <Navbar/>
 		<Sidebar />
         {/* <div style={{color:'white',backgroundColor:'red',textAlign:'center'}}>

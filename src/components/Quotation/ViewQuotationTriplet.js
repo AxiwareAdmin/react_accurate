@@ -6,6 +6,7 @@ import html2canvas from "html2canvas";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Loader from "../Loader";
 import Navbar from "../Navbar";
+import Theme from "../Theme/Theme"
 
 export default function ViewQuotationTriplet() {
 
@@ -183,6 +184,7 @@ export default function ViewQuotationTriplet() {
   }
   return (
     <div>
+      <Theme/>
         <Navbar />
         <Sidebar />
         <Loader display={displayFlag}/>
@@ -574,7 +576,7 @@ function ViewQuotation(props) {
         initilized.current = true;
         
         axios
-          .get(`http://localhost:8080/viewQuotation?invId=` + quoId, header)
+          .get(`${process.env.REACT_APP_LOCAL_URL}/viewQuotation?invId=` + quoId, header)
           .then((res) => {
             
   
@@ -851,7 +853,7 @@ function ViewQuotation(props) {
             console.log(e);
           });
   
-          axios.get("http://localhost:8080/getClientDOForUser",header)
+          axios.get(`${process.env.REACT_APP_LOCAL_URL}/getClientDOForUser`,header)
           .then((res)=>{
             if(res.data!='client not found'){
               setClientDetails(res.data);
@@ -860,7 +862,7 @@ function ViewQuotation(props) {
             console.log(error)
           })
   
-          axios.get("http://localhost:8080/user",header)
+          axios.get(`${process.env.REACT_APP_LOCAL_URL}/user`,header)
           .then((res)=>{
               setUserDetails(res.data);
           }).catch((error)=>{
@@ -876,7 +878,7 @@ function ViewQuotation(props) {
     useEffect(()=>{
         if(custName==null) return;
   
-        axios.get(`http://localhost:8080/customer/custname/${custName}`,header).then((res)=>{
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/customer/custname/${custName}`,header).then((res)=>{
           
             if(res!='Customers not found'){
               setCustomerDetails(res.data);

@@ -115,7 +115,7 @@ function Login() {
         e.preventDefault();
         debugger;
         console.log("clicked")
-        axios.post(BACKEND_SERVER+"/login",{username:userName,password}).then((res)=>{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/login`,{username:userName,password}).then((res)=>{
           console.log(res.data)
           if(res.data!=null){
             localStorage.setItem("token",res.data.token)

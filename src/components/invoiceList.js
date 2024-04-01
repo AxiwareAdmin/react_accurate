@@ -12,6 +12,7 @@ import Navbar from "./Navbar";
 import Swal from "sweetalert2";
 import { render } from "react-dom";
 import ExcelJS from 'exceljs';
+import Theme from "./Theme/Theme";
 
 
 export default function InvoiceList () {
@@ -24,6 +25,7 @@ export default function InvoiceList () {
   
 
     const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+
 
     useEffect(() => {
       console.log("changing")
@@ -430,7 +432,7 @@ const exportToExcel = async () => {
 		 
 		 if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
 		 spanElem.className="badge bg-success-light" 
-		 if(elem.invoiceStatus == "Overdue")
+		 if(elem.invoiceStatus == "Overdue" || elem.invoiceStatus == "Unpaid")
 		 spanElem.className="badge bg-danger-light";
 		 if(elem.invoiceStatus == "Cancelled")
 		 spanElem.className="badge bg-primary-light";
@@ -614,7 +616,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"invoices"}/${month1}`,header).then((res) => {
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"invoices"}/${month1}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) => {
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -750,7 +752,9 @@ const exportToExcel = async () => {
 			 
 			 if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
 			 spanElem.className="badge bg-success-light" 
-			 if(elem.invoiceStatus == "Overdue")
+			 if(elem.invoiceStatus == "Overdue" || elem.invoiceStatus == "Unpaid")
+			 spanElem.className="badge bg-danger-light";
+			 if(elem.invoiceStatus == "Unpaid")
 			 spanElem.className="badge bg-danger-light";
 			 if(elem.invoiceStatus == "Cancelled")
 			 spanElem.className="badge bg-primary-light";
@@ -886,7 +890,7 @@ const exportToExcel = async () => {
 
 		  })
 
-		axios.get("http://localhost:8080/customers",header).then((res) => {
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/customers`,header).then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
         var option = document.createElement("option");
@@ -899,7 +903,7 @@ const exportToExcel = async () => {
 		  })
 
 
-		  axios.get("http://localhost:8080/getusersbyregistrid",header).then((res) => {
+		  axios.get(`${process.env.REACT_APP_LOCAL_URL}/getusersbyregistrid`,header).then((res) => {
 			console.log(res.data);
 			res.data.map((a) => {
 			var option = document.createElement("option");
@@ -912,7 +916,7 @@ const exportToExcel = async () => {
 			  })
 
 
-		axios.get("http://localhost:8080/getClientDOForUser",header)
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/getClientDOForUser`,header)
         .then((res)=>{
           if(res.data!='client not found'){
             setClientDetails(res.data);
@@ -1012,6 +1016,7 @@ const exportToExcel = async () => {
           document.body.removeChild(script9);
           document.body.removeChild(script10);
           document.body.removeChild(script11);
+
         };
 	},[])
 
@@ -1054,7 +1059,7 @@ const exportToExcel = async () => {
 
                 navigate(`/viewInvoiceTriplet?id=${invt}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
 		 }else if(name == "Delete"){
-			axios.get(`http://localhost:8080/deleteInv?invoiceId=${invt}&invoiceType=${invoiceType}`,header).then((res) => {
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteInv?invoiceId=${invt}&invoiceType=${invoiceType}`,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1082,7 +1087,7 @@ const exportToExcel = async () => {
 			//new code
 			console.log(e)
 			// axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
-			axios.post(`http://localhost:8080/cancelInvoice?invoiceId=${invt}&invoiceType=${invoiceType}`,{},header).then((res)=>{
+			axios.post(`${process.env.REACT_APP_LOCAL_URL}/cancelInvoice?invoiceId=${invt}&invoiceType=${invoiceType}`,{},header).then((res)=>{
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
@@ -1235,7 +1240,7 @@ const exportToExcel = async () => {
 			status,
 			category
 		}
-		axios.post('http://localhost:8080/excel/invoices', data,{
+		axios.post(`${process.env.REACT_APP_LOCAL_URL}/excel/invoices`, data,{
 			method: 'GET',
 			responseType: 'blob', // important
 			...header
@@ -1296,7 +1301,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.post("http://localhost:8080/getFilterInvoices",data,{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/getFilterInvoices`,data,{
 			...header
 		}).then((res) => {
 			setInvoicedo(res.data);
@@ -1441,7 +1446,7 @@ const exportToExcel = async () => {
             
 			if(elem.invoiceStatus == "Paid" || elem.invoiceStatus =="" || elem.invoiceStatus == null)
             spanElem.className="badge bg-success-light" 
-			if(elem.invoiceStatus == "Overdue")
+			if(elem.invoiceStatus == "Overdue" || elem.invoiceStatus == "Unpaid")
 			spanElem.className="badge bg-danger-light";
 			if(elem.invoiceStatus == "Cancelled")
 			spanElem.className="badge bg-primary-light";
@@ -1580,7 +1585,7 @@ const exportToExcel = async () => {
 			tdElem.appendChild(textElem);
 		   trElem.appendChild(tdElem);
 			
-	
+			
 			document.querySelector("#tableFooter").appendChild(trElem); 
 			if (document.querySelector('.datatable') && document.querySelector('.datatable').length > 0) {
 				document.querySelector('.datatable').DataTable({
@@ -1598,6 +1603,7 @@ const exportToExcel = async () => {
 
   return (
     <div>
+		<Theme/>
 		 <Navbar/>
 		<Sidebar />
         {/* <div style={{color:'white',backgroundColor:'red',textAlign:'center'}}>
@@ -2016,166 +2022,7 @@ const exportToExcel = async () => {
 												</tr>
 											</thead>
 											<tbody>
-												{/* <tr>
-													<td>
-														<label class="custom_check">
-															<input type="checkbox" name="invoice"/>
-															<span class="checkmark"></span> 
-														</label>
-														<Link to={{pathname:"view-invoice",useState:"1234",}} class="invoice-link">IN093439#@09</Link>
-													</td>
-													<td>Advertising</td>
-													<td>16 Mar 2022</td>
-													<td>
-														<h2 class="table-avatar">
-															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-04.jpg" alt="User Image"/> Barbara Moore</a>
-														</h2>
-													</td>
-													<td class="text-primary">$1,54,220</td>
-													<td>23 Mar 2022</td>
-													<td><span class="badge bg-success-light">Paid</span></td>
-													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
-													</td>
-												</tr>
-												<tr>
-													<td>
-														<label class="custom_check">
-															<input type="checkbox" name="invoice"/>
-															<span class="checkmark"></span> 
-														</label>
-														<a href="view-invoice.html" class="invoice-link">IN093439#@10</a>
-													</td>
-													<td>Food</td>
-													<td>14 Mar 2022</td>
-													<td>
-														<h2 class="table-avatar">
-															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-06.jpg" alt="User Image"/> Karlene Chaidez</a>
-														</h2>
-													</td>
-													<td class="text-primary">$1,222</td>
-													<td>18 Mar 2022</td>
-													<td><span class="badge bg-danger-light">Overdue</span></td>
-													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
-													</td>
-												</tr>
-												<tr>
-													<td>
-														<label class="custom_check">
-															<input type="checkbox" name="invoice"/>
-															<span class="checkmark"></span> 
-														</label>
-														<a href="view-invoice.html" class="invoice-link">IN093439#@11</a>
-													</td>
-													<td>Marketing</td>
-													<td>7 Mar 2022</td>
-													<td>
-														<h2 class="table-avatar">
-															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-08.jpg" alt="User Image"/> Russell Copeland</a>
-														</h2>
-													</td>
-													<td class="text-primary">$3,470</td>
-													<td>10 Mar 2022</td>
-													<td><span class="badge bg-primary-light">Cancelled</span></td>
-													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
-													</td>
-												</tr>
-												<tr>
-													<td>
-														<label class="custom_check">
-															<input type="checkbox" name="invoice"/>
-															<span class="checkmark"></span> 
-														</label>
-														<a href="view-invoice.html" class="invoice-link">IN093439#@12</a>
-													</td>
-													<td>Repairs</td>
-													<td>24 Mar 2022</td>
-													<td>
-														<h2 class="table-avatar">
-															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-10.jpg" alt="User Image"/> Joseph Collins</a>
-														</h2>
-													</td>
-													<td class="text-primary">$8,265</td>
-													<td>30 Mar 2022</td>
-													<td><span class="badge bg-success-light">Paid</span></td>
-													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
-													</td>
-												</tr>
-												<tr>
-													<td>
-														<label class="custom_check">
-															<input type="checkbox" name="invoice"/>
-															<span class="checkmark"></span> 
-														</label>
-														<a href="view-invoice.html" class="invoice-link">IN093439#@13</a>
-													</td>
-													<td>Software</td>
-													<td>17 Mar 2022</td>
-													<td>
-														<h2 class="table-avatar">
-															<a href="profile.html"><img class="avatar avatar-sm me-2 avatar-img rounded-circle" src="assets/img/profiles/avatar-11.jpg" alt="User Image"/> Jennifer Floyd</a>
-														</h2>
-													</td>
-													<td class="text-primary">$5,200</td>
-													<td>20 Mar 2022</td>
-													<td><span class="badge bg-danger-light">Overdue</span></td>
-													<td class="text-end">
-														<div class="dropdown dropdown-action">
-															<a href="#" class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-ellipsis-v"></i></a>
-															<div class="dropdown-menu dropdown-menu-end">
-																<a class="dropdown-item" href="edit-invoice.html"><i class="far fa-edit me-2"></i>Edit</a>
-																<a class="dropdown-item" href="view-invoice.html"><i class="far fa-eye me-2"></i>View</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-trash-alt me-2"></i>Delete</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-check-circle me-2"></i>Mark as sent</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-paper-plane me-2"></i>Send Invoice</a>
-																<a class="dropdown-item" href="javascript:void(0);"><i class="far fa-copy me-2"></i>Clone Invoice</a>
-															</div>
-														</div>
-													</td>
-												</tr> */}
+												
 											</tbody>
 											<tfoot id="tableFooter">
 												

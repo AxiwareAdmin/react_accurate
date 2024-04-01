@@ -6,6 +6,7 @@ import html2canvas from "html2canvas";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import Loader from "./Loader";
 import Navbar from "./Navbar";
+import Theme from "./Theme/Theme";
 
 export default function ViewInvoiceTriplet() {
 
@@ -183,6 +184,7 @@ export default function ViewInvoiceTriplet() {
   }
   return (
     <div>
+      <Theme/>
         <Navbar />
         <Sidebar />
         <Loader display={displayFlag}/>
@@ -572,7 +574,7 @@ function ViewInvoice(props) {
       if (!initilized.current) {
         initilized.current = true;
         axios
-          .get(`http://localhost:8080/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':props.invoiceType.toLowerCase()=='proforma'?"viewProformaInvoice":'viewInvoice'}?invId=` + id1, header)
+          .get(`${process.env.REACT_APP_LOCAL_URL}/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':props.invoiceType.toLowerCase()=='proforma'?"viewProformaInvoice":'viewInvoice'}?invId=` + id1, header)
           .then((res) => {
             debugger;
   
@@ -844,14 +846,14 @@ function ViewInvoice(props) {
             console.log(e);
           });
   
-          axios.get("http://localhost:8080/getClientDOForUser",header)
+          axios.get(`${process.env.REACT_APP_LOCAL_URL}/getClientDOForUser`,header)
           .then((res)=>{
             if(res.data!='client not found'){
               setClientDetails(res.data);
             }
           })
   
-          axios.get("http://localhost:8080/user",header)
+          axios.get(`${process.env.REACT_APP_LOCAL_URL}/user`,header)
           .then((res)=>{
               setUserDetails(res.data);
           }).catch((error)=>{
@@ -867,7 +869,7 @@ function ViewInvoice(props) {
     useEffect(()=>{
         if(custName==null) return;
   
-        axios.get(`http://localhost:8080/customer/custname/${custName}`,header).then((res)=>{
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/customer/custname/${custName}`,header).then((res)=>{
           debugger;
             if(res!='Customers not found'){
               setCustomerDetails(res.data);

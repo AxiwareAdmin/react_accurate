@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import Theme from "./Theme/Theme";
 
 
 export default function SalesRegister () {
@@ -146,8 +147,10 @@ export default function SalesRegister () {
         var closingBal=0;
 
         var tempTotal=0;
+
+        debugger;
         
-        axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewSalesCashReg':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewSalesProformaReg':'viewSalesReg'}`,header).then((res) =>{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewSalesCashReg':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewSalesProformaReg':'viewSalesReg'}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) =>{
         if(res.data.res) return;  
         res.data && res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
@@ -159,7 +162,7 @@ export default function SalesRegister () {
             )
 
         }).finally(()=>{
-        axios.get(`http://localhost:8080/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewSalesCashReg':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewSalesProformaReg':'viewSalesReg'}`,header).then((res) =>{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewSalesCashReg':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewSalesProformaReg':'viewSalesReg'}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) =>{
             if(res.data.res) return;
         res.data && res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -297,6 +300,7 @@ export default function SalesRegister () {
 
       
         <div>
+          <Theme/>
              <Navbar/>
             <Sidebar />
              

@@ -5,6 +5,10 @@ import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import axios from "axios";
 import Alert from "./alert";
+import $ from 'jquery';
+import 'select2';
+// import Select from 'react-select';
+
 import {
   Navigate,
   useAsyncError,
@@ -23,6 +27,7 @@ import AddCustomer from "./Manage/AddCustomer";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Theme from "./Theme/Theme";
 
 export default function InvoicePageWrapper(props) {
   const addProductForCopy = window.addProductForCopy;
@@ -40,8 +45,12 @@ export default function InvoicePageWrapper(props) {
     const newInvoiceType = queryParams.get(process.env.REACT_APP_INVOICE_TYPE);
     setInvoiceType(newInvoiceType);
   }, [location.search]);
-  const BACKEND_SERVER = "http://localhost:8080";
+  const BACKEND_SERVER = `${process.env.REACT_APP_LOCAL_URL}`;
+
+  const selectRef=useRef(null);
   const editref = useRef(true);
+
+  const bookRef=useRef(true);
 
   const [isOpenCustomer, setIsOpenCustomer] = React.useState(false);
   const [isOpenAddProduct, setIsOpenAddProduct] = React.useState(false);
@@ -346,6 +355,8 @@ export default function InvoicePageWrapper(props) {
     return totAmt;
   };
   const [totalAmt, setTotalAmt] = useState(calculateTotalAmt());
+  const [poNumbers,setPoNumbers]=useState([]);
+  const [poNumberOptions,setPoNumberOptions]=useState([]);
 
   const onPriceChange = (event) => {
     var tr = event.target.parentElement.parentElement;
@@ -445,10 +456,56 @@ export default function InvoicePageWrapper(props) {
 
   function selectCustomer(e) {
     e.preventDefault();
+    debugger;
     var a = document.querySelector("#customer option:checked");
     var customerId = a.value;
 
+    var supplierName=a.textContent;
+
     var token = localStorage.getItem("token");
+
+
+   
+
+    if(customerId==-1){
+        setPoNumbers([])
+    }
+
+    else{
+
+      var url = new URL(window.location.href);
+    let invNoEdit = url.searchParams.get("InvNo");
+    let actionedit = url.searchParams.get("action");
+    
+    if (actionedit == "Edit" || actionedit == "Clone") {
+      axios.get(BACKEND_SERVER+`/poBySuppNameForCopy/${supplierName}`,{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      }).then((res)=>{
+        console.log(res.data)
+        setPoNumbers(res.data)
+  
+      }).catch((error)=>{
+      console.log(error)
+      })
+    }else{
+      axios.get(BACKEND_SERVER+`/poBySuppName/${supplierName}`,{
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+      }).then((res)=>{
+        console.log(res.data)
+        setPoNumbers(res.data)
+  
+      }).catch((error)=>{
+      console.log(error)
+      })
+    }
+
+  }
 
     axios
       .get(BACKEND_SERVER + "/supplier/" + customerId, {
@@ -458,6 +515,11 @@ export default function InvoicePageWrapper(props) {
         },
       })
       .then((res) => {
+
+        if(res.data.res){
+          window.location.href="/add-purchase"
+          return;
+        } 
         debugger;
         var address1 = res.data.address1;
         var address2 = res.data.address2;
@@ -534,11 +596,91 @@ export default function InvoicePageWrapper(props) {
         setShippingAddress1(shippingAddr1);
         setShippingAddress2(shippingAddr2);
 
-        let poNum = res.data.pono;
-        if (poNum != null && poNum != undefined && poNum != "")
-          setPoNumber(poNum);
+        // let poNum = res.data.pono;
+        // if (poNum != null && poNum != undefined && poNum != "")
+        //   setPoNumber(poNum);
       });
   }
+
+  useEffect(() => {
+    updateSelectOptions(); // Update Select options when poNumbers change
+    applySelect2(); // Apply Select2 plugin after updating options
+
+    return ()=>{
+    const selectElement = document.getElementById('poNumbers');
+    $(selectElement).off('change'); // Remove event listener to prevent memory leaks
+    $(selectElement).select2('destroy');
+    }
+  }, [poNumbers]);
+
+
+  function updateSelectOptions() {
+    debugger;
+    const selectElement = document.getElementById('poNumbers');
+    selectElement.innerHTML = ''; // Clear existing options
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '-1';
+    defaultOption.textContent = '--Select PO--';
+    selectElement.appendChild(defaultOption);
+
+    var url = new URL(window.location.href);
+    let invNoEdit = url.searchParams.get("InvNo");
+    let actionedit = url.searchParams.get("action");
+    
+    if (actionedit == "Edit" || actionedit == "Clone") {
+    poNumbers.forEach(val => {
+      const option = document.createElement('option');
+      option.value = val.poId;
+      option.textContent = val.poNumber;
+
+      if(poNumber==val.poNumber){
+        option.selected=true;
+      }
+
+      selectElement.appendChild(option);
+    });
+    }
+
+    else {
+      poNumbers.forEach(val => {
+        const option = document.createElement('option');
+        option.value = val.poId;
+        option.textContent = val.poNumber;
+  
+        if(poNumber==val.poNumber){
+          option.selected=true;
+        }
+  
+        selectElement.appendChild(option);
+      });
+      }
+  };
+
+  function applySelect2 ()  {
+
+    
+
+    const selectElement = document.getElementById('poNumbers');
+
+
+    // Initialize Select2 plugin
+    $(selectElement).select2();
+
+    $(selectElement).on('change', (event) => {
+      onPoNumberChange(event)
+      
+    });
+
+    var url = new URL(window.location.href);
+    let invNoEdit = url.searchParams.get("InvNo");
+    let actionedit = url.searchParams.get("action");
+
+    var event = new Event("change");
+
+              // Dispatch it.
+              selectElement.dispatchEvent(event);
+
+  };
 
   useEffect(() => {
     debugger;
@@ -553,6 +695,10 @@ export default function InvoicePageWrapper(props) {
     window.AddProductDetails = (e) => {
       AddProductDetails(e);
     };
+
+    window.onPoNumberChange=(e)=>{
+      onPoNumberChange(e);
+    }
 
     window.onPaymentTermsChange = (e) => {
       onPaymentTermsChange(e);
@@ -615,66 +761,8 @@ export default function InvoicePageWrapper(props) {
     window.getProductCount = () => getProductCount();
   });
   useEffect(() => {
-    // document.querySelectorAll("script").forEach(e => e.remove());
-    // document.querySelectorAll("script[src]").forEach(a=>a.remove())
-    // document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());
     var token = localStorage.getItem("token");
-    //it was GET method earlier
-
-    /*axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
-  headers:{
-    "Content-Type":"application/json",
-    "Authorization":'Bearer '+token
-  }
-}).then((res)=>{
-    var prefix1=res.data.prefix1;
-
-    var prefix2=res.data.prefix2;
-
-    var mode=res.data.mode;
-
-    if(mode!='Auto'){
-      setInvoiceMode(mode);
-      return;
-    } 
-
-    debugger;
-
-    var url=new URL(window.location.href);
-    let actionedit = url.searchParams.get("action");
-
-    if(actionedit!=undefined && actionedit!=null && actionedit=='Edit') return;
-    
-    
-    var series=res.data.series;
-
-    var adder=parseInt(series);
-
-
-    // axios.get(BACKEND_SERVER+`/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"invoices"}/year/`+document.querySelector("#financialYear").value,{//change
-    //   headers:{
-    //     "Content-Type":"application/json",
-    //     "Authorization":'Bearer '+token
-    //   }
-    // }).then((res) => {
-    //   let invoiceLen = res.data.length+adder+"";
-
-    //   while(invoiceLen.length<series.length){
-    //     invoiceLen='0'+invoiceLen;
-    //   }
-
-      
-    //   let invoiceNum = prefix1+"/"+prefix2 + "/" + invoiceLen;
-    //   console.log("invoice:" + invoiceNum);
-    //   debugger;
-    //   setInvoiceNumber(invoiceNum);
-    // }).catch((e)=>{
-    //   console.log(e)
-    // })
-
-    // setInvoiceNumber("A/B/"+Math.random*10);
-
-})*/
+ 
 
     axios
       .get(BACKEND_SERVER + "/gstRates", {
@@ -817,6 +905,7 @@ export default function InvoicePageWrapper(props) {
 
     setTimeout(() => {
       onCopyInvoiceAddInvoiceDetails();
+      onBookInvoiceAddInvoiceDetails();
     }, 1000);
 
     return () => {
@@ -837,7 +926,12 @@ export default function InvoicePageWrapper(props) {
   const [fromAddr1, setFromAddr1] = useState("");
   const [fromAddr2, setFromAddr2] = useState("");
 
+
+  
+
   const [loadingCompleted, setLoadingCompleted] = useState();
+
+  const [selectedPoNumberOption,setSelectedPoNumberOption]=useState("");
 
   const [remarks, setRemarks] = useState("");
 
@@ -1257,6 +1351,8 @@ export default function InvoicePageWrapper(props) {
     );
   }, [discountInPercentage, discountInRuppes]);
 
+
+
   const onTransportChargeChange = (e) => {
     setTransportCharge(e.target.value);
   };
@@ -1325,6 +1421,8 @@ export default function InvoicePageWrapper(props) {
       totalSgst = roundNum(totalSgst + roundNum(parseFloat(elem) / 2));
       totalCgst = roundNum(totalCgst + roundNum(parseFloat(elem) / 2));
     });
+    
+    let tempPoNumber=$("#poNumbers option:selected").text();
 
     let invoiceData = {
       purchaseProducts: productUnits,
@@ -1340,7 +1438,7 @@ export default function InvoicePageWrapper(props) {
       otherDiscount: roundNum((totalAmt * discountInPercentage) / 100),
       shippingAddress: shippingAddress1 + shippingAddress2,
       billingAddress: fromAddr1 + fromAddr2,
-      poNumber: poNumber,
+      poNumber:tempPoNumber ,
       supplierName: document.querySelector("#customer option:checked")
         .innerText,
       purchaseDate: invoiceDate,
@@ -1368,7 +1466,7 @@ export default function InvoicePageWrapper(props) {
     var token = localStorage.getItem("token");
 
     axios
-      .post(`http://localhost:8080/savepurchase`, invoiceData, {
+      .post(`${process.env.REACT_APP_LOCAL_URL}/savepurchase`, invoiceData, {
         //save invoice //change
         headers: {
           "Content-Type": "application/json",
@@ -1510,6 +1608,271 @@ export default function InvoicePageWrapper(props) {
     return day + "/" + month + "/" + year;
   }
 
+  function onPoNumberChange(e){
+        console.log("executed");
+
+       
+        let tempCopyOtherDiscount=0;
+        let tempTotalAmt=0;
+        var url = new URL(window.location.href);
+        let invNoEdit =e.target.value;
+  
+        var token = localStorage.getItem("token");
+          document.querySelector("#prodtable").innerHTML = "";
+  
+          axios
+            .get(`${process.env.REACT_APP_LOCAL_URL}/supplierPo/id/${invNoEdit}`, {
+              //change
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            })
+            .then((res) => {
+              console.log("after got data" + res.data.purchaseNo);
+              debugger;
+  
+            
+             
+  
+  
+             
+  
+              if (res.data.poDate != null) {
+                let finvdate = getFormattedDate(new Date(res.data.poDate));
+                setPoDate(finvdate);
+              }
+  
+              // if (res.data.address != null) setFromAddr1(res.data.address);
+  
+  
+              if (res.data.paymentTerms != null) {
+                const text = res.data.paymentTerms;
+                const $select = document.querySelector("#paymentTerm");
+                const $options = Array.from($select.options);
+                const optionToSelect = $options.find(
+                  (item) => item.text === text
+                );
+                $select.value = optionToSelect.value;
+              }
+  
+              if (res.data.transportCharges != null) {
+                var transportChargeTemp =
+                  document.querySelector("#transportCharge");
+                transportChargeTemp.value = res.data.transportCharges;
+  
+                setTransportCharge(fromCurrency(res.data.transportCharges));
+              }
+  
+              if (res.data.additionalCharges != null) {
+                document.querySelector("#otherCharge").value =
+                  res.data.additionalCharges;
+                setOtherCharge(fromCurrency(res.data.additionalCharges));
+              }
+  
+              if (res.data.discount != null) {
+                document.querySelector("#otherDiscount").value =
+                  res.data.discount;
+                setDiscountInRupees(res.data.discount);
+              }
+  
+              if (res.data.otherDiscount != null) { //check here
+                
+                tempCopyOtherDiscount=res.data.otherDiscount;
+              
+              }
+  
+              //start prod set code
+              // window.fetchProdList();
+              var productUnitsTemp = [];
+  
+              res.data.invoiceProductDO &&
+                res.data.invoiceProductDO.map((elem, index) => {
+                  debugger;
+                  console.log(
+                    "product data " + elem.productName + ":index id :" + index
+                  );
+  
+                  tempTotalAmt+=fromCurrency(elem.amount);
+  
+                  addProductForCopy(elem, index);
+  
+                  setProdCount(index + 1);
+  
+                  productUnitsTemp.push(elem);
+                });
+  
+              prodSelectOnChangeForCopy(productUnitsTemp);
+            })
+            .catch(function (error) {
+              console.log(error);
+            }).finally(()=>{
+                if(tempCopyOtherDiscount>0){
+  
+                  debugger;
+                
+                let temp=toCurrency((fromCurrency(tempCopyOtherDiscount)/fromCurrency(tempTotalAmt))*100).replace(/[\$]/g,'')
+  
+                document.querySelector("#discountInPercentage").value =temp;
+    
+                setDiscountInPercentage(temp);
+                }
+            });
+       
+            if(invNoEdit==-1){
+              setTransportCharge(0);
+              setOtherCharge(0);
+              setDiscountInPercentage(0);
+              setDiscountInRupees(0);
+
+
+              var transportChargeTemp =
+              document.querySelector("#transportCharge");
+
+              transportChargeTemp.value =0
+
+              document.querySelector("#otherCharge").value =0;
+
+
+              document.querySelector("#otherDiscount").value =0;
+
+
+              document.querySelector("#discountInPercentage").value =0;
+            }
+      
+  }
+
+  //start book nvoce code
+  
+  function onBookInvoiceAddInvoiceDetails() {
+    if (bookRef.current) {
+
+      let tempCopyOtherDiscount=0;
+      let tempTotalAmt=0;
+      var url = new URL(window.location.href);
+      let invNoEdit = url.searchParams.get("InvNo");
+      let actionedit = url.searchParams.get("action");
+
+      var token = localStorage.getItem("token");
+      if (actionedit == "Book") {
+        document.querySelector("#prodtable").innerHTML = "";
+
+        axios
+          .get(`${process.env.REACT_APP_LOCAL_URL}/supplierPo/id/${invNoEdit}`, {
+            //change
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + token,
+            },
+          })
+          .then((res) => {
+            // console.log("after got data" + res.data.purchaseNo);
+            debugger;
+
+            if (res.data.customerName != null) {
+              const text = res.data.customerName;
+              const $select = document.querySelector("#customer");
+              const $options = Array.from($select.options);
+
+              const optionToSelect = $options.find(
+                (item) => item.text === text
+              );
+              $select.value = optionToSelect.value;
+              //below code is used to dispatch change event on customer select box becuase i is not getting updated otherwise
+              var event = new Event("change");
+
+              // Dispatch it.
+              $select.dispatchEvent(event);
+            }
+
+
+            if (res.data.invoiceNo != null){
+              setPoNumber(res.data.invoiceNo);
+            } 
+
+         
+
+            if (res.data.poDate != null) {
+              let finvdate = getFormattedDate(new Date(res.data.poDate));
+              setPoDate(finvdate);
+            }
+
+            // if (res.data.address != null) setFromAddr1(res.data.address);
+
+            // if (res.data.challanDate != null) {
+            //   let finvdate = getFormattedDate(new Date(res.data.challanDate));
+            //   setChallanDate(finvdate);
+            // }
+
+            // if (res.data.transportMode != null) {
+            //   const text = res.data.transportMode;
+            //   const $select = document.querySelector("#transportModes");
+            //   const $options = Array.from($select.options);
+            //   const optionToSelect = $options.find(
+            //     (item) => item.text === text
+            //   );
+            //   $select.value = optionToSelect.value;
+            // }
+
+            // if (res.data.paymentTerms != null) {
+            //   const text = res.data.paymentTerms;
+            //   const $select = document.querySelector("#paymentTerm");
+            //   const $options = Array.from($select.options);
+            //   const optionToSelect = $options.find(
+            //     (item) => item.text === text
+            //   );
+            //   $select.value = optionToSelect.value;
+            // }
+
+            // if(res.data.vehicleNo != null)
+            // setVehicleNumber(res.data.vehicleNo);
+
+            // if (res.data.transportCharges != null) {
+            //   var transportChargeTemp =
+            //     document.querySelector("#transportCharge");
+            //   transportChargeTemp.value = res.data.transportCharges;
+
+            //   setTransportCharge(fromCurrency(res.data.transportCharges));
+            // }
+
+            // if (res.data.additionalCharges != null) {
+            //   document.querySelector("#otherCharge").value =
+            //     res.data.additionalCharges;
+            //   setOtherCharge(fromCurrency(res.data.additionalCharges));
+            // }
+
+            // if (res.data.discount != null) {
+            //   document.querySelector("#otherDiscount").value =
+            //     res.data.discount;
+            //   setDiscountInRupees(res.data.discount);
+            // }
+
+            // if (res.data.otherDiscount != null) { //check here
+              
+            //   tempCopyOtherDiscount=res.data.otherDiscount;
+            
+            // }
+          })
+          .catch(function (error) {
+            console.log(error);
+          }).finally(()=>{
+              if(tempCopyOtherDiscount>0){
+
+                debugger;
+              
+                let temp=toCurrency((fromCurrency(tempCopyOtherDiscount)/fromCurrency(tempTotalAmt))*100).replace(/[\$]/g,'')
+
+              document.querySelector("#discountInPercentage").value =temp;
+  
+              setDiscountInPercentage(temp);
+              }
+          });
+      }
+      bookRef.current = false;
+    }
+  }
+
+
   // start code for edit invoice
 
   function onCopyInvoiceAddInvoiceDetails() {
@@ -1526,7 +1889,7 @@ export default function InvoicePageWrapper(props) {
         document.querySelector("#prodtable").innerHTML = "";
 
         axios
-          .get(`http://localhost:8080/purchase/id/${invNoEdit}`, {
+          .get(`${process.env.REACT_APP_LOCAL_URL}/purchase/id/${invNoEdit}`, {
             //change
             headers: {
               "Content-Type": "application/json",
@@ -1559,7 +1922,24 @@ export default function InvoicePageWrapper(props) {
             if (res.data.purchaseNo != null && actionedit == "Edit")
               setInvoiceNumber(res.data.purchaseNo);
 
-            if (res.data.poNo != null) setPoNumber(res.data.poNo);
+            if (res.data.poNo != null){
+
+              // axios.get(BACKEND_SERVER+`/poBySuppName/${res.data.supplierName}`,{
+              //   headers: {
+              //     "Content-Type": "application/json",
+              //     Authorization: "Bearer " + token,
+              //   },
+              // }).then((res)=>{
+          
+              //   console.log("po numbers")
+              //   console.log(res.data)
+              //     setPoNumbers(res.data)
+          
+              // }).catch((error)=>{
+              // console.log(error)
+              // })
+              setPoNumber(res.data.poNo);
+            } 
 
             if (res.data.purchaseDate != null && actionedit == "Edit") {
               let finvdate = getFormattedDate(new Date(res.data.purchaseDate));
@@ -1677,11 +2057,16 @@ export default function InvoicePageWrapper(props) {
     }
   }
 
+  function onTest(){
+    alert("changed")
+  }
+
   // End code of edit invoice
 
   return (
     <>
       <ToastContainer />
+      <Theme/>
       <Navbar />
       <Alert msg={alertMsg} />
       <div>
@@ -1836,19 +2221,38 @@ export default function InvoicePageWrapper(props) {
                               <div className="invoice-inner-footer">
                                 <div className="row align-items-center">
                                   <div className="col-lg-6 col-md-6">
-                                    {/* <div className="invoice-inner-date">
-                                    <span>
-                                      Date{" "}
-                                      <input
-                                        className="form-control datetimepicker"
-                                        type="text"
-                                        placeholder="15/02/2022"
-                                      />
-                                    </span>
-                                  </div> */}
+                                   
                                     <div className="invoice-inner-date">
                                       <div className="form-group">
                                         Po Number
+
+                                    <select onChange={onTest} id="poNumbers" style={{width:'100%'}}>
+                                    <option selected value='-1'>--Select PO--</option>
+                                   {/* {
+                                   
+                                   poNumbers.map((val, key) => {
+                                    return <option value={val.poId}>{val.poNumber}</option>;
+                                           })
+                                  } */}
+                                      </select>
+
+                                        {/* {
+                                          poNumberOptions.length>0?
+                                  //         <select className="selectpicker" onChange={onPoNumberChange} id="poNumbers" style={{width:'100%'}}>
+                                  //           <option selected={true} value='-1'>--Select PO--</option>
+                                  // {poNumbers.map((val, key) => {
+                                  //   return <option value={val.poId}>{val.poNumber}</option>;
+                                  //          })
+                                  // }
+                                  //     </select>
+                                      <Select
+                                        value={selectedPoNumberOption}
+                                        onChange={onPoNumberChange}
+                                        options={poNumberOptions}
+                                        // placeholder="-Select PO-"
+                                        isSearchable={true}
+                                      />
+                                            :
                                         <input
                                           className="form-control"
                                           type="text"
@@ -1860,6 +2264,7 @@ export default function InvoicePageWrapper(props) {
                                             padding: "10px",
                                           }}
                                         />
+                                        } */}
                                       </div>
                                     </div>
                                   </div>

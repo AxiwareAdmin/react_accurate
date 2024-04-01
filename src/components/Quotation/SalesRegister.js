@@ -4,6 +4,7 @@ import Sidebar from "../Sidebar";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../Navbar";
+import Theme from "../Theme/Theme";
 
 
 export default function SalesRegisterQuotation () {
@@ -13,16 +14,6 @@ export default function SalesRegisterQuotation () {
     var token=localStorage.getItem("token")
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
-    //const initialInvoiceType = queryParams.get(process.env.REACT_APP_QUOTATION);
-  
-
-    //const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
-
-    // useEffect(() => {
-    //   console.log("changing")
-    //   //const newInvoiceType = queryParams.get(process.env.REACT_APP_QUOTATION);
-    //  // setInvoiceType(process.env.REACT_APP_QUOTATION);
-    // }, [location.search]);
 
 
 	var header={
@@ -134,6 +125,7 @@ export default function SalesRegisterQuotation () {
           document.body.removeChild(script9);
           document.body.removeChild(script10);
           document.body.removeChild(script11);
+
         };
       }, []);
 
@@ -147,7 +139,7 @@ export default function SalesRegisterQuotation () {
 
         var tempTotal=0;
         
-        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegQuotation`,header).then((res) =>{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegQuotation`,{financialYear:localStorage.getItem("financialYear")},header).then((res) =>{
         if(res.data.res) return;  
         res.data && res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
@@ -159,7 +151,7 @@ export default function SalesRegisterQuotation () {
             )
 
         }).finally(()=>{
-        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegQuotation`,header).then((res) =>{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/viewSalesRegQuotation`,{financialYear:localStorage.getItem("financialYear")},header).then((res) =>{
             if(res.data.res) return;
         res.data && res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -297,6 +289,7 @@ export default function SalesRegisterQuotation () {
 
       
         <div>
+          <Theme/>
              <Navbar/>
             <Sidebar />
              

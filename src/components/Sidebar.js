@@ -1,8 +1,27 @@
-import React,{useEffect} from 'react'
+import React,{useEffect,useState} from 'react'
 import { Link } from 'react-router-dom'
+import axios from 'axios';
 
 export default function Sidebar() {
 
+	var header={
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+localStorage.getItem("token")
+        }
+      }
+
+	const [userDO,setUserDO]=useState({});
+
+
+	useEffect(()=>{
+
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/me`,header)
+		.then((res)=>{
+			if(res.data!="user not found")
+			setUserDO(res.data);
+		})
+},[])
 
   return (
     <div>
@@ -18,8 +37,8 @@ export default function Sidebar() {
 				                  
 				                </div>
 				                <div className="nav-profile-text d-flex flex-column">
-				                  <span className="font-weight-bold mb-2">David Grey. H</span>
-				                  <span className="text-white text-small">Project Manager</span>
+				                  <span className="font-weight-bold mb-2">{userDO.userName}</span>
+				                  <span className="text-white text-small">{userDO.designation}</span>
 				                </div>
 				                <i className="mdi mdi-bookmark-check text-success nav-profile-badge"></i>
 				              </a>
@@ -28,7 +47,7 @@ export default function Sidebar() {
 								<span>Main</span>
 							</li>
 							<li>
-							<Link to="/dashboard" className="active"><i className="fa fa-th-large"></i> <span> Dashboard</span> </Link>
+							<a href="/dashboard" className="active"><i className="fa fa-th-large"></i> <span> Dashboard</span> </a>
 							
 								{/* <ul className="sub-menus">
 									<li><Link to="/dashboard" className="active">Deals Dashboard</Link></li>
@@ -41,9 +60,9 @@ export default function Sidebar() {
 							<li className="submenu">
 								<a href="#"><i className="fa fa-university"></i> <span>  Banking </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
-									<li><Link to="/salesRegister">Bank Transactions</Link></li>
+									<li><a href="/salesRegister">Bank Transactions</a></li>
 									<li><a href="invoice-grid.html" >Bank Entry</a></li>
-									<li><Link to="/add-invoice">Bank Reconciliation</Link></li>
+									<li><a href="/add-invoice">Bank Reconciliation</a></li>
 								</ul>
 							</li>
 
@@ -51,7 +70,7 @@ export default function Sidebar() {
 							<li className="submenu">
 								<a href="#"><i className="feather-book"></i> <span>  Cash Book </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
-									<li><Link to="/salesRegister">Cash Transactions</Link></li>
+									<li><a href="/salesRegister">Cash Transactions</a></li>
 									<li><a href="invoice-grid.html" >Cash Entry</a></li>
 								</ul>
 							</li>
@@ -59,9 +78,9 @@ export default function Sidebar() {
 							<li className="submenu">
 								<a href="#"><i className="fa fa-calculator"></i> <span>  Accounting </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
-									<li><Link to="/salesRegister">Journal Voucher</Link></li>
-									<li><a href="invoice-grid.html" >Debit Note</a></li>
-									<li><Link to="/add-invoice">Credit Note</Link></li>
+									<li><a href="/salesRegister">Journal Voucher</a></li>
+									<li><a href="/SalesRegisterDebitNote">Debit Note</a></li>
+									<li><a href="/SalesRegisterCreditNote">Credit Note</a></li>
 								</ul>
 							</li>
 
@@ -100,10 +119,10 @@ export default function Sidebar() {
 							<li className="submenu">
 								<a href="#"><i className="feather-file-text"></i> <span>  Sales </span> <span className="menu-arrow"></span></a>
 								<ul className="sub-menus">
-									<li><Link to={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_GST_SALE_INVOICE}`}>GST Sale</Link></li>
-									<li><Link to={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_CASH_SALE_INVOICE}`}>Cash Sale</Link></li>
-									<li><Link to={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_PROFORMA_INVOICE}`}>Proforma Invoice</Link></li>
-									<li><Link to={`/add-invoice?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_GST_SALE_INVOICE}`}>Create Invoice</Link></li>
+									<li><a href={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_GST_SALE_INVOICE}`}>GST Sale</a></li>
+									<li><a href={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_CASH_SALE_INVOICE}`}>Cash Sale</a></li>
+									<li><a href={`/salesRegister?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_PROFORMA_INVOICE}`}>Proforma Invoice</a></li>
+									<li><a href={`/add-invoice?${process.env.REACT_APP_INVOICE_TYPE}=${process.env.REACT_APP_GST_SALE_INVOICE}`}>Create Invoice</a></li>
 									<li><a href="edit-invoice.html">Create Customer</a></li>
 									<li><a href="edit-invoice.html">Create Product and Services</a></li>
 									<li><a href="edit-invoice.html">Create E-Way Bill</a></li>
@@ -147,8 +166,8 @@ export default function Sidebar() {
 									<span class="menu-arrow"></span>
 								</a>
 								<ul class="sub-menus">
-									<li><a href="/purchaseRegister" >Customer Purchase Order</a></li>
-									<li><a href="/add-purchase">Supplier Purchase Order</a></li>
+									<li><a href="/SalesRegisterCustomerPO" >Customer Purchase Order</a></li>
+									<li><a href="/SalesRegisterSupplierPo">Supplier Purchase Order</a></li>
 									<li><a href="invoice.html">Create Customer</a></li>
 									<li><a href="invoice.html">Create Supplier</a></li>
 									<li><a href="invoice.html">Products And Services</a></li>
@@ -160,8 +179,8 @@ export default function Sidebar() {
 									<span class="menu-arrow"></span>
 								</a>
 								<ul class="sub-menus">
-									<li><a href="/purchaseRegister" >Material Inward</a></li>
-									<li><a href="/add-purchase">Material Outward</a></li>
+									<li><a href="/SalesRegisterMaterialInward" >Material Inward</a></li>
+									<li><a href="/SalesRegisterMaterialOutward">Material Outward</a></li>
 									<li><a href="invoice.html">Material Transfer</a></li>
 									<li><a href="invoice.html">Products And Services</a></li>
 								</ul>

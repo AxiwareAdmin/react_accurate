@@ -8,6 +8,7 @@ import Navbar from "../Navbar";
 import Swal from "sweetalert2";
 import { render } from "react-dom";
 import ExcelJS from 'exceljs';
+import Theme from "../Theme/Theme";
 
 
 export default function SupplierQuotationList () {
@@ -617,7 +618,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.get(`http://localhost:8080/supplierQuotations/${month1}`,header).then((res) => {
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/supplierQuotations/${month1}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) => {
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -889,12 +890,12 @@ const exportToExcel = async () => {
 
 		  })
 
-		axios.get("http://localhost:8080/customers",header).then((res) => {
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/suppliers`,header).then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
         var option = document.createElement("option");
-        option.value = a.customerId;
-        option.append(document.createTextNode(a.customerName));
+        option.value = a.supplierId;
+        option.append(document.createTextNode(a.supplierName));
         document.querySelector("#customer").append(option);
 			});
 		}).catch((e)=>{
@@ -902,7 +903,7 @@ const exportToExcel = async () => {
 		  })
 
 
-		  axios.get("http://localhost:8080/getusersbyregistrid",header).then((res) => {
+		  axios.get(`${process.env.REACT_APP_LOCAL_URL}/getusersbyregistrid`,header).then((res) => {
 			console.log(res.data);
 			res.data.map((a) => {
 			var option = document.createElement("option");
@@ -915,7 +916,7 @@ const exportToExcel = async () => {
 			  })
 
 
-		axios.get("http://localhost:8080/getClientDOForUser",header)
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/getClientDOForUser`,header)
         .then((res)=>{
           if(res.data!='client not found'){
             setClientDetails(res.data);
@@ -1059,7 +1060,7 @@ const exportToExcel = async () => {
 
                 navigate(`/ViewSupplierQuotationTriplet?invNo=${invt}`);
 		 }else if(name == "Delete"){
-			axios.get(`http://localhost:8080/deleteSupplierQuo?QuoId=${invt}`,header).then((res) => {
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteSupplierQuo?QuoId=${invt}`,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1088,7 +1089,7 @@ const exportToExcel = async () => {
 			console.log(e)
 			// axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
                 debugger;
-			axios.get(`http://localhost:8080/cancelSupplierQuotation?QuoId=${invt}`,header).then((res)=>{
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/cancelSupplierQuotation?QuoId=${invt}`,header).then((res)=>{
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
@@ -1241,7 +1242,7 @@ const exportToExcel = async () => {
 			status,
 			category
 		}
-		axios.post('http://localhost:8080/excel/SupplierQuotations', data,{
+		axios.post(`${process.env.REACT_APP_LOCAL_URL}/excel/SupplierQuotations`, data,{
 			method: 'GET',
 			responseType: 'blob', // important
 			...header
@@ -1302,7 +1303,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.post("http://localhost:8080/getFilterInvoices",data,{
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/getFilterInvoices`,data,{
 			...header
 		}).then((res) => {
 			setInvoicedo(res.data);
@@ -1604,6 +1605,7 @@ const exportToExcel = async () => {
 
   return (
     <div>
+		<Theme/>
 		 <Navbar/>
 		<Sidebar />
         {/* <div style={{color:'white',backgroundColor:'red',textAlign:'center'}}>

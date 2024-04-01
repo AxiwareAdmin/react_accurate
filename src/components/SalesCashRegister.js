@@ -4,6 +4,7 @@ import Sidebar from "./Sidebar";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+import Theme from "./Theme/Theme";
 
 
 export default function SalesCashRegister () {
@@ -129,7 +130,7 @@ export default function SalesCashRegister () {
         var closingBal=0;
 
         var tempTotal=0;
-        axios.get("http://localhost:8080/viewSalesCashReg",header).then((res) =>{
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesCashReg`,header).then((res) =>{
             res.data.map(ele => {
                 if(ele != null && ele != "" && ele != undefined){
                 let obj = JSON.parse(ele);
@@ -140,7 +141,7 @@ export default function SalesCashRegister () {
             )
 
         }).finally(()=>{
-        axios.get("http://localhost:8080/viewSalesCashReg",header).then((res) =>{
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/viewSalesCashReg`,header).then((res) =>{
             
           res.data.map(ele => {
             if(ele != null && ele != "" && ele != undefined){
@@ -277,6 +278,7 @@ export default function SalesCashRegister () {
 
       
         <div>
+          <Theme/>
              <Navbar/>
             <Sidebar />
              

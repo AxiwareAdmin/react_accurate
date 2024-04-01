@@ -12,6 +12,7 @@ $(document).ready(function() {
     var $slimScrolls = $('.slimscroll');
     // Sidebar
 
+    
    //loader script
   $('.contentPost').removeClass('none');
        $('.contentPost');
@@ -885,19 +886,20 @@ $(function() {
 
  // page theme color  
  
- if($('.themecls').length > 0) {
-     const toggleSwitch = document.querySelector('.theme-changes span');
-     const currentTheme = localStorage.getItem('theme');
-     var app = document.getElementsByClassName("themecls")[0];
-     if (currentTheme) {
-         app.href = "assets/css/"+currentTheme+".css";
-     }
-     function toggleTheme(e) {
-         app.href = "assets/css/"+e+".css";
-         localStorage.setItem('theme', e);
-     }
+//  if($('.themecls').length > 0) {
+//      const toggleSwitch = document.querySelector('.theme-changes span');
+//      const currentTheme = localStorage.getItem('theme');
+//      var app = document.getElementsByClassName("themecls")[0];
+//      if (currentTheme) {
+//          app.href = "assets/css/"+currentTheme+".css";
+//      }
+//      function toggleTheme(e) {
+//         debugger;
+//          app.href = "assets/css/"+e+".css";
+//          localStorage.setItem('theme', e);
+//      }
  
- }
+//  }
  $(document).ready(function() {
      //your own JS code here
      document.getElementsByClassName("main-wrapper")[0].style.visibility = "visible";

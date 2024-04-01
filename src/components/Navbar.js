@@ -1,16 +1,69 @@
-import React from 'react'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
 
 
 export default function Navbar() {
 
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
 
 	function onLogoutButtonClick(e){
 		localStorage.removeItem("token")
-		navigate("/")
+		window.location.href="/";
+		// navigate("/")
 	}
+
+	var header={
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+localStorage.getItem("token")
+        }
+      }
+
+	const [clientDO,setClienDO]=useState({});
+	const [userDO,setUserDO]=useState({});
+
+	const [financialYearList,setFinancialYearList]=useState([]);
+
+	const [logoUrl,setLogoUrl]=useState("");
+
+
+
+	useEffect(()=>{
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/financialYearList`,header)
+			.then((res)=>{
+				if(res.data)
+				setFinancialYearList(res.data);
+			})
+
+
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/me`,header)
+			.then((res)=>{
+				if(res.data!="user not found")
+				setUserDO(res.data);
+			})
+
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/getClientDOForUser`,header)
+			.then((res)=>{
+				if(!res.data.res){
+				setClienDO(res.data);
+
+
+				 // Assuming res.data.logo contains the byte array received from the server
+				 let byteArray = new Uint8Array(res.data.logo);
+				 let blob = new Blob([byteArray], { type: 'image/jpeg' }); // Adjust type based on the image format
+				 
+				 // Convert blob to data URL
+				 let imageUrl = 'data:image/jpeg;base64,'+res.data.logo;
+				 console.log("logo::")
+				 console.log(imageUrl);
+				//  setLogoUrl(imageUrl);
+
+				localStorage.setItem("financialYear",res.data.financialYear);
+				}
+			})
+	},[])
 
 	function getCurrentFinancialYear() {
 		var fiscalyear = "";
@@ -21,6 +74,19 @@ export default function Navbar() {
 		  fiscalyear = today.getFullYear() + "-" + (today.getFullYear() + 1).toString().substr(2);
 		}
 		return fiscalyear;
+	  }
+
+	  
+
+	  function onFinancialYearClick(e){
+		e.preventDefault();
+
+		axios.post(`${process.env.REACT_APP_LOCAL_URL}/setFinancialYear`,{financialYear:e.target.innerText},header).then((res)=>{
+			localStorage.setItem("financialYear",e.target.innerText);
+
+			var loc=window.location.href.replace("http://","").replace("https://","").indexOf("/")
+				window.location.href=window.location.href.replace("http://","").replace("https://","").substring(loc)
+		})
 	  }
 
   return (
@@ -48,18 +114,47 @@ export default function Navbar() {
 				
 				
 
-                <div className="page-title-box" style={{display:'flex'}}>
-					<div className="top-nav-search" style={{display:'none'}}>
-							<a href="javascript:void(0);" className="responsive-search">
+                <div className="page-title-box" style={{width:'50%'}}>
+					<div className="top-nav-search" style={{display:'flex',alignItems:'center',height:'100%',width:'100%',justifyContent:'space-around'}}>
+							{/* <a href="javascript:void(0);" className="responsive-search">
 								<i className="fa fa-search"></i>
 						   </a>
 							<form action="search.html">
 								<input className="form-control" type="text" placeholder="Search here"/>
 								<button className="btn" type="submit"><i className="fa fa-search"></i></button>
-							</form>
-						</div>
-				<p style={{margin:'0px 0px 0px 5px',display:'flex',alignItems:'center',fontWeight:"bold",color:"#9a55ff"}}>FY: {getCurrentFinancialYear()}</p>
-                <input type="hidden" id="financialYear" value={getCurrentFinancialYear()}/>
+							</form> */}
+						
+
+				<div id="clientlogo" className="logo">
+
+				<img src='assets/img/logo.png' alt="Image" className='sidebar-logo' id="logoImage" style={{width:'120px',height:'60px'}}/>
+				</div>
+				<div id="clientName" style={{fontWeight:'bolder',fontSize:'20px'}}>{clientDO.companyName}</div>
+				{/* <p style={{margin:'0px 0px 0px 5px',display:'flex',alignItems:'center',fontWeight:"bold",color:"#9a55ff"}}> */}
+				{/* <li className="nav-item dropdown has-arrow flag-nav" style={{listStyleType:'none',display:'flex',alignItems:'center',fontWeight:"bold"}}>
+				FY: 
+				<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+					<img src="" alt="" height="20"/><span>{clientDO.financialYear}</span>
+					</a>
+				<div class="dropdown-menu dropdown-menu-right">
+
+					{
+
+						financialYearList.map((val,key)=>{
+							return (
+								<a onClick={onFinancialYearClick} href="javascript:void(0);" class="dropdown-item">
+									 {val}
+									</a>
+							)
+						})
+					}
+
+					</div>
+
+					</li> */}
+				{/* </p>  */}
+                <input type="hidden" id="financialYear" value={clientDO.financialYear==""?"2023-24":clientDO.financialYear}/>
+				</div>
 				</div>
 				<a id="mobile_btn" className="mobile_btn" href="#sidebar"><i className="fa fa-bars"></i></a>
 				
@@ -68,7 +163,29 @@ export default function Navbar() {
 					<li className="nav-item">
 						
 					</li>
-					<li className="nav-item dropdown has-arrow flag-nav">
+
+					<li className="nav-item dropdown has-arrow flag-nav" style={{listStyleType:'none',display:'flex',alignItems:'center'}}>
+				FY: 
+				<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
+					<img src="" alt="" height="20"/><span>{clientDO.financialYear}</span>
+					</a>
+				<div class="dropdown-menu dropdown-menu-right">
+
+					{
+
+						financialYearList.map((val,key)=>{
+							return (
+								<a onClick={onFinancialYearClick} href="javascript:void(0);" class="dropdown-item">
+									 {val}
+									</a>
+							)
+						})
+					}
+
+					</div>
+
+					</li>
+					{/* <li className="nav-item dropdown has-arrow flag-nav">
 						<a className="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button">
 							<img src="assets/img/flags/us.png" alt="" height="20"/> <span>English</span>
 						</a>
@@ -86,10 +203,10 @@ export default function Navbar() {
 								<img src="assets/img/flags/de.png" alt="" height="16"/> German
 							</a>
 						</div>
-					</li>
+					</li> */}
 					<li className="nav-item dropdown">
 						<a href="#" className="dropdown-toggle nav-link" data-bs-toggle="dropdown">
-							<i className="fa fa-bell-o"></i> <span className="badge rounded-pill">3</span>
+							<i style={{fontFamily:'FontAwesome'}} className="fa fa-bell-o"></i> <span className="badge rounded-pill">3</span>
 						</a>
 						<div className="dropdown-menu notifications">
 							<div className="topnav-dropdown-header">
@@ -172,7 +289,7 @@ export default function Navbar() {
 					</li>
 					<li className="nav-item dropdown">
 						<a href="#" className="dropdown-toggle nav-link" data-bs-toggle="dropdown">
-							<i className="fa fa-comment-o"></i> <span className="badge rounded-pill">8</span>
+							<i style={{fontFamily:'FontAwesome'}} className="fa fa-comment-o"></i> <span className="badge rounded-pill">8</span>
 						</a>
 						<div className="dropdown-menu notifications">
 							<div className="topnav-dropdown-header">
@@ -282,7 +399,7 @@ export default function Navbar() {
 						</a>
 						<div className="dropdown-menu">
 							<a className="dropdown-item" href="profile.html">My Profile</a>
-							<a className="dropdown-item" href="settings.html">Settings</a>
+							<a className="dropdown-item" href="/generalSettings">Settings</a>
 							<a className="dropdown-item" onClick={onLogoutButtonClick}>Logout</a>
 						</div>
 					</li>

@@ -18,6 +18,7 @@ import AddCustomer from "../Manage/AddCustomer";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Theme from "../Theme/Theme";
 
 export default function CreateQuotation(props) {
 
@@ -1628,6 +1629,7 @@ const onDescriptionChange=(e)=>{
   return (
     <>
   <ToastContainer />
+  <Theme/>
     <Navbar/>
     <Alert msg={alertMsg}/>
     <div>

@@ -344,7 +344,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
+			window.location.href=`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`;
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -668,7 +668,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewSupplierPoTriplet?invNo=${elem.invoiceId}`);
+                window.location.href=`/ViewSupplierPoTriplet?invNo=${elem.invoiceId}`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1026,18 +1026,18 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			navigate(`/CreateSupplierPo?InvNo=${invt}&action=Edit`)
+			window.location.href=`/CreateSupplierPo?InvNo=${invt}&action=Edit`
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }
 		 else if(name == "Book"){
 
-			navigate(`/add-purchase?InvNo=${invt}&action=Book`)
+			window.location.href=`/add-purchase?InvNo=${invt}&action=Book`
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }
 		 else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/ViewSupplierPoTriplet?invNo=${invt}`);
+			window.location.href=`/ViewSupplierPoTriplet?invNo=${invt}`;
 		 }else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteSupplierPo?QuoId=${invt}`,header).then((res) => {
 		    console.log(res.data);
@@ -1104,16 +1104,16 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-					navigate(`/viewSupplierPo?invNo=${invt}&custName=Samarth Industries&action=send`);
+			window.location.href=`/viewSupplierPo?invNo=${invt}&custName=Samarth Industries&action=send`;
 
 					
 				
 		 } else if(name == "Copy"){
-			 navigate(`/CreateSupplierPo?InvNo=${invt}&action=Clone`);
+			window.location.href=`/CreateSupplierPo?InvNo=${invt}&action=Clone`;
 		
 		 }else if(name == "Download"){
 
-			navigate(`/ViewSupplierPo?invNo=${invt}&action=download`);
+			window.location.href=`/ViewSupplierPo?invNo=${invt}&action=download`;
 
 			
 		 }
@@ -1302,7 +1302,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
+                window.location.href=`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`;
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 

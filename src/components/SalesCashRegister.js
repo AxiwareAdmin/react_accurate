@@ -150,7 +150,7 @@ export default function SalesCashRegister () {
               let trEle = document.createElement("tr");
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
-                navigate("/cashInvoices?month="+obj.month);
+                window.location.href="/cashInvoices?month="+obj.month;
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

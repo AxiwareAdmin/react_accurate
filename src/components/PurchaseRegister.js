@@ -158,7 +158,7 @@ export default function SalesRegister () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/purchaseList?month=${obj.month}`);
+                window.location.href=`/purchaseList?month=${obj.month}`;
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

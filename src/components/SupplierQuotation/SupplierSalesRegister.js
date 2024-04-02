@@ -170,7 +170,7 @@ export default function SupplierSalesRegisterQuotation () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/SupplierQuotationList?month=${obj.month}`);
+                window.location.href=`/SupplierQuotationList?month=${obj.month}`;
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

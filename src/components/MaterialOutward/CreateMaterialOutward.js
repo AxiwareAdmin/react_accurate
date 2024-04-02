@@ -1362,7 +1362,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the inventory first!!.");
     else
-     navigate("/viewMaterialOutward?id="+invoiceNumber);//change
+    window.location.href="/viewMaterialOutward?id="+invoiceNumber;//change
   }
 
 

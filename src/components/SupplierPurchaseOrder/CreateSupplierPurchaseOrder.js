@@ -1255,7 +1255,7 @@ const onDescriptionChange=(e)=>{
 
       setTimeout(()=>{
         setAlertMsg(null)
-        navigate("/SalesRegisterSupplierPo")
+        window.location.href="/SalesRegisterSupplierPo"
       },2000)
 
       }
@@ -1362,7 +1362,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the invoice first!!.");
     else
-     navigate("/viewSupplierPo?id="+invoiceId);//change
+    window.location.href="/viewSupplierPo?id="+invoiceId;//change
   }
 
 

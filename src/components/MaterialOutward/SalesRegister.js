@@ -161,7 +161,7 @@ export default function SalesRegisterMaterialOutward () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/materialOutwardList?month=${obj.month}`);
+                window.location.href=`/materialOutwardList?month=${obj.month}`;
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

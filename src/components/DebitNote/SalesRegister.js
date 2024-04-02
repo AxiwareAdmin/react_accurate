@@ -161,7 +161,7 @@ export default function SalesRegisterDebitNote () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/debitNoteList?month=${obj.month}`);//debit note change
+                window.location.href=`/debitNoteList?month=${obj.month}`;//debit note change
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

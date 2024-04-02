@@ -119,7 +119,7 @@ function Login() {
           console.log(res.data)
           if(res.data!=null){
             localStorage.setItem("token",res.data.token)
-            navigate("/dashboard")
+            window.location.href="/dashboard";
           //  window.location.href="/dashboard"
           }
         }).catch((error)=>{

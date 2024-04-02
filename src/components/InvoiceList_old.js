@@ -526,9 +526,9 @@ export default function InvoiceList () {
 	  function rendercommon(e,name , invt) {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
-			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
+			window.location.href="/add-invoice?InvNo="+invt+"&action=Edit";
 		 }else if(name == "View" || name == "Print"){
-			navigate("/viewInvoice?id="+invt);
+			window.location.href="/viewInvoice?id="+invt;
 		 }else if(name == "Delete"){
 			axios.get("http://localhost:8080/deleteInv?invNo="+invt,header).then((res) => {
 		    console.log(res.data);
@@ -618,7 +618,7 @@ export default function InvoiceList () {
 					console.log(error);
 				});
 		 } else if(name == "Copy"){
-			 navigate("/add-invoice?InvNo="+invt+"&action=Clone");
+			window.location.href="/add-invoice?InvNo="+invt+"&action=Clone";
 			 //comented temporarily	  
 		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
@@ -645,7 +645,7 @@ export default function InvoiceList () {
 				});*/
 		 }else if(name == "Download"){
 			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt+"&action=download");
+			window.location.href="/viewInvoice?id="+invt+"&action=download";
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
 			// 	document.body.appendChild(canvas);  

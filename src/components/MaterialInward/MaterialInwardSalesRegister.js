@@ -160,7 +160,7 @@ export default function MaterialInwardSalesRegister () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/materialInwardList?month=${obj.month}`);
+                window.location.href=`/materialInwardList?month=${obj.month}`;
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

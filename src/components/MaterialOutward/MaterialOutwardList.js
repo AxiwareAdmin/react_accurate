@@ -349,7 +349,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/ViewMaterialOutwardTriplet?invNo=${elem.invoiceId}`);
+			window.location.href=`/ViewMaterialOutwardTriplet?invNo=${elem.invoiceId}`;
 		})
 
 		aElem.appendChild(textElem); 
@@ -670,7 +670,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewMaterialOutwardTriplet?invNo=${elem.invoiceId}`);
+                window.location.href=`/ViewMaterialOutwardTriplet?invNo=${elem.invoiceId}`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1024,12 +1024,12 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			navigate(`/CreateMaterialOutward?InvNo=${invt}&action=Edit`)
+			window.location.href=`/CreateMaterialOutward?InvNo=${invt}&action=Edit`
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/ViewMaterialOutwardTriplet?invNo=${invt}`);
+			window.location.href=`/ViewMaterialOutwardTriplet?invNo=${invt}`;
 		 }else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteMaterialOutward?QuoId=${invt}`,header).then((res) => {
 		    console.log(res.data);
@@ -1097,16 +1097,16 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-					navigate(`/ViewMaterialOutward?invNo=${invt}&custName=Samarth Industries&action=send`);
+			window.location.href=`/ViewMaterialOutward?invNo=${invt}&custName=Samarth Industries&action=send`;
 
 					
 				
 		 } else if(name == "Copy"){
-			 navigate(`/CreateMaterialOutward?InvNo=${invt}&action=Clone`);
+			window.location.href=`/CreateMaterialOutward?InvNo=${invt}&action=Clone`;
 	
 		 }else if(name == "Download"){
 
-			navigate(`/ViewMaterialOutward?invNo=${invt}&action=download`);
+			window.location.href=`/ViewMaterialOutward?invNo=${invt}&action=download`;
 
 		
 			
@@ -1297,7 +1297,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewQuotationTriplet?id=${elem.invoiceId}`);
+                window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}`;
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 

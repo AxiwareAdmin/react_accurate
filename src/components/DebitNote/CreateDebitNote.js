@@ -1362,7 +1362,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the inventory first!!.");
     else
-     navigate("/viewDebitNote?id="+invoiceNumber);//change//debit note change
+    window.location.href="/viewDebitNote?id="+invoiceNumber;//change//debit note change
   }
 
 

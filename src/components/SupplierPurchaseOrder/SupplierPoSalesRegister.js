@@ -161,7 +161,7 @@ export default function SupplierSalesRegisterPurchaseOrder () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/SupplierPoList?month=${obj.month}`);//check
+                window.location.href=`/SupplierPoList?month=${obj.month}`;//check
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

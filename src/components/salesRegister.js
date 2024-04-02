@@ -172,7 +172,7 @@ export default function SalesRegister () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/invoiceList?month=${obj.month}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`);
+                window.location.href=`/invoiceList?month=${obj.month}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

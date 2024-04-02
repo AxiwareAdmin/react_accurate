@@ -161,7 +161,7 @@ export default function SalesRegisterCreditNote () {
               trEle.style='cursor:pointer;'
               trEle.addEventListener('click',()=>{
            
-                navigate(`/creditNoteList?month=${obj.month}`);//debit note change
+                window.location.href=`/creditNoteList?month=${obj.month}`;//debit note change
               })
               let tdEle = document.createElement("td");
               let aEle = document.createElement("a");

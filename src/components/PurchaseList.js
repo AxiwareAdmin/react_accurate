@@ -364,7 +364,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/viewPurchaseTriplet?id=${elem.purchaseId}`);
+			window.location.href=`/viewPurchaseTriplet?id=${elem.purchaseId}`;
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -684,7 +684,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/viewPurchaseTriplet?id=${elem.purchaseId}`);
+                window.location.href=`/viewPurchaseTriplet?id=${elem.purchaseId}`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1032,12 +1032,12 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			navigate(`/add-purchase?InvNo=${invt}&action=Edit`)
+			window.location.href=`/add-purchase?InvNo=${invt}&action=Edit`
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/viewPurchaseTriplet?id=${invt}`);
+			window.location.href=`/viewPurchaseTriplet?id=${invt}`;
 		 }else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deletePurchase/${invt}`,header).then((res) => {
 		    console.log(res.data);
@@ -1101,16 +1101,16 @@ const exportToExcel = async () => {
 
 		 }else if(name == "Send"){
 				
-					navigate(`/viewPurchase?invNo=${invt}&custName=Samarth Industries&action=send`);
+			window.location.href=`/viewPurchase?invNo=${invt}&custName=Samarth Industries&action=send`;
 
 					
 				
 		 } else if(name == "Copy"){
-			 navigate(`/add-purchase?InvNo=${invt}&action=Clone`);
+			window.location.href=`/add-purchase?InvNo=${invt}&action=Clone`;
 		
 		 }else if(name == "Download"){
 
-			navigate(`/viewPurchase?invNo=${invt}&action=download`);
+			window.location.href=`/viewPurchase?invNo=${invt}&action=download`;
 
 			
 		 }

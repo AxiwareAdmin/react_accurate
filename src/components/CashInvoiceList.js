@@ -363,7 +363,7 @@ const exportToExcel = async () => {
 
         aElem.addEventListener('click',()=>{
 
-            navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`);
+            window.location.href=`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`;
         })
 		aElem.appendChild(textElem); 
 		tdElem.appendChild(aElem);
@@ -679,7 +679,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`);
+                window.location.href=`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1030,9 +1030,9 @@ const exportToExcel = async () => {
 	  function rendercommon(e,name , invt) {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
-			navigate("/add-invoice?InvNo="+invt+"&action=Edit");
+			window.location.href="/add-invoice?InvNo="+invt+"&action=Edit";
 		 }else if(name == "View" || name == "Print"){
-			navigate(`/viewInvoiceTriplet?id=${invt}&invoiceType=cash`);
+			window.location.href=`/viewInvoiceTriplet?id=${invt}&invoiceType=cash`;
 		 }else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteInv?invNo=`+invt,header).then((res) => {
 		    console.log(res.data);
@@ -1122,7 +1122,7 @@ const exportToExcel = async () => {
 					console.log(error);
 				});
 		 } else if(name == "Copy"){
-			 navigate("/add-invoice?InvNo="+invt+"&action=Clone");
+			window.location.href="/add-invoice?InvNo="+invt+"&action=Clone";
 			 //comented temporarily	  
 		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
@@ -1149,7 +1149,7 @@ const exportToExcel = async () => {
 				});*/
 		 }else if(name == "Download"){
 			console.log("download invoice");
-			navigate("/viewInvoice?id="+invt+"&action=download");
+			window.location.href="/viewInvoice?id="+invt+"&action=download";
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
 			// 	document.body.appendChild(canvas);  
@@ -1353,7 +1353,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
             aElem.addEventListener('click',()=>{
 
-                navigate(`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`);
+				window.location.href=`/viewInvoiceTriplet?id=${elem.invoiceId}&invoiceType=cash`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);

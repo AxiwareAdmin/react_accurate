@@ -349,7 +349,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/ViewDebitNoteTriplet?invNo=${elem.invoiceId}`);//debit note change
+			window.location.href`/ViewDebitNoteTriplet?invNo=${elem.invoiceId}`;//debit note change
 		})
 
 		aElem.appendChild(textElem); 
@@ -1024,12 +1024,12 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			navigate(`/CreateDebitNote?InvNo=${invt}&action=Edit`)//debit note change
+			window.location.href=`/CreateDebitNote?InvNo=${invt}&action=Edit`//debit note change
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/ViewDebitNoteTriplet?invNo=${invt}`);//debit note change
+			window.location.href=`/ViewDebitNoteTriplet?invNo=${invt}`;//debit note change
 		 }else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteDebitNote?QuoId=${invt}`,header).then((res) => {//debit note change
 		    console.log(res.data);
@@ -1097,16 +1097,16 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-					navigate(`/ViewDebitNote?invNo=${invt}&custName=Samarth Industries&action=send`);//debit note change
+			window.location.href=`/ViewDebitNote?invNo=${invt}&custName=Samarth Industries&action=send`;//debit note change
 
 					
 				
 		 } else if(name == "Copy"){
-			 navigate(`/CreateDebitNote?InvNo=${invt}&action=Clone`);//debit note change
+			window.location.href=`/CreateDebitNote?InvNo=${invt}&action=Clone`;//debit note change
 	
 		 }else if(name == "Download"){
 
-			navigate(`/ViewDebitNote?invNo=${invt}&action=download`);//debit note change
+			window.location.href=`/ViewDebitNote?invNo=${invt}&action=download`;//debit note change
 
 		
 			
@@ -1296,7 +1296,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewQuotationTriplet?id=${elem.invoiceId}`);
+                window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}`;
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 

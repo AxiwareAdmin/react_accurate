@@ -1362,7 +1362,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the invoice first!!.");
     else
-     navigate("/viewMaterialInward?id="+invoiceId);//change
+    window.location.href="/viewMaterialInward?id="+invoiceId;//change
   }
 
 

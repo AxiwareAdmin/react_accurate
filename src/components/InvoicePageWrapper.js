@@ -1804,7 +1804,7 @@ const onDescriptionChange=(e)=>{
     if(isSaved==0)
       alert("please save the invoice first!!.");
     else
-     navigate("/viewInvoice?id="+invoiceNumber);//change
+    window.location.href="/viewInvoice?id="+invoiceNumber;//change
   }
 
 

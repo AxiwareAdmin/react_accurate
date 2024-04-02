@@ -378,7 +378,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
+			window.location.href=`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`;
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -699,7 +699,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
+                window.location.href=`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1053,12 +1053,12 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			navigate(`/CreateSupplierQuotation?InvNo=${invt}&action=Edit`)
+			window.location.href=`/CreateSupplierQuotation?InvNo=${invt}&action=Edit`
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/ViewSupplierQuotationTriplet?invNo=${invt}`);
+			window.location.href=`/ViewSupplierQuotationTriplet?invNo=${invt}`;
 		 }else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteSupplierQuo?QuoId=${invt}`,header).then((res) => {
 		    console.log(res.data);
@@ -1144,12 +1144,12 @@ const exportToExcel = async () => {
 					// 		text: 'There is some issue to send invoice mail',
 					// 		footer: ''
 					// 	  })	
-					navigate(`/viewSupplierQuotation?invNo=${invt}&custName=Samarth Industries&action=send`);
+					window.location.href=`/viewSupplierQuotation?invNo=${invt}&custName=Samarth Industries&action=send`;
 
 					
 				
 		 } else if(name == "Copy"){
-			 navigate(`/CreateSupplierQuotation?InvNo=${invt}&action=Clone`);
+			window.location.href=`/CreateSupplierQuotation?InvNo=${invt}&action=Clone`;
 			 //comented temporarily	  
 		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
@@ -1176,7 +1176,7 @@ const exportToExcel = async () => {
 				});*/
 		 }else if(name == "Download"){
 
-			navigate(`/ViewSupplierQuotation?invNo=${invt}&action=download`);
+			window.location.href=`/ViewSupplierQuotation?invNo=${invt}&action=download`;
 			// navigate("/viewInvoice?id="+invt+"&action=download");
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
@@ -1381,7 +1381,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`);
+                window.location.href=`/ViewSupplierQuotationTriplet?invNo=${elem.invoiceId}`;
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 

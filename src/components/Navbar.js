@@ -115,7 +115,7 @@ export default function Navbar() {
 				
 
                 <div className="page-title-box" style={{width:'50%'}}>
-					<div className="top-nav-search" style={{display:'flex',alignItems:'center',height:'100%',width:'100%',justifyContent:'space-around'}}>
+					<div className="top-nav-search" style={{display:'flex',alignItems:'center',height:'100%',width:'100%'}}>
 							{/* <a href="javascript:void(0);" className="responsive-search">
 								<i className="fa fa-search"></i>
 						   </a>
@@ -125,7 +125,7 @@ export default function Navbar() {
 							</form> */}
 						
 
-				<div id="clientlogo" className="logo">
+				<div id="clientlogo" style={{marginRight:'20px'}} className="logo">
 
 				<img src={logoUrl} alt="Image" className='sidebar-logo logoImage' id="logoImage" style={{width:'120px',height:'60px'}}/>
 				</div>

@@ -1587,7 +1587,7 @@ export default function InvoicePageWrapper(props) {
 
   const printButtonClicked = (e) => {
     if (isSaved == 0) alert("please save the invoice first!!.");
-    else navigate("/viewInvoice?id=" + invoiceNumber); //change
+    else window.location.href="/viewInvoice?id=" + invoiceNumber; //change
   };
 
   Date.prototype.addDays = function (days) {

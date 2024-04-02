@@ -349,7 +349,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			navigate(`/ViewCreditNoteTriplet?invNo=${elem.invoiceId}`);//debit note change
+			window.location.href=`/ViewCreditNoteTriplet?invNo=${elem.invoiceId}`;//debit note change
 		})
 
 		aElem.appendChild(textElem); 
@@ -670,7 +670,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewCreditNoteTriplet?invNo=${elem.invoiceId}`);//debit note change
+                window.location.href=`/ViewCreditNoteTriplet?invNo=${elem.invoiceId}`;//debit note change
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1024,12 +1024,12 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			navigate(`/CreateCreditNote?InvNo=${invt}&action=Edit`)//debit note change
+			window.location.href=`/CreateCreditNote?InvNo=${invt}&action=Edit`//debit note change
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-                navigate(`/ViewCreditNoteTriplet?invNo=${invt}`);//debit note change
+			window.location.href=`/ViewCreditNoteTriplet?invNo=${invt}`;//debit note change
 		 }else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteCreditNote?QuoId=${invt}`,header).then((res) => {//debit note change
 		    console.log(res.data);
@@ -1097,16 +1097,16 @@ const exportToExcel = async () => {
 
 
 		 }else if(name == "Send"){
-					navigate(`/ViewCreditNote?invNo=${invt}&custName=Samarth Industries&action=send`);//debit note change
+			window.location.href=`/ViewCreditNote?invNo=${invt}&custName=Samarth Industries&action=send`;//debit note change
 
 					
 				
 		 } else if(name == "Copy"){
-			 navigate(`/CreateCreditNote?InvNo=${invt}&action=Clone`);//debit note change
+			window.location.href=`/CreateCreditNote?InvNo=${invt}&action=Clone`;//debit note change
 	
 		 }else if(name == "Download"){
 
-			navigate(`/ViewCreditNote?invNo=${invt}&action=download`);//debit note change
+			window.location.href=`/ViewCreditNote?invNo=${invt}&action=download`;//debit note change
 
 		
 			
@@ -1296,7 +1296,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                navigate(`/ViewQuotationTriplet?id=${elem.invoiceId}`);
+                window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}`;
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 

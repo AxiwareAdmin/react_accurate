@@ -170,7 +170,9 @@ const script8 = document.createElement("script");
   return (
     <div>
 
-{/* <Alert msg={alertMsg} type='danger'/> */}
+<Alert msg={alertMsg} onClose={()=>{
+    setAlertMsg(null)
+}} type='danger'/>
 <div id="preloader">
         <div id="status">
             <div className="lds-facebook">

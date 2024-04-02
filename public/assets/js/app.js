@@ -675,7 +675,7 @@ $(document).on("click",".add-btns",function (e) {
 var optionList='';
 var token=localStorage.getItem("token")
  $.ajax({
-     url:'http://localhost:8080/invoiceproducts',
+     url:'http://97.74.91.84:8080/invoiceproducts',
      method:'GET',
      headers:{
          "Content-Type":"application/json",
@@ -765,7 +765,7 @@ console.log("error")
          unit.readOnly=true;
          var token=localStorage.getItem("token")
          $.ajax({
-             url:'http://localhost:8080/invoiceproduct/'+event.target.value,
+             url:'http://97.74.91.84:8080/invoiceproduct/'+event.target.value,
              method:'GET',
              headers:{
                  "Content-Type":"application/json",
@@ -1065,7 +1065,7 @@ $('.prodListSelect1').on('change',(event)=>{
  var unit=td.querySelector("#unit");
  var token=localStorage.getItem("token")
  $.ajax({
-     url:'http://localhost:8080/invoiceproduct/'+event.target.value,
+     url:'http://97.74.91.84:8080/invoiceproduct/'+event.target.value,
      method:'GET',
      headers:{
          "Content-Type":"application/json",
@@ -1378,7 +1378,7 @@ function addProductForCopy(data,prodCont) {
 var optionList='';
 var token=localStorage.getItem("token")
  $.ajax({
-     url:'http://localhost:8080/invoiceproducts',
+     url:'http://97.74.91.84:8080/invoiceproducts',
      method:'GET',
      headers:{
          "Content-Type":"application/json",

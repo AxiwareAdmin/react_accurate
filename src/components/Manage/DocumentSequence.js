@@ -116,7 +116,7 @@ export default function DocumentSequence() {
     useEffect(() =>{
             debugger;
         axios
-        .get("http://localhost:8080/getDocMaster",{
+        .get(`${process.env.REACT_APP_LOCAL_URL}/getDocMaster`,{
             headers:headers
         })
         .then((res) => {
@@ -353,7 +353,7 @@ export default function DocumentSequence() {
        
     
 
-    axios.post('http://localhost:8080/saveDocMaster', documentdata,{
+    axios.post(`${process.env.REACT_APP_LOCAL_URL}/saveDocMaster`, documentdata,{
         headers:headers
       })
       .then(function (response) {
@@ -400,7 +400,7 @@ debugger;
 
     function deleteDoc(){
         //setDelShow(true);
-        axios.get("http://localhost:8080/deleteDocMaster?docId="+delDocId).then((res) => {
+        axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteDocMaster?docId=`+delDocId).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
                 // setTimeout(()=>{

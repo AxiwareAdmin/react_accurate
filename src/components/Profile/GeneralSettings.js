@@ -73,7 +73,8 @@ const convertToJPEG = (file) => {
             debugger;
             const base64UrlEncodedImage = fr.result.split(',')[1];
             setNewLogoFile(base64UrlEncodedImage);
-            document.getElementById("logoImage").src = fr.result;
+
+            document.querySelectorAll(".logoImage").forEach(a=>a.src = fr.result);
         }
         fr.readAsDataURL(file);
     }else{
@@ -585,7 +586,7 @@ const convertToJPEG = (file) => {
 
                                     <div class="col-md-6">
                                         <div class="upload-images">
-                                            <img src={logoUrl} alt="Image" id="logoImage"/>
+                                            <img src={logoUrl} alt="Image" className="logoImage"/>
                                             <a href="javascript:void(0);" class="btn-icon logo-hide-btn">
                                                 <i class="feather-x-circle"></i>
                                             </a>

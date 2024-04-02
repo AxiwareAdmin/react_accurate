@@ -58,7 +58,7 @@ export default function Navbar() {
 				 let imageUrl = 'data:image/jpeg;base64,'+res.data.logo;
 				 console.log("logo::")
 				 console.log(imageUrl);
-				//  setLogoUrl(imageUrl);
+				 setLogoUrl(imageUrl);
 
 				localStorage.setItem("financialYear",res.data.financialYear);
 				}
@@ -127,7 +127,7 @@ export default function Navbar() {
 
 				<div id="clientlogo" className="logo">
 
-				<img src='assets/img/logo.png' alt="Image" className='sidebar-logo' id="logoImage" style={{width:'120px',height:'60px'}}/>
+				<img src={logoUrl} alt="Image" className='sidebar-logo logoImage' id="logoImage" style={{width:'120px',height:'60px'}}/>
 				</div>
 				<div id="clientName" style={{fontWeight:'bolder',fontSize:'20px'}}>{clientDO.companyName}</div>
 				{/* <p style={{margin:'0px 0px 0px 5px',display:'flex',alignItems:'center',fontWeight:"bold",color:"#9a55ff"}}> */}

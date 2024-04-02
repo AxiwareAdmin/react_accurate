@@ -27,7 +27,7 @@ export default function AddProduct(props) {
     
 
 
-    const BACKEND_SERVER = "http://localhost:8080";
+    const BACKEND_SERVER = process.env.REACT_APP_LOCAL_URL;
 
 
     function saveProduct(e) {

@@ -1054,7 +1054,13 @@ const exportToExcel = async () => {
 
 			window.location.href=`/add-invoice?InvNo=${invt}&action=Edit&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
-		 }else if(name == "View" || name == "Print"){
+		 }
+		//  else if(name=="Book"){
+			
+		// 	// window.location.href=`/add-invoice?InvNo=${invt}&action=Book&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`
+		//  }
+		 
+		 else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
 			window.location.href=`/viewInvoiceTriplet?id=${invt}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;

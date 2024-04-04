@@ -2,16 +2,12 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 
-
-
 export default function Navbar() {
 
-	// const navigate = useNavigate();
 
 	function onLogoutButtonClick(e){
 		localStorage.removeItem("token")
 		window.location.href="/";
-		// navigate("/")
 	}
 
 	var header={

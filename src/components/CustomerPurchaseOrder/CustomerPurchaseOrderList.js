@@ -1041,6 +1041,14 @@ const exportToExcel = async () => {
 			window.location.href=`/CreateCustomerPo?InvNo=${invt}&action=Edit`
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }
+
+		 else if(name=="Book"){
+
+			let poNum=e.target.parentElement.parentElement.parentElement.parentElement.querySelectorAll("td")[1].querySelector("a").innerText
+			
+		window.location.href=`/add-invoice?poNumber=${invt}&action=Book`
+		 }
+		 
 		 
 		 else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});

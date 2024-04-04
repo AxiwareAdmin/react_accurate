@@ -174,6 +174,7 @@ $(document).ready(function() {
      $(this).parent().hide();
  });
  
+
  // Datatable
 
  setTimeout(()=>{
@@ -189,7 +190,7 @@ $(document).ready(function() {
          "bFilter": true,
      });
  }
-},1000)
+},2000)
  
 
  // Tooltip
@@ -1369,9 +1370,6 @@ $("#invoiceCategoryOption").on('change',(e)=>{
  window.onCategoryChange(e);
 })
 
-//   window.addProductForCopy=(data)=>{
-//     addProductForCopy(data)
-//   }
 
 function addProductForCopy(data,prodCont) {
  debugger;
@@ -1395,9 +1393,7 @@ console.log("error")
      }
  })
 
- // var prodCont=window.getProductCount();
- // window.setProdCount(prodCont+1)
- // console.log("prodCont"+prodCont)
+
 
  var experiencecontent = '<tr class="add-row">' +
      '<td>' +
@@ -1511,11 +1507,19 @@ console.log("error")
 }
 
 
-//   document.getElementsByClassName("report-btn")[0].addEventListener('click',function(e){
-//     e.preventDefault();
-//     console.log(customerName+" "+fromDate+" "+toDate+" "+status+" "+category)
-//   })
-   
 
 
   
+//  function makeDataTable(){
+//     console.log("executed makedatatable")
+//     if ($('.datatable').length > 0) {
+
+//         if ($.fn.DataTable.isDataTable(".datatable")) {
+//             $('.datatable').DataTable().clear().destroy();
+//           }
+//         $('.datatable').DataTable().clear().destroy();
+//         $('.datatable').DataTable({
+//             "bFilter": false,
+//         });
+//     }
+//  }

@@ -27,29 +27,8 @@ export default function InvoicePageWrapper(props) {
 
 
  
-  const addProductForCopy=window.addProductForCopy;
+  let addProductForCopy;
 
-
-  
-  // var toggleTheme=useCallback();
-
-  // useEffect(()=>{
-  //   const toggleSwitch = document.querySelector('.theme-changes span');
-  //   const currentTheme = localStorage.getItem('theme');
-  //   var app = document.getElementsByClassName("themecls")[0];
-  //   if (currentTheme) {
-  //       app.href = "assets/css/"+currentTheme+".css";
-  //   }
-  // },[])
-
-  // useEffect(()=>{
-  //   var app = document.getElementsByClassName("themecls")[0];
-  //    toggleTheme=(e)=> {
-       
-  //       app.href = "assets/css/"+e+".css";
-  //       localStorage.setItem('theme', e);
-  //   }
-  // })
 
 
   const location = useLocation();
@@ -77,6 +56,9 @@ export default function InvoicePageWrapper(props) {
  }
 
 
+ const onInputPONumChange=(e)=>{
+    setPoNumber(e.target.value)
+ }
 
  
 
@@ -325,16 +307,7 @@ const prodData = (data) => {
     return num;
   };
 
-  // function testRegex(a){
-  //   var reg = /^-?\d+\.?\d*$/;
-  //   var regxp=new RegExp(reg);
-  //   return regxp.test(a);
-  // }
 
-  // const checkRegex=(num)=>{
-  //   if(num==null || num==undefined || num=='' || !testRegex(num)) return false;
-  //   return true;
-  // }
 
   const calculateTotalAmt = () => {
     
@@ -413,7 +386,6 @@ const prodData = (data) => {
     });
 
     setProductUnits(tempProdUnits);
-    // setTotalAmt(calculateTotalAmt());
   };
 
   const onDiscountChange = (event) => {
@@ -485,7 +457,139 @@ const prodData = (data) => {
   };
 
 
-  function onPoNumberChange(e){
+  function onPoNumberChange(){
+    console.log("executed");
+    debugger;
+
+   
+    let tempCopyOtherDiscount=0;
+    let tempTotalAmt=0;
+    var url = new URL(window.location.href);
+
+    let actionedit = url.searchParams.get("action");
+
+
+    if(!actionedit || actionedit!='Book') return;
+
+    let pono=url.searchParams.get("poNumber")
+
+    
+    var token = localStorage.getItem("token");
+    document.querySelector("#prodtable").innerHTML = "";
+    
+    axios
+    .get(`${process.env.REACT_APP_LOCAL_URL}/customerPo/id/${pono}`, {
+      //change
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    })
+    .then((res) => {
+      console.log("after got data" + res.data.purchaseNo);
+      
+          setPoNumber(res.data.invoiceNo);
+      
+          if (res.data.poDate != null) {
+            let finvdate = getFormattedDate(new Date(res.data.poDate));
+            setPoDate(finvdate);
+          }
+
+          if(res.data.customerName != null){
+            const text = res.data.customerName;
+            const $select = document.querySelector('#customer');
+            const $options = Array.from($select.options);
+          
+            const optionToSelect = $options.find(item => item.text ===text);
+            $select.value = optionToSelect.value;
+                     //below code is used to dispatch change event on customer select box becuase i is not getting updated otherwise
+             var event = new Event('change');
+
+            // //          // Dispatch it.
+               $select.dispatchEvent(event);
+
+            // selectCustomerOnCopy($select.value,text)
+          }
+
+          if (res.data.paymentTerms != null) {
+            const text = res.data.paymentTerms;
+            const $select = document.querySelector("#paymentTerm");
+            const $options = Array.from($select.options);
+            const optionToSelect = $options.find(
+              (item) => item.text === text
+            );
+            $select.value = optionToSelect.value;
+          }
+
+          if (res.data.transportCharges != null) {
+            var transportChargeTemp =
+              document.querySelector("#transportCharge");
+            transportChargeTemp.value = res.data.transportCharges;
+
+            setTransportCharge(fromCurrency(res.data.transportCharges));
+          }
+
+          if (res.data.additionalCharges != null) {
+            document.querySelector("#otherCharge").value =
+              res.data.additionalCharges;
+            setOtherCharge(fromCurrency(res.data.additionalCharges));
+          }
+
+          if (res.data.discount != null) {
+            document.querySelector("#otherDiscount").value =
+              res.data.discount;
+            setDiscountInRupees(res.data.discount);
+          }
+
+          if (res.data.otherDiscount != null) {
+            
+            tempCopyOtherDiscount=res.data.otherDiscount;
+          
+          }
+
+
+          var productUnitsTemp = [];
+
+          res.data.invoiceProductDO &&
+            res.data.invoiceProductDO.map((elem, index) => {
+              
+              console.log(
+                "product data " + elem.productName + ":index id :" + index
+              );
+
+              tempTotalAmt+=fromCurrency(elem.amount);
+
+              addProductForCopy(elem, index);
+
+              setProdCount(index + 1);
+
+              productUnitsTemp.push(elem);
+            });
+
+          prodSelectOnChangeForCopy(productUnitsTemp);
+        })
+        .catch(function (error) {
+          console.log(error);
+        }).finally(()=>{
+            if(tempCopyOtherDiscount>0){
+
+              
+            
+            let temp=toCurrency((fromCurrency(tempCopyOtherDiscount)/fromCurrency(tempTotalAmt))*100).replace(/[\$]/g,'')
+
+            document.querySelector("#discountInPercentage").value =temp;
+
+            setDiscountInPercentage(temp);
+            }
+        });
+   
+    
+  
+}
+
+
+
+  function onPoNumberChangeOld(e){
     console.log("executed");
     debugger;
 
@@ -521,9 +625,6 @@ const prodData = (data) => {
             setPoDate(finvdate);
           }
 
-          // if (res.data.address != null) setFromAddr1(res.data.address);
-
-
           if (res.data.paymentTerms != null) {
             const text = res.data.paymentTerms;
             const $select = document.querySelector("#paymentTerm");
@@ -554,14 +655,13 @@ const prodData = (data) => {
             setDiscountInRupees(res.data.discount);
           }
 
-          if (res.data.otherDiscount != null) { //check here
+          if (res.data.otherDiscount != null) {
             
             tempCopyOtherDiscount=res.data.otherDiscount;
           
           }
 
-          //start prod set code
-          // window.fetchProdList();
+
           var productUnitsTemp = [];
 
           res.data.invoiceProductDO &&
@@ -619,6 +719,9 @@ const prodData = (data) => {
         }
   
 }
+
+
+
 
 function selectCustomerOnCopy(customerId,customerName) {
   // e.preventDefault();
@@ -751,45 +854,6 @@ if (actionedit == "Edit" || actionedit == "Clone") {
 
 
 
-    if(customerId==-1){
-      setPoNumbers([])
-  }
-
-  else{
-
-    var url = new URL(window.location.href);
-  let invNoEdit = url.searchParams.get("InvNo");
-  let actionedit = url.searchParams.get("action");
-  
-  if (actionedit == "Edit" || actionedit == "Clone") {
-    axios.get(BACKEND_SERVER+`/poByCustomerNameForCopy/${customerName}`,{
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    }).then((res)=>{
-      console.log(res.data)
-      setPoNumbers(res.data)
-
-    }).catch((error)=>{
-    console.log(error)
-    })
-  }else{
-    axios.get(BACKEND_SERVER+`/poByCustomerName/${customerName}`,{
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
-      },
-    }).then((res)=>{
-      console.log(res.data)
-      setPoNumbers(res.data)
-
-    }).catch((error)=>{
-    console.log(error)
-    })
-  }
-
-}
 
  
 
@@ -850,9 +914,9 @@ if (actionedit == "Edit" || actionedit == "Clone") {
         setShippingAddress1(shippingAddr1);
         setShippingAddress2(shippingAddr2);
 
-        let poNum = res.data.poNumber;
-        if (poNum != null && poNum != undefined && poNum != "")
-          setPoNumber(poNum);
+        // let poNum = res.data.poNumber;
+        // if (poNum != null && poNum != undefined && poNum != "")
+        //   setPoNumber(poNum);
       });
   }
 
@@ -861,9 +925,6 @@ if (actionedit == "Edit" || actionedit == "Clone") {
     
     console.log("produnit changed" + productUnits);
     setTotalAmt(calculateTotalAmt());
-    // setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
-    // let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))-parseFloat(roundNum(totalDiscount))
-    // setTotalTaxableAmt(tempTotalTaxableAmt)
 
   }, [productUnits]);
 
@@ -1136,8 +1197,13 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
 
     setTimeout(()=>{
 
+      addProductForCopy=window.addProductForCopy;
+
       onCopyInvoiceAddInvoiceDetails()
+
+      onPoNumberChange();
     },1000)
+
 
     return () => {
       document.body.removeChild(script);
@@ -1491,18 +1557,6 @@ useEffect(()=>{
     setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
   },[discountInPercentage,discountInRuppes])
 
-  
-  useEffect(() => {
-    updateSelectOptions(); // Update Select options when poNumbers change
-    applySelect2(); // Apply Select2 plugin after updating options
-
-    return ()=>{
-    const selectElement = document.getElementById('poNumbers');
-    $(selectElement).off('change'); // Remove event listener to prevent memory leaks
-    $(selectElement).select2('destroy');
-    }
-  }, [poNumbers]);
-
 
   function updateSelectOptions() {
     
@@ -1635,7 +1689,7 @@ const onDescriptionChange=(e)=>{
       totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
     })
 
-    let tempPoNumber=$("#poNumbers option:selected").text();
+    // let tempPoNumber=$("#poNumbers option:selected").text();
 
     let invoiceData={
       invoiceProducts:productUnits,
@@ -1651,7 +1705,7 @@ const onDescriptionChange=(e)=>{
       otherDiscount:(roundNum(totalAmt*discountInPercentage/100)),
       shippingAddress:shippingAddress1+shippingAddress2,
       billingAddress:fromAddr1+fromAddr2,
-      poNumber:tempPoNumber,
+      poNumber:poNumber,
       customerName:document.querySelector("#customer option:checked").innerText,
       invoiceDate:invoiceDate,
       poDate:poDate,
@@ -2218,20 +2272,21 @@ const onDescriptionChange=(e)=>{
                                     <div className="form-group">
                                       Po Number
 
-                                      <select id="poNumbers" style={{width:'100%'}}>
+                                      {/* <select id="poNumbers" style={{width:'100%'}}>
                                     <option selected value='-1'>--Select PO--</option>
-                                    </select>
-                                      {/* <input
+                                    </select> */}
+                                      <input
                                         className="form-control"
                                         type="text"
-                                        placeholder="Enter Reference Number"
+                                        placeholder="Enter PO Number"
                                         value={poNumber}
+                                        onChange={onInputPONumChange}
                                         style={{
                                           border: "1px solid #9a55ff",
                                           width: "100%",
                                           padding: "10px",
                                         }}
-                                      /> */}
+                                      />
                                     </div>
                                   </div>
                                 </div>

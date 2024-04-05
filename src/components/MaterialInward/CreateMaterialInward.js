@@ -671,7 +671,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/supplierQuotation",{//c
       }
     }).then((res) => {
       console.log(res.data);
-      res.data.map((a) => {
+      !res.data.res &&res.data.map((a) => {
 
         var option = document.createElement("option");
         option.value = a.supplierId;
@@ -688,7 +688,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/supplierQuotation",{//c
         "Authorization":'Bearer '+token
       }
     }).then((res) => {
-      res.data.map((product) => {
+      !res.data.res &&res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
         option.append(document.createTextNode(product.productName));

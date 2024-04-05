@@ -735,7 +735,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/Purchase Order",{//chan
       }
     }).then((res) => {
       console.log(res.data);
-      res.data.map((a) => {
+      !res.data.res && res.data.map((a) => {
         // var label = document.createElement("label");
         // label.className = "custom_check w-100";
         // var span = document.createElement("span");
@@ -770,7 +770,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/Purchase Order",{//chan
         "Authorization":'Bearer '+token
       }
     }).then((res) => {
-      res.data.map((product) => {
+      !res.data.res && res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
         option.append(document.createTextNode(product.productName));
@@ -1326,9 +1326,20 @@ const onDescriptionChange=(e)=>{
 
       setIsSaved(1);
 
+      const date = new Date();  // 2009-11-10
+      const month = date.toLocaleString('default', { month: 'long' });
+
       setTimeout(()=>{
         setAlertMsg(null)
+
+      
+        window.location.href = '/CustomerPoList?month='+month; 
       },2000)
+
+        setTimeout(()=>{
+          window.location.href = '/CustomerPoList?month='+month; 
+
+        },1000)
 
       }
       else

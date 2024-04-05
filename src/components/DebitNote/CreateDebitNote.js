@@ -668,7 +668,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/DebitNote",{//change //
       }
     }).then((res) => {
       console.log(res.data);
-      res.data.map((a) => {
+      !res.data.res && res.data.map((a) => {
         var option = document.createElement("option");
         option.value = a.customerId;
         option.append(document.createTextNode(a.customerName));
@@ -683,7 +683,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/DebitNote",{//change //
         "Authorization":'Bearer '+token
       }
     }).then((res) => {
-      res.data.map((product) => {
+      !res.data.res &&res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
         option.append(document.createTextNode(product.productName));
@@ -1247,9 +1247,7 @@ const onDescriptionChange=(e)=>{
       const month = date.toLocaleString('default', { month: 'long' });
 
       setTimeout(()=>{
-        setAlertMsg(null)
-
-      
+        setAlertMsg(null);
         window.location.href = '/debitNoteList?month='+month; 
       },2000)
 

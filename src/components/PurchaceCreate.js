@@ -788,7 +788,7 @@ export default function InvoicePageWrapper(props) {
       })
       .then((res) => {
         console.log(res.data);
-        res.data.map((a) => {
+        !res.data.res && res.data.map((a) => {
           // var label = document.createElement("label");
           // label.className = "custom_check w-100";
           // var span = document.createElement("span");
@@ -826,7 +826,7 @@ export default function InvoicePageWrapper(props) {
         },
       })
       .then((res) => {
-        res.data.map((product) => {
+        !res.data.res && res.data.map((product) => {
           var option = document.createElement("option");
           option.value = product.invoiceProductId;
           option.append(document.createTextNode(product.productName));

@@ -738,7 +738,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/supplierQuotation",{//c
       }
     }).then((res) => {
       console.log(res.data);
-      res.data.map((a) => {
+      !res.data.res &&res.data.map((a) => {
 
         var option = document.createElement("option");
         option.value = a.supplierId;
@@ -755,6 +755,7 @@ axios.get(process.env.REACT_APP_LOCAL_URL+"/getDocMaster/supplierQuotation",{//c
         "Authorization":'Bearer '+token
       }
     }).then((res) => {
+      !res.data.res &&
       res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
@@ -1310,9 +1311,20 @@ const onDescriptionChange=(e)=>{
 
       setIsSaved(1);
 
+      const date = new Date();  // 2009-11-10
+      const month = date.toLocaleString('default', { month: 'long' });
+
       setTimeout(()=>{
         setAlertMsg(null)
+
+      
+        window.location.href = '/SupplierQuotationList?month='+month; 
       },2000)
+
+        setTimeout(()=>{
+          window.location.href = '/SupplierQuotationList?month='+month; 
+
+        },1000)
 
       }
       else

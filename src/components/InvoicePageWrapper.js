@@ -1081,7 +1081,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
       }
     }).then((res) => {
       console.log(res.data);
-      res.data.map((a) => {
+      !res.data.res && res.data.map((a) => {
         // var label = document.createElement("label");
         // label.className = "custom_check w-100";
         // var span = document.createElement("span");
@@ -1116,7 +1116,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
         "Authorization":'Bearer '+token
       }
     }).then((res) => {
-      res.data.map((product) => {
+      !res.data.res && res.data.map((product) => {
         var option = document.createElement("option");
         option.value = product.invoiceProductId;
         option.append(document.createTextNode(product.productName));
@@ -1370,8 +1370,10 @@ useEffect(()=>{
   console.log(tempGstCalculationVal)
 
 
-   setTotalDiscount(parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100));
-   let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))
+  let tempTotalDiscount=parseFloat(roundNum(discountInRuppes))+(totalAmt*parseFloat(roundNum(discountInPercentage))/100)
+
+   setTotalDiscount(tempTotalDiscount);
+   let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge)-tempTotalDiscount)
     setTotalTaxableAmt(tempTotalTaxableAmt)
 },[totalAmt])
 
@@ -1477,9 +1479,9 @@ useEffect(()=>{
         totalGstVal=roundNum(roundNum(parseFloat(totalGstVal))+roundNum(parseFloat(elem)))
       })
      
-      setFinalAmt(roundNum(parseFloat(totalTaxableAmt)+totalGstVal-fromCurrency(totalDiscount)))
+      setFinalAmt(roundNum(parseFloat(totalTaxableAmt)+totalGstVal))
 
-    },[totalTaxableAmt,totalDiscount])
+    },[totalTaxableAmt])
 
 
 
@@ -1545,7 +1547,7 @@ useEffect(()=>{
     
     
     
-    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge))
+    let tempTotalTaxableAmt=parseFloat(roundNum(totalAmt))+parseFloat(roundNum(transportCharge))+parseFloat(roundNum(otherCharge)-totalDiscount)
     
     
     setTotalTaxableAmt(tempTotalTaxableAmt)
@@ -1750,9 +1752,20 @@ const onDescriptionChange=(e)=>{
 
       setIsSaved(1);
 
+      const date = new Date();  // 2009-11-10
+      const month = date.toLocaleString('default', { month: 'long' });
+
       setTimeout(()=>{
         setAlertMsg(null)
+
+      
+        window.location.href = '/invoiceList?month='+month; 
       },2000)
+
+        setTimeout(()=>{
+          window.location.href = '/invoiceList?month='+month; 
+
+        },1000)
 
       }
       else

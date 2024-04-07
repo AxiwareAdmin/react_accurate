@@ -164,8 +164,11 @@ const script8 = document.createElement("script");
 
     
     useEffect(()=>{
-        $('#status').fadeOut();
-        $('#preloader').delay(350).fadeOut('slow');
+        setTimeout(()=>{
+            $('#status').fadeOut();
+            $('#preloader').delay(350).fadeOut('slow');
+        },10000)
+        
     },[])
 
     

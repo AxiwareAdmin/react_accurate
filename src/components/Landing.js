@@ -21,10 +21,6 @@ function Landing() {
 
     const navigate=useNavigate();
 
-    useEffect(()=>{
-        $('#status').fadeOut();
-        $('#preloader').delay(350).fadeOut('slow');
-    },[])
 
     const onLoginClick=(e)=>{
         e.preventDefault();
@@ -164,6 +160,13 @@ const script8 = document.createElement("script");
           document.body.removeChild(script12);
         };
 	},[])
+
+
+    
+    useEffect(()=>{
+        $('#status').fadeOut();
+        $('#preloader').delay(350).fadeOut('slow');
+    },[])
 
     
 

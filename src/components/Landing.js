@@ -167,7 +167,7 @@ const script8 = document.createElement("script");
         setTimeout(()=>{
 $('#status').fadeOut();
         $('#preloader').delay(350).fadeOut('slow');
-        },4000)
+        },3500)
         
     },[])
 

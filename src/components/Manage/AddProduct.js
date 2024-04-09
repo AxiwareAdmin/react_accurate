@@ -157,8 +157,31 @@ export default function AddProduct(props) {
     }
 
     function currencyFormat(num) {
-        return (num.replace(/(\d)(?=(\d{3})+(?!\d))/g));
+        debugger;
+        var numtemp =  fromCurrency(num);
+        //Number(num).toFixed(2);
+        //(num.replace(/(\d)(?=(\d{3})+(?!\d))/g));
+        return toCurrency(numtemp);
     }
+    function toCurrency(value) {
+        try {
+          if( isNaN(Number(value)) ) return value;
+          return Number(value).toFixed(2);    
+        }
+        catch(err) {
+          throw err;
+        }
+      }
+      function fromCurrency(value) {
+        try {
+          let num = Number((value+"").replace(/[\$,]/g,''));
+          return isNaN(num) ? 0 : num;
+        }
+        catch(err) {
+          throw err;
+        }
+      }
+    
 
     return (
         <div>
@@ -210,7 +233,7 @@ export default function AddProduct(props) {
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
                                         <label>Rate</label>
-                                        <input type="text" id="rate" onChange={onRateChange} class="form-control" placeholder="0.00" />
+                                        <input type="text" id="rate" onBlur={onRateChange} class="form-control" placeholder="0.00" />
                                      </div>
                                 </div>
                                 </div>

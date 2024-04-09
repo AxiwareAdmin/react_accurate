@@ -787,7 +787,7 @@ export default function ViewInvoice() {
   useEffect(()=>{
       if(custName==null) return;
 
-      axios.get(`${process.env.REACT_APP_LOCAL_URL}0/customer/custname/${custName}`,header).then((res)=>{
+      axios.get(`${process.env.REACT_APP_LOCAL_URL}/customer/custname/${custName}`,header).then((res)=>{
           if(res!='Customers not found'){
             setCustomerDetails(res.data);
           }

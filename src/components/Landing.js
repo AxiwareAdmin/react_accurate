@@ -56,21 +56,6 @@ function Landing() {
     
         document.body.appendChild(script1);
 
-        // const script13 = document.createElement("script");
-        // script13.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js";
-        // script13.async = false;
-    
-        // document.body.appendChild(script13);
-        
-
-
-        
-// const script3 = document.createElement("script");
-// script3.src = "assets1/js/bootstrap.min.js";
-// script3.async = false;
-
-// document.body.appendChild(script3);
-
 
 
 const script2 = document.createElement("script");
@@ -189,7 +174,7 @@ $('#status').fadeOut();
                 <div></div>
             </div>
         </div>
-    </div>
+</div>
 
 <Helmet>
 <link rel="stylesheet" href="assets1/css/bootstrap.min.css" />

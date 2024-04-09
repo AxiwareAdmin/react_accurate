@@ -685,7 +685,7 @@ function ViewInvoice(props) {
               res.data.otherDiscount == undefined
                 ? 0
                 : parseFloat(res.data.otherDiscount);
-            if (discnt != null && discnt != undefined && discnt != "")
+            // if (discnt != null && discnt != undefined && discnt != "")
               setdiscount(discnt + otherDiscount);
   
             let tot = res.data.invoiceValue;

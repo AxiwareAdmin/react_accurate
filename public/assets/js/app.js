@@ -676,7 +676,7 @@ $(document).on("click",".add-btns",function (e) {
 var optionList='';
 var token=localStorage.getItem("token")
  $.ajax({
-     url:'http://97.74.91.84:8080/invoiceproducts',
+     url:'http://localhost:8080/invoiceproducts',
      method:'GET',
      headers:{
          "Content-Type":"application/json",
@@ -766,7 +766,7 @@ console.log("error")
          unit.readOnly=true;
          var token=localStorage.getItem("token")
          $.ajax({
-             url:'http://97.74.91.84:8080/invoiceproduct/'+event.target.value,
+             url:'http://localhost:8080/invoiceproduct/'+event.target.value,
              method:'GET',
              headers:{
                  "Content-Type":"application/json",
@@ -783,7 +783,7 @@ console.log("error")
                 if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
                  amount.value=toCurrency(data.unit*data.rate).replace(/[\$]/g,'');
                 }     
-                discount.value=toCurrency(0).replace(/[\$]/g,'');
+                discount.value=toCurrency(0).replace(/[\$]/g,'')+"%";
 
                 unit.value=data.unitVarchar;
 
@@ -1066,7 +1066,7 @@ $('.prodListSelect1').on('change',(event)=>{
  var unit=td.querySelector("#unit");
  var token=localStorage.getItem("token")
  $.ajax({
-     url:'http://97.74.91.84:8080/invoiceproduct/'+event.target.value,
+     url:'http://localhost:8080/invoiceproduct/'+event.target.value,
      method:'GET',
      headers:{
          "Content-Type":"application/json",
@@ -1083,7 +1083,7 @@ $('.prodListSelect1').on('change',(event)=>{
         if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
          amount.value=toCurrency(data.unit*data.rate).replace(/[\$]/g,'');
         }
-        discount.value=toCurrency(0).replace(/[\$]/g,'');
+        discount.value=toCurrency(0).replace(/[\$]/g,'')+"%";
         unit.value=data.unitVarchar;
 
      },
@@ -1112,7 +1112,7 @@ $('.prodListSelect1').on('change',(event)=>{
 
      let discount=tr.querySelector("#discount");
 
-     let discountVal=fromCurrency(toCurrency(discount.value));
+     let discountVal=fromCurrency(toCurrency(discount.value).replace('%',''));
 
      // if(!checkRegex(discountVal)){
      //     discount.value=0.00;
@@ -1157,7 +1157,7 @@ $('.prodListSelect1').on('change',(event)=>{
 
      let discount=tr.querySelector("#discount");
 
-     let discountVal=fromCurrency(toCurrency(discount.value));
+     let discountVal=fromCurrency(toCurrency(discount.value).replace('%',''));
 
      // if(!checkRegex(discountVal)){
      //     discount.value=0;
@@ -1198,9 +1198,11 @@ $('.prodListSelect1').on('change',(event)=>{
 
      let discount=tr.querySelector("#discount");
 
-     let discountVal=fromCurrency(toCurrency(discount.value));
+     let tempDiscountVal=discount.value.substr(0,discount.value.length-1)
 
-     discount.value=toCurrency(discountVal).replace(/[\$]/g,'');
+     let discountVal=fromCurrency(toCurrency(tempDiscountVal));
+
+     discount.value=toCurrency(discountVal).replace(/[\$]/g,'')+"%";
      // if(!checkRegex(discountVal)){
      //     discount.value=0;
      //     discountVal=0;
@@ -1376,7 +1378,7 @@ function addProductForCopy(data,prodCont) {
 var optionList='';
 var token=localStorage.getItem("token")
  $.ajax({
-     url:'http://97.74.91.84:8080/invoiceproducts',
+     url:'http://localhost:8080/invoiceproducts',
      method:'GET',
      headers:{
          "Content-Type":"application/json",
@@ -1484,7 +1486,7 @@ console.log("error")
                  tax.value=toCurrency(data.tax).replace(/[\$]/g,'')+'%';
                 quantity.value=toCurrency(data.quantity).replace(/[\$]/g,'');
                 price.value=toCurrency(data.rate).replace(/[\$]/g,'');
-                discount.value=toCurrency(data.discount).replace(/[\$]/g,'');
+                discount.value=toCurrency(data.discount).replace(/[\$]/g,'').replace('%','');
 
                 let amt=roundNum(
                  quantity.value * price.value - quantity.value * price.value * (discount.value / 100)
@@ -1494,7 +1496,7 @@ console.log("error")
                 }     
 
                 unit.value=data.unit;
-
+                discount.value+="%"
         
                  //window.prodSelectOnChangeForCopy(data)
      // })
@@ -1509,17 +1511,3 @@ console.log("error")
 
 
 
-  
-//  function makeDataTable(){
-//     console.log("executed makedatatable")
-//     if ($('.datatable').length > 0) {
-
-//         if ($.fn.DataTable.isDataTable(".datatable")) {
-//             $('.datatable').DataTable().clear().destroy();
-//           }
-//         $('.datatable').DataTable().clear().destroy();
-//         $('.datatable').DataTable({
-//             "bFilter": false,
-//         });
-//     }
-//  }

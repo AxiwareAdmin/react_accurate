@@ -29,6 +29,141 @@ export default function InvoicePageWrapper(props) {
  
   let addProductForCopy;
 
+  // function addProductForCopy(data,prodCont) {
+  //   debugger;
+  //  var optionList='';
+  //  var token=localStorage.getItem("token")
+  //   $.ajax({
+  //       url:'http://localhost:8080/invoiceproducts',
+  //       method:'GET',
+  //       headers:{
+  //           "Content-Type":"application/json",
+  //           "Authorization":'Bearer '+token
+  //         },
+  //       async:false,
+  //       success:(data)=>{
+  //           data.map((product)=>{
+  //               optionList+='<option value="'+product.invoiceProductId+'">'+product.productName+'</option>' 
+  //           })
+  //       },
+  //       error:(error)=>{
+  //  console.log("error")
+  //       }
+  //   })
+   
+   
+   
+  //   var experiencecontent = '<tr class="add-row">' +
+  //       '<td>' +
+  //           '<select class="prodListSelect prodListSelect'+(prodCont+1)+'" name="state"><option  onchange="window [prodSelectOnChange](e);" value="-1">--Select--</option>'+optionList+'</select>' +
+  //       '<input id="productId" type="hidden" value="'+(prodCont+1)+'"'+
+  //           '</td>' +
+  //       '<td>' +
+  //           '<input type="text" id="description" class="form-control description'+(prodCont+1)+'">' +
+  //       '</td>' +
+  //       '<td>' +
+  //           '<input type="text" id="hsnSac" class="form-control hsnSac'+(prodCont+1)+'">' +
+  //       '</td>' +
+  //       '<td>' +
+  //           '<input type="text" id="quantity" class="form-control quantity'+(prodCont+1)+'">' +
+  //       '</td>' +
+  //       '<td>' +
+  //       '<input type="text" id="unit" class="form-control unit'+(prodCont+1)+'">' +
+  //       '</td>' +
+  //       '<td>' +
+  //           '<input type="text" id="price" class="form-control price'+(prodCont+1)+'">' +
+  //       '</td>' +
+  //       '<td>' +
+  //       '<input type="text" id="discount" class="form-control discount'+(prodCont+1)+'">' +
+  //       '</td>' +
+  //       '<td>' +
+  //           '<input type="text" id="amount" class="form-control amount'+(prodCont+1)+'">' +
+  //       '</td>' +
+  //       '<td>' +
+  //           '<input type="text" id="tax" class="form-control tax'+(prodCont+1)+'">' +
+  //       '</td>' +
+       
+  //       '<td class="add-remove text-end">' +
+  //           '<a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
+  //           '<a href="#" className="copy-btn me-2"><i className="fas fa-cart-plus" style={{color:"navy"}} onClick="(e)=>{window.AddProductDetails(e)}"></i></a>'+
+  //           '<a href="javascript:void(0);" class="remove-btn"><i class="fa fa-trash-alt"></i></a>' +
+  //       '</td>' +
+  //   '</tr>';
+  //   $(".add-table-items").append(experiencecontent);
+  //   setTimeout(()=>{
+       
+  //       $('.prodListSelect'+(prodCont+1)).select2();
+  //       // $('.prodListSelect'+(prodCont+1)).on('change',(event)=>{
+   
+  //           data.productId=(prodCont+1);
+   
+  //           var td=$('.prodListSelect'+(prodCont+1)).parent()[0];
+   
+  //           var $select=document.querySelector('.prodListSelect'+(prodCont+1));
+  //           const $options = Array.from($select.options);
+              
+  //           const optionToSelect = $options.find(item => item.text ===data.productName);
+  //           $select.value = optionToSelect.value;
+   
+  //            //below code is used to dispatch change event on customer select box becuase i is not getting updated otherwise
+  //            var event = new Event('change');
+   
+  //            // Dispatch it.
+  //            $select.dispatchEvent(event);
+   
+  //           var productId=td.querySelector("#productId").value;
+  //           // console.log("calling:"+event.target.value)
+   
+  //           td=td.parentElement;
+  //           var description=td.querySelector("#description");
+   
+  //           description.addEventListener('change',(e)=>{window.onDescriptionChange(e)});
+   
+  //           var hsnSac=td.querySelector("#hsnSac");
+  //           hsnSac.style="text-align:end;"
+  //           var tax=td.querySelector("#tax");
+  //           tax.style="text-align:end;"
+  //           var quantity=td.querySelector("#quantity");
+  //           quantity.style="text-align:end;"
+  //           var price=td.querySelector("#price");
+  //           price.style="text-align:end;"
+  //           var amount=td.querySelector("#amount");
+  //           amount.style="text-align:end;";
+  //           amount.readOnly=true;
+  //           var discount=td.querySelector("#discount");
+  //           discount.style="text-align:end;"
+   
+  //           td.querySelector("#tax").readOnly=true;
+  //           var unit=td.querySelector("#unit");
+  //           unit.readOnly=true;
+                  
+  //                   description.value=data.productDescription;
+  //                   hsnSac.value=data.hsnSac;
+  //                   tax.value=toCurrency(data.tax).replace(/[\$]/g,'')+'%';
+  //                  quantity.value=toCurrency(data.quantity).replace(/[\$]/g,'');
+  //                  price.value=toCurrency(data.rate).replace(/[\$]/g,'');
+  //                  discount.value=toCurrency(data.discount).replace(/[\$]/g,'').replace('%','');
+   
+  //                  let amt=roundNum(
+  //                   quantity.value * price.value - quantity.value * price.value * (discount.value / 100)
+  //                 );
+  //                  if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
+  //                   amount.value=toCurrency(amt).replace(/[\$]/g,'');
+  //                  }     
+   
+  //                  unit.value=data.unit;
+  //                  discount.value+="%"
+           
+  //                   //window.prodSelectOnChangeForCopy(data)
+  //       // })
+   
+  //       $('.quantity'+(prodCont+1)).on('change',(e)=>{window.onQuantityUnitChange(e)})
+  //       $('.price'+(prodCont+1)).on('change',(e)=>{window.onPriceUnitChange(e)})
+  //       $('.discount'+(prodCont+1)).on('change',(e)=>{window.onDiscountUnitChange(e)})
+  //   },1)
+  //   return false;
+  //  }
+
 
 
   const location = useLocation();
@@ -198,7 +333,10 @@ const prodData = (data) => {
         var tax=fromCurrency(td.querySelector("#tax").value.replace('%',''));
         var quantity = fromCurrency(td.querySelector("#quantity").value);
         var price = fromCurrency(td.querySelector("#price").value);
-        var discount = fromCurrency(td.querySelector("#discount").value);
+        let tempDis=td.querySelector("#discount").value;
+
+        tempDis=tempDis.substr(0,tempDis.length-1)
+        var discount = fromCurrency(tempDis);
         var amount = fromCurrency(td.querySelector("#amount").value);
         var unit=td.querySelector("#unit").value;
         var productName = event.target.querySelector("option:checked").text;
@@ -368,7 +506,12 @@ const prodData = (data) => {
     let quantity = fromCurrency(tr.querySelector("#quantity").value);
 
     let price = fromCurrency(tr.querySelector("#price").value);
-    let discount = fromCurrency(tr.querySelector("#discount").value);
+
+    let tempDis=tr.querySelector("#discount").value;
+
+    tempDis=tempDis.substr(0,tempDis.length-1)
+
+    let discount = fromCurrency(tempDis);
     let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
@@ -395,7 +538,10 @@ const prodData = (data) => {
     let quantity = fromCurrency(tr.querySelector("#quantity").value);
 
     let price = fromCurrency(tr.querySelector("#price").value);
-    let discount = fromCurrency(tr.querySelector("#discount").value);
+
+    let tempDiscount=tr.querySelector("#discount").value;
+    tempDiscount=tempDiscount.substr(0,tempDiscount.length-1);
+    let discount = fromCurrency(tempDiscount);
     let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
@@ -423,7 +569,10 @@ const prodData = (data) => {
     let quantity = fromCurrency(event.target.value);
 
     let price = fromCurrency(tr.querySelector("#price").value);
-    let discount = fromCurrency(tr.querySelector("#discount").value);
+
+    let tempDiscount=tr.querySelector("#discount").value;
+    tempDiscount=tempDiscount.substr(0,tempDiscount.length-1);
+    let discount = fromCurrency(tempDiscount);
     let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
@@ -996,6 +1145,8 @@ window.onTransportModeChange=(e)=>{
     };
 
     window.getProductCount = () => getProductCount();
+
+
   });
   useEffect(() => {
 
@@ -1197,10 +1348,12 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
 
     setTimeout(()=>{
 
+      debugger;
+
       addProductForCopy=window.addProductForCopy;
-
+      
       onCopyInvoiceAddInvoiceDetails()
-
+      
       onPoNumberChange();
     },1000)
 
@@ -1270,7 +1423,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
 
   const [gstCalculationVal,setGstCalculationVal]=useState({})
 
-  const [invoiceDate,setInvoiceDate]=useState("");
+  const [invoiceDate,setInvoiceDate]=useState(getFormattedDate(new Date()));
 
   const [poDate,setPoDate]=useState("");
 
@@ -1282,7 +1435,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
 
   const [dueDate,setDueDate]=useState("");
 
-  const [transportModes,setTransportModes]=useState(["By Air","By Road"])
+  const [transportModes,setTransportModes]=useState(["By Air","By Road","By Hand"])
 
   const [paymentTermVal,setPaymentTermVal]=useState("15 Days");
 
@@ -1683,6 +1836,33 @@ const onDescriptionChange=(e)=>{
   const saveInvoice=(e)=>{
     e.preventDefault();
 
+    e.target.style.pointerEvents = "none"; // Disable pointer events
+e.target.style.opacity = "0.5";
+
+    var token=localStorage.getItem("token");
+    axios.get(`${process.env.REACT_APP_LOCAL_URL}/clientValidity`,{ headers:{
+      "Content-Type":"application/json",
+      "Authorization":'Bearer '+token
+    }}).then((res)=>{
+      debugger
+        if(res.data==true){
+          onValid(e);
+        }else{
+          e.target.style.pointerEvents = ""; // Re-enable pointer events
+          e.target.style.opacity = "";
+          Swal.fire(
+            '',
+            'Your Subcription has expired.',
+            'error'
+          )
+        }
+    })
+
+   
+  }
+
+
+  const onValid=(e)=>{
     let totalSgst=0;
     let totalCgst=0;
 
@@ -1768,10 +1948,16 @@ const onDescriptionChange=(e)=>{
         },1000)
 
       }
-      else
+      else{
+        e.target.style.pointerEvents = ""; // Re-enable pointer events
+e.target.style.opacity = "";
         alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
+
+      }
     })
     .catch(function (error) {
+      e.target.style.pointerEvents = ""; // Re-enable pointer events
+e.target.style.opacity = "";
       console.log(error);
     });
   }
@@ -1868,10 +2054,112 @@ const onDescriptionChange=(e)=>{
   }
 
   const printButtonClicked=(e)=>{
-    if(isSaved==0)
-      alert("please save the invoice first!!.");
-    else
-    window.location.href="/viewInvoice?id="+invoiceNumber;//change
+    e.target.style.pointerEvents = "none"; // Disable pointer events
+    e.target.style.opacity = "0.5";
+    if(isSaved==1){
+
+      axios.post(`${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`, invoiceNumber,{//save invoice //change
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":'Bearer '+token
+        }
+      }).then((res)=>{
+        alert(res.data)
+        window.location.href="/viewInvoice?id="+res.data;
+      }).catch(()=>{
+        e.target.style.pointerEvents = ""; // Disable pointer events
+        e.target.style.opacity = "";
+      })
+
+      return;
+
+    }
+
+    let totalSgst=0;
+    let totalCgst=0;
+
+    gstPercentageVal.map(elem=>{
+      totalSgst=roundNum(totalSgst+roundNum(parseFloat(elem)/2));
+      totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
+    })
+
+    // let tempPoNumber=$("#poNumbers option:selected").text();
+
+    let invoiceData={
+      invoiceProducts:productUnits,
+      invoiceNo:invoiceNumber,
+      invoiceId : invoiceId,
+      sgstValue:totalSgst,
+      cgstValue:totalCgst,
+      taxableValue:totalTaxableAmt,
+      invoiceValue:finalAmt,
+      transportCharges:transportCharge,
+      additionalCharges:otherCharge,
+      discount:discountInRuppes,
+      otherDiscount:(roundNum(totalAmt*discountInPercentage/100)),
+      shippingAddress:shippingAddress1+shippingAddress2,
+      billingAddress:fromAddr1+fromAddr2,
+      poNumber:poNumber,
+      customerName:document.querySelector("#customer option:checked").innerText,
+      invoiceDate:invoiceDate,
+      poDate:poDate,
+      challanNumber:challanNumber,
+      challanDate:challanDate,
+      paymentTerms:paymentTermVal,
+      dueDate:dueDate,
+      transportMode:transportModeVal,
+      vehicleNumber:vehicleNumber,
+      remarks:remarks,
+      state:state,
+      gstNo:gstNo,
+      shippingGstNo:shippingGstNo,
+      serviceCheck:serviceCheck,
+      shippingState:shippingState,
+      termsAndCondition:termsAndCondition,
+      transportGstRate:transportGstRate,
+      otherChargesGstRate:otherChargesGstRate,
+      financialYear:document.querySelector("#financialYear").value
+    }
+
+    console.log(invoiceData)
+
+    var token=localStorage.getItem("token");
+
+    axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveInvoice"}`, invoiceData,{//save invoice //change
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
+      }
+    })
+    .then(function (response) {
+      console.log(response)
+      if(response!=null && response.data.res=='success'){
+      // setAlertMsg("Invoice created successfully!!")
+
+
+          axios.post(`${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`, invoiceNumber,{//save invoice //change
+            headers:{
+              "Content-Type":"application/json",
+              "Authorization":'Bearer '+token
+            }
+          }).then((res)=>{
+            window.location.href="/viewInvoice?invNo="+res.data;
+          })
+
+
+      }
+      else{
+        e.target.style.pointerEvents = "none"; // Disable pointer events
+        e.target.style.opacity = "0.5";
+        alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
+      }
+    })
+    .catch(function (error) {
+      e.target.style.pointerEvents = "none"; // Disable pointer events
+      e.target.style.opacity = "0.5";
+      console.log(error);
+    });
+    //change
   }
 
 
@@ -1902,6 +2190,7 @@ const onDescriptionChange=(e)=>{
  
    if(editref.current){
     
+    debugger;
      var url=new URL(window.location.href);
      let invNoEdit=url.searchParams.get("InvNo");
      let actionedit = url.searchParams.get("action");
@@ -2034,20 +2323,20 @@ const onDescriptionChange=(e)=>{
              
               //start prod set code
               // window.fetchProdList();
-              // var productUnitsTemp=[];
+              var productUnitsTemp=[];
               
-              // res.data.invoiceProductDO && res.data.invoiceProductDO.map((elem,index)=>{
-              //   
-              //   console.log('product data '+ elem.productName+':index id :'+index);
+              res.data.invoiceProductDO && res.data.invoiceProductDO.map((elem,index)=>{
+                
+                console.log('product data '+ elem.productName+':index id :'+index);
 
-              //   addProductForCopy(elem,index)
+                addProductForCopy(elem,index)
 
-              //   setProdCount(index+1);
+                setProdCount(index+1);
 
-              //   productUnitsTemp.push(elem);
-              // });   
+                productUnitsTemp.push(elem);
+              });   
               
-              // prodSelectOnChangeForCopy(productUnitsTemp);
+              prodSelectOnChangeForCopy(productUnitsTemp);
              
             }).catch(function (error) {
               console.log(error);
@@ -2330,7 +2619,7 @@ const onDescriptionChange=(e)=>{
                       </div>
                     </div>
     
-                    <div className="invoice-item" style={{border: "1px solid #E5E5E5",borderRadius: "10px", width: "100%",marginBottom:"15px", background: "#FFFFFF"}}>
+                    <div className="invoice-item" style={{border: "1px solid #E5E5E5",borderRadius: "10px", width: "100%",marginBottom:"15px", background: "#FFFFFF",overflowX:'hidden'}}>
                       <div className="row">
                         <div className="col-xl-6 col-lg-6 col-md-6 h-100 " style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px 0px 0px 20px"}}>
                           <div className="invoice-info w-100" >
@@ -2349,22 +2638,7 @@ const onDescriptionChange=(e)=>{
                               <br />
                             </p>
                           </div>
-                                      {/* address footer start */}
-                          <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
-                                        GST No. &nbsp;
-                                        <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                      GST No.&nbsp;
-                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div> */}
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
-                        State&nbsp;
-                        <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      </div>
-                            {/* address footer end */}
+                          
                         </div>
                         <div className="col-xl-6 col-lg-6 col-md-6 h-100" style={{paddingLeft:"0px"}}>
                           <div className="invoice-info w-100" style={{marginBottom:"0px",padding:"20px"}} >
@@ -2380,39 +2654,46 @@ const onDescriptionChange=(e)=>{
                             </p>
                           </div>
 
-                                         {/* address footer start */}
-                                         <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}>
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
-                                        GST No. &nbsp;
-                                        <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      {/* <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                      GST No.&nbsp;
-                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div> */}
-                      <div className="col-xl-6 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
-                        State&nbsp;
-                        <input class="form-control" type="text" value={shippingState} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      </div>
-                            {/* address footer end */}
+                                       
                         </div>
                       </div>
-                      {/* <div className="row">
-                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
+
+
+
+                      <div className="row" style={{borderTop:"1px solid #E5E5E5"}}>
+                         {/* nadim       address footer start */}
+                      {/* <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}> */}
+                      <div className="col-xl-3 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
                                         GST No. &nbsp;
                                         <input class="form-control" type="text" value={gstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
-                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px"}}>
-                      GST No.&nbsp;
-                      <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
-                      </div>
-                      <div className="col-xl-4 col-lg-4 col-md-4 d-flex" style={{marginBottom:"0px",padding:"20px"}}>
+                 
+                      <div className="col-xl-3 col-lg-6 col-md-6 d-flex" style={{borderRight: "1px solid #E5E5E5",marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
                         State&nbsp;
                         <input class="form-control" type="text" value={state} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
                       </div>
-                      </div> */}
+                      {/* </div> */}
+                            {/* address footer end */}
 
+
+
+
+
+  {/* address footer start */}
+                                         {/* <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}> */}
+                      <div className="col-xl-3 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
+                                        GST No. &nbsp;
+                                        <input class="form-control" type="text" value={shippingGstNo} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+
+                      <div className="col-xl-3 col-lg-6 col-md-6 d-flex" style={{marginBottom:"0px",padding:"20px",display:'flex',flexDirection:'column'}}>
+                        State&nbsp;
+                        <input class="form-control" type="text" value={shippingState} style={{border: "1px solid rgb(154, 85, 255)", width: "100%",padding: "10px"}}></input>
+                      </div>
+                      {/* </div> */}
+                            {/* address footer end */}
+                      </div>
+                
                     </div>
 
 
@@ -2634,7 +2915,7 @@ const onDescriptionChange=(e)=>{
                             aria-multiselectable="true"
                           >
 
-<div className="faq-tab">
+                            <div className="faq-tab">
                               <div className="panel panel-default">
                                 <div
                                   className="panel-heading"
@@ -2647,7 +2928,7 @@ const onDescriptionChange=(e)=>{
                                       data-bs-toggle="collapse"
                                       data-bs-parent="#accordion"
                                       href="#collapseThree"
-                                      aria-expanded="false"
+                                      aria-expanded="true"
                                       aria-controls="collapseThree"
                                     >
                                       <i className="fas fa-plus-circle me-1"></i>{" "}
@@ -2657,7 +2938,7 @@ const onDescriptionChange=(e)=>{
                                 </div>
                                 <div
                                   id="collapseThree"
-                                  className="panel-collapse collapse"
+                                  className="panel-collapse show"
                                   role="tabpanel"
                                   aria-labelledby="headingThree"
                                   data-bs-parent="#accordion"
@@ -2668,6 +2949,13 @@ const onDescriptionChange=(e)=>{
                                 </div>
                               </div>
                             </div>
+                            </div>
+                            <div
+                            className="panel-group"
+                            id="accordion1"
+                            role="tablist"
+                            aria-multiselectable="true"
+                          >
                             <div className="faq-tab">
                               <div className="panel panel-default">
                                 <div
@@ -2679,22 +2967,22 @@ const onDescriptionChange=(e)=>{
                                     <a
                                       className="collapsed"
                                       data-bs-toggle="collapse"
-                                      data-bs-parent="#accordion"
+                                      data-bs-parent="#accordion1"
                                       href="#collapseTwo"
-                                      aria-expanded="false"
+                                      aria-expanded="true"
                                       aria-controls="collapseTwo"
                                     >
                                       <i className="fas fa-plus-circle me-1"></i>{" "}
-                                      Add Terms & Conditions
+                                      Payment Terms
                                     </a>
                                   </p>
                                 </div>
                                 <div
                                   id="collapseTwo"
-                                  className="panel-collapse collapse"
+                                  className="panel-collapse show"
                                   role="tabpanel"
                                   aria-labelledby="headingTwo"
-                                  data-bs-parent="#accordion"
+                                  data-bs-parent="#accordion1"
                                 >
                                   <div className="panel-body">
                                     <textarea onChange={onTermsAndConditionChange} id="termsAndCondition" className="form-control"></textarea>
@@ -2726,7 +3014,7 @@ const onDescriptionChange=(e)=>{
                               <hr />
                               {/* <a onkeyup="finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateDiscount(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),calculateSGST18onvalue(),totalAmountWithTax(),getNumberOFRowsInTable()"> */}
                               <p style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                                <p style={{marginBottom:"5px"}}>Transport charge</p>
+                                <p style={{marginBottom:"5px"}}>Transport charges</p>
                                 <div style={{display:'flex', alignItems:'center',justifyItems:'center'}}>
                                
 
@@ -2860,7 +3148,7 @@ const onDescriptionChange=(e)=>{
                               <hr />
                               {/* <a onkeyup="calculateDiscount(),finalSum(),calculateSGST12(),calculateSGST12onvalue(),calculateSGST18(),calculateSGST28(),calculateSGST28onvalue(),totalAmountWithTax(),calculateSGST18onvalue(),getNumberOFRowsInTable(),"> */}
                               <p>
-                                Other Discount
+                              Discount in &#8377;
                                 <span>
                                   <input
                                      style={{
@@ -2899,7 +3187,7 @@ const onDescriptionChange=(e)=>{
                                 </span>
                               </p>
                               <p>
-                                Total Discount in $<span id="finalDiscount">{toCurrency(fromCurrency(totalDiscount+"")).replace(/[\$]/g,'')}</span>
+                                Total Discount in &#8377;<span id="finalDiscount">{toCurrency(fromCurrency(totalDiscount+"")).replace(/[\$]/g,'')}</span>
                               </p>
                               {/* </p> */}
                               <div class="invoice-total-footer">
@@ -3087,7 +3375,9 @@ const onDescriptionChange=(e)=>{
 </div>
 <div class="col-lg-9 col-md-12"><a style={{color:'grey'}}/>
 <div class="form-group float-end mb-0">
-<button class="btn btn-danger" id="submitButton" type="submit" value="Submit">Cancel</button>
+<button class="btn btn-danger" onClick={()=>{
+  window.location.href="/salesRegister?INVOICE_TYPE=GST"
+}} id="submitButton" type="submit" value="Submit">Cancel</button>
 </div>
 <div class="form-group float-end mb-0" style={{marginRight:'5px'}}>
 <button class="btn btn-primary" onClick={printButtonClicked} id="submitButton" type="submit" value="Submit">Print</button>

@@ -157,8 +157,7 @@ export default function AddProduct(props) {
     }
 
     function currencyFormat(num) {
-        debugger;
-        return (num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g));
+        return (num.replace(/(\d)(?=(\d{3})+(?!\d))/g));
     }
 
     return (

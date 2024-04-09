@@ -106,7 +106,7 @@ export default function AddCustomer(props) {
          }else if(shippingCountry == null || shippingCountry == "" || shippingCountry == undefined){
             validations("Please Enter Shipping country.");
          }else if(!checkMobileNo(contactNo )){
-            validations("Please Enter valid Contact No.");
+            validations("Please Enter valid Mobile No.");
          }else if(!checkemail(email)){
             validations("Please Enter valid Email id.");
          }else{

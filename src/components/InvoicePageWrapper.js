@@ -2520,9 +2520,15 @@ e.target.style.opacity = "";
                           </h4>
                           <div className="invoice-details-box">
                             <div className="invoice-inner-head">
-                              <span>
+                              <span className="d-flex align-items-center justify-content-between">
                                 Invoice No.{" "}
-                               {invoiceMode=='Auto'?<a href="view-invoice.html">{invoiceNumber}</a>:
+                               {invoiceMode=='Auto'?<a  style={{
+                                        border: "1px solid #9a55ff",
+                                        width: "65%",
+                                        padding: "10px",
+                                        color: "#9a55ff",
+                                        borderRadius:'5px'
+                                      }} href="view-invoice.html">{invoiceNumber}</a>:
                                 <input
                                 className="form-control"
                                 type="text"
@@ -2531,20 +2537,17 @@ e.target.style.opacity = "";
                                 onChange={onInvoiceNumberChange}
                                 style={{
                                   border: "1px solid #9a55ff",
-                                  width: "100%",
+                                  width: "65%",
                                   padding: "10px",
-                                }}
+                                  color: "#9a55ff"
+                                }} 
                               />
                                } 
                                 
                               </span>
                               <br />
                               <br />
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
+                              <span className="d-flex align-items-center justify-content-between"
                               >
                                 Invoice Date.{" "}
                                 <input
@@ -2553,7 +2556,11 @@ e.target.style.opacity = "";
                                   placeholder="Select Date"
                                   value={invoiceDate}
                                   id="invoiceDate"
-                                  style={{ border: "none", width: 120,color: "#9a55ff"}}
+                                  style={{
+                                    border: "1px solid #9a55ff",
+                                    width: "65%",
+                                    color: "#9a55ff",
+                                  }}
                                 />
                               </span>
                             </div>

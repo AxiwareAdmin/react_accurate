@@ -12,19 +12,23 @@ export default function AddProduct(props) {
     const [alertMsg,setAlertMsg]=useState(null);
     const [productName, setProductName] = useState();
     const [productDescription, setProductDescription] = useState();
-    const [productType, setProductType] = useState("Food");
+    const [productType, setProductType] = useState("");
     const [partCode, setPartCode] = useState();
     const [hsnCode, setHsnCode] = useState();
     const [unit, setUnit] = useState();
-    const [unitVarchar, setUnitVarchar] = useState("ss");
+    const [unitVarchar, setUnitVarchar] = useState("--Select unit--");
     const [rate, setRate] = useState();
     const [category, setCategory] = useState();
     const [applicableTax, setApplicableTax] = useState();
     const [openingStock, setOpeningStock] = useState();
-    const [taxoption , setTaxOption] = useState([{key:"0",val:"-Select Tax-"},{key:"28",val:"GST@28%"},
-    {key:"18",val:"GST@18%"},{key:"12",val:"GST@12%"},{key:"11",val:"GST@11%"},{key:"3",val:"GST@3%"},
-    {key:"0",val:"GST@0%(Nill rated)"},{key:"1",val:"Exempt GST"}]);
-    
+    const [taxoption , setTaxOption] = useState([{key:"0",val:"-Select Tax-"},{key:"0",val:"GST@0%(Nill rated)"},
+    {key:"0.1",val:"GST@0.1%"},{key:"0.25",val:"GST@0.25%"},{key:"1",val:"GST@1%"},
+    {key:"1.5",val:"GST@1.5%"},{key:"5",val:"GST@5%"},{key:"6",val:"GST@6%"},
+    {key:"7.5",val:"GST@7.5%"},{key:"12",val:"GST@12%"},{key:"18",val:"GST@18%"},{key:"28",val:"GST@28%"}]);
+    const units =['--Select unit--','NOS','BAG','BKL','BTL','CBM','CTN','GGK','GYD','KME','MTR','OTH','PRS','SET','SQY',
+       'THD','UGS','BAL','BOU','BUN','CCM' ,'DOZ','GMS','KGS','LTR','MTS','PAC','QTL','SQF','TBS','TON',
+       'UNT','BDL','BOX','CAN','CMS','DRM','GRS','KLR','MLT'  ,'JOB'  ,'PCS'   ,'ROL','SQM','TGM','TUB',
+       'YDS','Hrs','Inch','MM','FT','RFT','LOT','RMT'];
 
 
     const BACKEND_SERVER = process.env.REACT_APP_LOCAL_URL;
@@ -32,14 +36,14 @@ export default function AddProduct(props) {
 
     function saveProduct(e) {
         e.preventDefault();
-
+        
         if(productName == null || productName == undefined || productName == ""){
             validations("Please Enter Product Name");
-         }else if(partCode == null || partCode == undefined || partCode == ""){
-            validations("Please Enter partCode");
-         }else if(hsnCode == null || hsnCode == undefined || hsnCode == ""){
-            validations("Please Enter hsnCode");
-         }else if(unitVarchar == null || unitVarchar == undefined || unitVarchar == "0"){
+        //  }else if(partCode == null || partCode == undefined || partCode == ""){
+        //     validations("Please Enter partCode");
+        //  }else if(hsnCode == null || hsnCode == undefined || hsnCode == ""){
+        //     validations("Please Enter hsnCode");
+         }else if(unitVarchar == null || unitVarchar == undefined || unitVarchar == "--Select unit--"){
             validations("Please Select  unit");
          }else if(rate == null || rate == undefined || rate == ""){
             validations("Please Enter rate");
@@ -47,8 +51,8 @@ export default function AddProduct(props) {
             validations("Please select  category");
          }else if(applicableTax == null || applicableTax == undefined || applicableTax == "0"){
             validations("Please select  applicableTax");
-         }else if(openingStock == null || openingStock == undefined || openingStock == ""){
-             validations("Please Enter openingStock");
+        //  }else if(openingStock == null || openingStock == undefined || openingStock == ""){
+        //      validations("Please Enter openingStock");
          }else{
 
         let productData = {
@@ -115,8 +119,7 @@ export default function AddProduct(props) {
         toast(msg,{
             position: "top-center",
             theme:"colored",
-            type:"error",
-            autoClose:500
+            type:"error"
            });
     }
     useEffect (() => {
@@ -147,9 +150,38 @@ export default function AddProduct(props) {
         setApplicableTax(e.target.value);
     }
 
+    function onRateChange(e){
+        setRate(currencyFormat(e.target.value));
+        document.querySelector("#rate").value =currencyFormat(e.target.value);
 
+    }
 
-
+    function currencyFormat(num) {
+        debugger;
+        var numtemp =  fromCurrency(num);
+        //Number(num).toFixed(2);
+        //(num.replace(/(\d)(?=(\d{3})+(?!\d))/g));
+        return toCurrency(numtemp);
+    }
+    function toCurrency(value) {
+        try {
+          if( isNaN(Number(value)) ) return value;
+          return Number(value).toFixed(2);    
+        }
+        catch(err) {
+          throw err;
+        }
+      }
+      function fromCurrency(value) {
+        try {
+          let num = Number((value+"").replace(/[\$,]/g,''));
+          return isNaN(num) ? 0 : num;
+        }
+        catch(err) {
+          throw err;
+        }
+      }
+    
 
     return (
         <div>
@@ -192,23 +224,21 @@ export default function AddProduct(props) {
                                     <div class="form-group">
                                         <label>Unit</label>
                                     <select onChange={selectUnit} class="form-control">
-                                        <option value="0">--Select Unit--</option>
-                                         <option value="nos">NOS</option>
-                                        <option value="bag">BAG</option>
-                                         <option value="bkl">BKL</option>
-                                        <option value="btk">BTL</option>
+                                 {units.map((val,key) => {
+                                     return (<option value={val}>{val}</option>)
+                                 })}
                                     </select>
                                      </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
                                         <label>Rate</label>
-                                        <input type="text" onChange={e => setRate(e.target.value)} class="form-control" placeholder="Rate" />
+                                        <input type="text" id="rate" onBlur={onRateChange} class="form-control" placeholder="0.00" />
                                      </div>
                                 </div>
                                 </div>
                                 <div class="row">
-                                <div class="col-lg-12 col-md-12">
+                                <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
                                     <label>Category</label>
                                     <select onChange={selectCategory} class="form-control">
@@ -223,13 +253,8 @@ export default function AddProduct(props) {
 
                                 </select>
                                      </div>
-                                </div>
-                                
-                                </div>
-
-                                <div class="row">
-                                
-                                <div class="col-lg-12 col-md-12">
+                                </div>                                
+                                <div class="col-lg-6 col-md-6">
                                 <label>Applicable Tax</label>
                                 <select onChange={selectAppTax} class="form-control">
                                  {taxoption.map((val,key) => {
@@ -247,17 +272,21 @@ export default function AddProduct(props) {
                                 </select>
                                 </div>
                                 </div>
-                             <div class="row">
+                             {/* <div class="row">
                              <div class="col-lg-12 col-md-12">
                                     <div class="form-group">
                                         <label>opening Stock</label>
                                         <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="opening Stock" />
                                      </div>
                                 </div>
-                                </div>
-                                                                 
+                                </div> */}
+                                    <br></br>                             
                                 <div class="row">
                                 <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                        {/* <label>opening Stock</label> */}
+                                        <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="Opening Stock" />
+                                     </div>
                                 {/* <div class="row">
                                         <div class="col-md-8">
                                             <input  type="text" onChange={} class="form-control" placeholder="Opening Balance" />

@@ -17,7 +17,7 @@ export default function AddCustomer(props) {
     const [pincode , setPincode] = useState();
     const [state , setState] = useState();
     const [shippingState , setShippingState] = useState();
-    const [country , setCountry] = useState();
+    const [country , setCountry] = useState("India");
     const [email , setEmail] = useState();
     const [contactNo , setContactNo] = useState();
     const [shippingAddress1 , setShippingAddress1] = useState();
@@ -27,10 +27,17 @@ export default function AddCustomer(props) {
     const [shippingAddress2 , setShippingAddress2] = useState();
     const [shippingCity , setShippingCity] = useState();
     const [shippingPincode , setShippingPincode] = useState();
-    const [shippingCountry , setShippingCountry] = useState();
+    const [shippingCountry , setShippingCountry] = useState("India");
+    const [openingStock, setOpeningStock] = useState();
 
-    const states=['Andaman and Nicobar Islands', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 'Chhattisgarh', 'Dadra and Nagar Haveli', 'Daman and Diu', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu', 'Jharkhand', 'Karnataka', 'Kashmir', 'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttarakhand', 'Uttar Pradesh', 'West Bengal']
-
+    const states=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat',
+       'Haryana' ,'Himachal Pradesh','Jammu and Kashmir','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
+       'Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim',
+       'Tamil Nadu','Telangana','Tripura','Uttarakhand','Uttar Pradesh','West Bengal',
+       'Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli','Daman and Diu','Delhi',
+       'Lakshadweep','Puducherry']; 
+       
+ 
      const BACKEND_SERVER=process.env.REACT_APP_LOCAL_URL;
 
      function checksum(g){
@@ -43,6 +50,22 @@ export default function AddCustomer(props) {
             },0); 
         }
         return regTest
+    }
+    function checkMobileNo(number){
+        const reg = /^[0]?[789]\d{9}$/;
+        if (reg.test(number) === false) {
+            return false;
+        }else{
+            return true;
+        }
+    }
+    function checkemail(mail){
+        const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (reg.test(mail) === false) {
+            return false;
+        }else{
+            return true;
+        }
     }
 
      function saveCustomer(e){
@@ -82,10 +105,10 @@ export default function AddCustomer(props) {
             validations("Please select Shipping State.");
          }else if(shippingCountry == null || shippingCountry == "" || shippingCountry == undefined){
             validations("Please Enter Shipping country.");
-         }else if(contactNo == null || contactNo == "" || contactNo == undefined){
-            validations("Please Enter Contact No.");
-         }else if(email == null || email == "" || email == undefined){
-            validations("Please Enter Email id.");
+         }else if(!checkMobileNo(contactNo )){
+            validations("Please Enter valid Mobile No.");
+         }else if(!checkemail(email)){
+            validations("Please Enter valid Email id.");
          }else{
 
          let customerData={
@@ -108,9 +131,12 @@ export default function AddCustomer(props) {
             email : email,
             contactNo : contactNo,
             shippingAddress1 : shippingAddress1,
-            paymentTerms : paymentTerms
+            paymentTerms : paymentTerms,
+            openingStock : openingStock
 
          }
+
+         console.log(customerData)
 
          var token=localStorage.getItem("token")
     //it was GET method earlier
@@ -316,7 +342,7 @@ export default function AddCustomer(props) {
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
-                                        <input type="text" onChange={e => setCountry(e.target.value)}  class="form-control" placeholder="Country" />
+                                        <input type="text" value={"India"} onChange={e => setCountry(e.target.value)}  class="form-control" placeholder="Country" />
                                      </div>
                                 </div>
                                 </div>
@@ -326,7 +352,7 @@ export default function AddCustomer(props) {
                                 <label >Same as billing Address <input value={sameAddressChk} onClick={onSameAddress} id="sameAddress"  type="checkbox"/> </label>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
-                                        <input type="text" value={shippingCustomerName} class="form-control" placeholder="Customer Name"/>
+                                        <input type="text" value={shippingCustomerName} onChange={e => setShippingCustomerName(e.target.value)} class="form-control" placeholder="Customer Name"/>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
@@ -343,19 +369,19 @@ export default function AddCustomer(props) {
                                 </div>
                                  <div class="col-lg-6 col-md-6">
                                         <div class="form-group">
-                                        <input type="text" value={shippingAddress2} class="form-control" placeholder="Address2" />
+                                        <input type="text" value={shippingAddress2} onChange={e => setShippingAddress2(e.target.value)} class="form-control" placeholder="Address2" />
                                         </div>
                                 </div>
                              </div>
                              <div class="row">
                              <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
-                                        <input type="text" value={shippingCity} class="form-control" placeholder="City" />
+                                        <input type="text" value={shippingCity} onChange={e => setShippingCity(e.target.value)} class="form-control" placeholder="City" />
                                      </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
-                                        <input type="text" value={shippingPincode}  class="form-control" placeholder="PinCode" />
+                                        <input type="text" value={shippingPincode} onChange={e => setShippingPincode(e.target.value)} class="form-control" placeholder="PinCode" />
                                      </div>
                                 </div>
                                 </div>
@@ -363,18 +389,21 @@ export default function AddCustomer(props) {
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
                                     <select onChange={selectShippState} id="shippingSelect"  class="form-control">
-                                    <option value="--Select State--">--Select State--</option>
-                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                            <option value="--Select State--">--Select State--</option>
+                                            
+                                            {states.map(state=><option value={state}>{state}</option>)}
+
+                                            {/* <option value="Andhra Pradesh">Andhra Pradesh</option>
                                             <option value="Arunachal Pradesh">Arunachal Pradesh</option>
                                             <option value="Assam">Assam</option>
                                             <option value="Bihar">Bihar</option>
-                                            <option value="Chhattisgarh">Chhattisgarh</option>
-                                    </select>
+                                            <option value="Chhattisgarh">Chhattisgarh</option> */}
+                                        </select>
                                      </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
-                                        <input type="text" value={shippingCountry}  class="form-control" placeholder="Country" />
+                                        <input type="text" value={shippingCountry} onChange={e => setShippingCountry(e.target.value)}  class="form-control" placeholder="Country" />
                                      </div>
                                 </div>
                                 </div>
@@ -405,6 +434,10 @@ export default function AddCustomer(props) {
                                  
                                 <div class="row">
                                 <div class="col-lg-6 col-md-6">
+                                <div class="form-group">
+                                        {/* <label>opening Stock</label> */}
+                                        <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="Opening Stock" />
+                                     </div>
                                 {/* <div class="row">
                                         <div class="col-md-8">
                                             <input  type="text" onChange={} class="form-control" placeholder="Opening Balance" />

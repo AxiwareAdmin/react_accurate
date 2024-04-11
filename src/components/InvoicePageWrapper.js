@@ -1962,6 +1962,115 @@ e.target.style.opacity = "";
     });
   }
 
+
+  const onPrintValid=(e)=>{
+    let totalSgst=0;
+    let totalCgst=0;
+
+    gstPercentageVal.map(elem=>{
+      totalSgst=roundNum(totalSgst+roundNum(parseFloat(elem)/2));
+      totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
+    })
+
+    // let tempPoNumber=$("#poNumbers option:selected").text();
+
+    let invoiceData={
+      invoiceProducts:productUnits,
+      invoiceNo:invoiceNumber,
+      invoiceId : invoiceId,
+      sgstValue:totalSgst,
+      cgstValue:totalCgst,
+      taxableValue:totalTaxableAmt,
+      invoiceValue:finalAmt,
+      transportCharges:transportCharge,
+      additionalCharges:otherCharge,
+      discount:discountInRuppes,
+      otherDiscount:(roundNum(totalAmt*discountInPercentage/100)),
+      shippingAddress:shippingAddress1+shippingAddress2,
+      billingAddress:fromAddr1+fromAddr2,
+      poNumber:poNumber,
+      customerName:document.querySelector("#customer option:checked").innerText,
+      invoiceDate:invoiceDate,
+      poDate:poDate,
+      challanNumber:challanNumber,
+      challanDate:challanDate,
+      paymentTerms:paymentTermVal,
+      dueDate:dueDate,
+      transportMode:transportModeVal,
+      vehicleNumber:vehicleNumber,
+      remarks:remarks,
+      state:state,
+      gstNo:gstNo,
+      shippingGstNo:shippingGstNo,
+      serviceCheck:serviceCheck,
+      shippingState:shippingState,
+      termsAndCondition:termsAndCondition,
+      transportGstRate:transportGstRate,
+      otherChargesGstRate:otherChargesGstRate,
+      financialYear:document.querySelector("#financialYear").value
+    }
+
+    console.log(invoiceData)
+
+    var token=localStorage.getItem("token");
+
+    axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveInvoice"}`, invoiceData,{//save invoice //change
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":'Bearer '+token
+      }
+    })
+    .then(function (response) {
+      console.log(response)
+      if(response!=null && response.data.res=='success'){
+      // setAlertMsg("Invoice created successfully!!")
+
+      Swal.fire(
+        '',
+        'Invoice created successfully!',
+        'success'
+      )
+
+      setIsSaved(1);
+
+      const date = new Date();  // 2009-11-10
+      const month = date.toLocaleString('default', { month: 'long' });
+
+      setTimeout(()=>{
+        setAlertMsg(null)
+
+      
+        window.location.href="/viewInvoice?id="+res.data;
+      },2000)
+
+        setTimeout(()=>{
+          window.location.href="/viewInvoice?id="+res.data;s
+
+        },1000)
+
+      }
+      else{
+        e.target.style.pointerEvents = ""; // Re-enable pointer events
+e.target.style.opacity = "";
+        // alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
+        Swal.fire(
+          '',
+          'There is some issue in creating invoice.',
+          'error'
+        )
+      }
+    })
+    .catch(function (error) {
+      e.target.style.pointerEvents = ""; // Re-enable pointer events
+e.target.style.opacity = "";
+Swal.fire(
+  '',
+  'There is some issue in creating invoice.',
+  'error'
+)
+    });
+  }
+
   const onInvoiceDateChange=(e)=>{
     var inDateArr=e.target.value.split("/")
     var inDate=new Date(inDateArr[2],inDateArr[1]-1,inDateArr[0])
@@ -2125,40 +2234,27 @@ e.target.style.opacity = "";
 
     var token=localStorage.getItem("token");
 
-    axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"saveCashInvoice":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"saveProformaInvoice":"saveInvoice"}`, invoiceData,{//save invoice //change
-      headers:{
-        "Content-Type":"application/json",
-        "Authorization":'Bearer '+token
-      }
+
+    axios.get(`${process.env.REACT_APP_LOCAL_URL}/clientValidity`,{ headers:{
+      "Content-Type":"application/json",
+      "Authorization":'Bearer '+token
+    }}).then((res)=>{
+      debugger
+        if(res.data==true){
+          onPrintValid(e);
+        }else{
+          e.target.style.pointerEvents = ""; // Re-enable pointer events
+          e.target.style.opacity = "";
+          Swal.fire(
+            '',
+            'Your Subcription has expired.',
+            'error'
+          )
+        }
     })
-    .then(function (response) {
-      console.log(response)
-      if(response!=null && response.data.res=='success'){
-      // setAlertMsg("Invoice created successfully!!")
 
 
-          axios.post(`${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`, invoiceNumber,{//save invoice //change
-            headers:{
-              "Content-Type":"application/json",
-              "Authorization":'Bearer '+token
-            }
-          }).then((res)=>{
-            window.location.href="/viewInvoice?invNo="+res.data;
-          })
 
-
-      }
-      else{
-        e.target.style.pointerEvents = "none"; // Disable pointer events
-        e.target.style.opacity = "0.5";
-        alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
-      }
-    })
-    .catch(function (error) {
-      e.target.style.pointerEvents = "none"; // Disable pointer events
-      e.target.style.opacity = "0.5";
-      console.log(error);
-    });
     //change
   }
 

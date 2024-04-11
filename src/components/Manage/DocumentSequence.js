@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../Sidebar"
 import Navbar from "../Navbar";
 import axios from "axios";
+import Swal from "sweetalert2";
 import { Navigate, useAsyncError,useNavigate } from "react-router-dom";
 import { useRef } from "react";
 export default function DocumentSequence() {
@@ -343,7 +344,7 @@ export default function DocumentSequence() {
         let documentdata = {
             DocumentId : documentId,
             DocumentName : documentName,
-            Prefix1 : prefix1,
+            Prefix1 : prefix1, 
             Prefix2 : prefix2,
             Series : series,
             ModeVal : modeVal,
@@ -364,7 +365,11 @@ export default function DocumentSequence() {
         // setTimeout(()=>{
         //   props.onAlertChange(null)
         // },2000)
-        alert("Document master created or Updated successfully!!");
+        Swal.fire(
+            '',
+            'Document sequence updated successfully!',
+            'success'
+          )
 debugger;
         document.querySelector("#spandocumentName"+selectedIndex).innerText=documentName;
         document.querySelector("#spanprefix1"+selectedIndex).innerText=prefix1;
@@ -384,8 +389,14 @@ debugger;
         document.querySelector("#rating_1"+selectedIndex).value=status;
 
         }
-        else
-          alert("There is some issue created or Updated document master. kindly check wherether all the data is entered or not.")
+        else{
+            Swal.fire(
+                '',
+                'There is some issue created or Updated document master.',
+                'error'
+              )
+        }
+          
       })
       .catch(function (error) {
         console.log(error);

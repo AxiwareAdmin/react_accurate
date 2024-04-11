@@ -2040,11 +2040,11 @@ e.target.style.opacity = "";
         setAlertMsg(null)
 
       
-        window.location.href="/viewInvoice?id="+res.data;
+        window.location.href="/viewInvoice?id="+response.data;
       },2000)
 
         setTimeout(()=>{
-          window.location.href="/viewInvoice?id="+res.data;s
+          window.location.href="/viewInvoice?id="+response.data;
 
         },1000)
 

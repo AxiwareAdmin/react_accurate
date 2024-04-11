@@ -2036,17 +2036,17 @@ e.target.style.opacity = "";
       const date = new Date();  // 2009-11-10
       const month = date.toLocaleString('default', { month: 'long' });
 
-      setTimeout(()=>{
-        setAlertMsg(null)
+      axios.post(`${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`, invoiceNumber,{//save invoice //change
+            headers:{
+              "Content-Type":"application/json",
+              "Authorization":'Bearer '+token
+            }
+          }).then((res)=>{
+             setAlertMsg(null)
 
       
-        window.location.href="/viewInvoice?id="+response.data;
-      },2000)
-
-        setTimeout(()=>{
-          window.location.href="/viewInvoice?id="+response.data;
-
-        },1000)
+        window.location.href="/viewInvoice?id="+res.data;
+          })
 
       }
       else{

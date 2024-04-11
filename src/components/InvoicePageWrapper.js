@@ -2031,22 +2031,24 @@ e.target.style.opacity = "";
         'success'
       )
 
-      setIsSaved(1);
+      
 
       const date = new Date();  // 2009-11-10
       const month = date.toLocaleString('default', { month: 'long' });
-
+debugger
       axios.post(`${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`, invoiceNumber,{//save invoice //change
             headers:{
               "Content-Type":"application/json",
               "Authorization":'Bearer '+token
             }
           }).then((res)=>{
+          debugger;
              setAlertMsg(null)
 
       
-        window.location.href="/viewInvoice?id="+res.data;
+        window.location.href="/viewInvoice?invNo="+res.data;
           })
+          setIsSaved(1);
 
       }
       else{
@@ -2174,7 +2176,7 @@ Swal.fire(
         }
       }).then((res)=>{
         alert(res.data)
-        window.location.href="/viewInvoice?id="+res.data;
+        window.location.href="/viewInvoice?invNo="+res.data;
       }).catch(()=>{
         e.target.style.pointerEvents = ""; // Disable pointer events
         e.target.style.opacity = "";

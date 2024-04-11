@@ -336,7 +336,7 @@ const prodData = (data) => {
         let tempDis=td.querySelector("#discount").value;
 
         tempDis=tempDis.substr(0,tempDis.length-1)
-        var discount = fromCurrency(tempDis);
+        var discount = fromCurrency(td.querySelector("#discount").value.replace('%',''));
         var amount = fromCurrency(td.querySelector("#amount").value);
         var unit=td.querySelector("#unit").value;
         var productName = event.target.querySelector("option:checked").text;
@@ -511,7 +511,7 @@ const prodData = (data) => {
 
     tempDis=tempDis.substr(0,tempDis.length-1)
 
-    let discount = fromCurrency(tempDis);
+    let discount = fromCurrency(tr.querySelector("#discount").value.replace('%',''));
     let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
@@ -541,7 +541,7 @@ const prodData = (data) => {
 
     let tempDiscount=tr.querySelector("#discount").value;
     tempDiscount=tempDiscount.substr(0,tempDiscount.length-1);
-    let discount = fromCurrency(tempDiscount);
+    let discount = fromCurrency(tr.querySelector("#discount").value.replace('%',''));
     let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
@@ -572,7 +572,7 @@ const prodData = (data) => {
 
     let tempDiscount=tr.querySelector("#discount").value;
     tempDiscount=tempDiscount.substr(0,tempDiscount.length-1);
-    let discount = fromCurrency(tempDiscount);
+    let discount = fromCurrency(tr.querySelector("#discount").value.replace('%',''));
     let amount = fromCurrency(tr.querySelector("#amount").value);
 
     let tempProdUnits = [...productUnits];
@@ -1435,7 +1435,7 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
 
   const [dueDate,setDueDate]=useState("");
 
-  const [transportModes,setTransportModes]=useState(["By Air","By Road","By Hand"])
+  const [transportModes,setTransportModes]=useState(["By Road","By Hand","By Air"])
 
   const [paymentTermVal,setPaymentTermVal]=useState("15 Days");
 

@@ -1198,9 +1198,9 @@ $('.prodListSelect1').on('change',(event)=>{
 
      let discount=tr.querySelector("#discount");
 
-     let tempDiscountVal=discount.value.substr(0,discount.value.length-1)
+    //  let tempDiscountVal=discount.value.substr(0,discount.value.length-1)
 
-     let discountVal=fromCurrency(toCurrency(tempDiscountVal));
+     let discountVal=fromCurrency(toCurrency(discount.value).replace('%',''));
 
      discount.value=toCurrency(discountVal).replace(/[\$]/g,'')+"%";
      // if(!checkRegex(discountVal)){

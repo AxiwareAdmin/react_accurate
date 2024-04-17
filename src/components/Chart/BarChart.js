@@ -10,6 +10,7 @@ const ChartComponent = (props) => {
   console.log(props);
 
   function currencyFormat(num) {
+    debugger;
     return (num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
 }
 

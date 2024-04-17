@@ -254,7 +254,7 @@ function ViewInvoice(props) {
 
 
   
-   
+  const[tempGstPercentageVal,setTempGstPercentageVal] =useState([])
     const [invNo, setinvNo] = useState(null);
     const [compName, setcmpName] = useState("Shivansh infotech");
     const [fromAddr, setfromAddr] = useState("");
@@ -266,7 +266,7 @@ function ViewInvoice(props) {
     const [dueAmt, setdueAmt] = useState(0);
     const [taxable, settaxable] = useState(0);
     const [addChrg, setaddChrg] = useState(0);
-    const [discount, setdiscount] = useState(0);
+    const [discount, setDiscount] = useState(0);
     const [total, settotal] = useState(0);
     const [subTotal, setsubTotal] = useState(0);
     const [payTerm, setpayTerm] = useState("");
@@ -287,11 +287,11 @@ function ViewInvoice(props) {
   
     const [userDetails,setUserDetails]=useState({});
   
-    // const [gstPercentageArr,setGstPercentageArr]=useState([]);
+    const [gstPercentageArr,setGstPercentageArr]=useState([]);
   
     const [gstPercentageVal, setGstPercentageVal] = useState([]);
   
-    // const [gstCalculationVal,setGstCalculationVal]=useState({})
+    const [gstCalculationVal,setGstCalculationVal]=useState({})
   
     const [serviceCheck, setServiceCheck] = useState("false");
   
@@ -300,6 +300,13 @@ function ViewInvoice(props) {
     const [remarks,setRemarks]=useState("");
   
     const initilized = useRef(false);
+
+
+    useEffect(()=>{
+      console.log("useEffect gst % val");
+      console.log(gstPercentageVal)
+      console.log(gstPercentageVal[0])
+    },[gstPercentageVal])
   
     function formatDate(date) {
       var d = new Date(date),
@@ -313,7 +320,13 @@ function ViewInvoice(props) {
       return [day, month, year].join("-");
     }
   
-
+    function currencyFormat(num) {
+      console.log("printing:")
+      console.log(typeof gstPercentageVal)
+      console.log(gstPercentageVal[0])
+      console.log(gstPercentageVal.length>0 && gstPercentageVal.reduce((x, y) => x + y))
+      return (num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+  }
   
     function ImageSourcetoPrint(source) {
       return (
@@ -378,109 +391,247 @@ function ViewInvoice(props) {
       pwa.document.write(ImageSourcetoPrint(source));
       pwa.document.close();
     }
+    function manageDiscount(tempPercentageArr,tempPercentageVal,tempCalculation,discountlocal){
+      
+      let sortable = [];
+      
+      for (var calculation in tempCalculation) {
+          sortable.push([calculation, tempCalculation[calculation]]);
+      }
+      
+      sortable.sort(function(a, b) {
+          return (a[1] - b[1])*-1;
+      });
+      
+      // console.log(sortable);
+      
+      sortable.map((arr,k)=>{
+        // console.log(arr);
+        if(discountlocal>0){
+      
+        if(parseFloat(arr[1])>discountlocal){
+          let index=tempPercentageArr.indexOf(parseFloat(arr[0]));
+          // console.log("index:"+index);
+          // tempPercentageVal[index]=tempPercentageVal[index]-discount;
+      
+      let  tempDis=discountlocal-tempCalculation[parseFloat(arr[0])];
+          tempCalculation[parseFloat(arr[0])]=tempCalculation[parseFloat(arr[0])]-discountlocal;
+      
+          discountlocal=tempDis;
+          // console.log(tempPercentageArr);
+      
+          // console.log(tempPercentageVal);
+      
+          // console.log(tempCalculation);
+        }else{
+          console.log("executed")
+          discountlocal=discountlocal-parseFloat(arr[1]);
+          let index=tempPercentageArr.indexOf(parseFloat(arr[0]));
+          tempPercentageArr.splice(index,1);
+          tempPercentageVal.splice(index,1);
+          delete tempCalculation[parseFloat(arr[0])];
+        }
+        }
+      })
+      
+      Object.keys(tempCalculation).forEach((a)=>{
+        let key=parseFloat(a);
+      
+        let val=tempCalculation[key];
+        let index=tempPercentageArr.indexOf(key);
+      
+        tempPercentageVal[index]=val*key/100
+      })
+        }
+      
   
     function addGstElems(gstPercentageArr, gstPercentageVal, gstCalculationVal) {
-      gstPercentageArr.map((elem) => {
-        let index = gstPercentageArr.indexOf(elem);
+
+      debugger;
+      let state=customerDetails.state;
+
+      
+      let clientState=clientDetails.state;
+    if(!state  || !clientState) return;
+      manageDiscount(gstPercentageArr,gstPercentageVal,gstCalculationVal,discount)
+
+      setTempGstPercentageVal(gstPercentageVal);     
+      if(clientState==state){
+
+        gstPercentageArr.map((elem)=>{
+          let index=gstPercentageArr.indexOf(elem);
   
-        let divElem = document.createElement("div");
-        divElem.className = "invoice-total-footer";
-        let h4Elem = document.createElement("h4");
-        let aElem = document.createElement("a");
+          let divElem=document.createElement("div");
+          divElem.className="invoice-total-footer";
+          let h4Elem=document.createElement("h4");
+          let aElem=document.createElement("a");
+          
+          h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
+    
+          aElem.style="color:grey;display:flex;flex-direction:column";
+    
+          let textElem=document.createTextNode("SGST "+(parseFloat(elem)/2)+" %");
+          let spanElem=document.createElement("span")
   
-        h4Elem.style =
-          "font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between";
+          spanElem.appendChild(textElem)
+          aElem.appendChild(spanElem);
   
-        aElem.style = "color:grey;display:flex;flex-direction:column";
   
-        let textElem = document.createTextNode(
-          "SGST " + parseFloat(elem) / 2 + " %"
-        );
-        let spanElem = document.createElement("span");
+          textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
+          spanElem=document.createElement("span")
   
-        spanElem.appendChild(textElem);
-        aElem.appendChild(spanElem);
+          spanElem.style='text-transform:capitaize;font-size:18px'
+          spanElem.appendChild(textElem)
+          aElem.appendChild(spanElem);
   
-        textElem = document.createTextNode(
-          "(Amount: " +
-            convertToAccountingStandard(gstCalculationVal[parseFloat(elem)]) +
-            ")"
-        );
-        spanElem = document.createElement("span");
+          textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
   
-        spanElem.style = "text-transform:capitaize;font-size:18px";
-        spanElem.appendChild(textElem);
-        aElem.appendChild(spanElem);
+          spanElem=document.createElement("span");
+          spanElem.appendChild(textElem);
   
-        textElem = document.createTextNode(
-          toCurrency(fromCurrency(gstPercentageVal[index] + "") / 2).replace(
-            /[\$]/g,
-            ""
-          )
-        );
+          spanElem.style='color:grey'
+    
+          h4Elem.appendChild(aElem);
   
-        spanElem = document.createElement("span");
-        spanElem.appendChild(textElem);
+          h4Elem.appendChild(spanElem)
+    
+          divElem.appendChild(h4Elem);
   
-        spanElem.style = "color:grey";
+          document.querySelector(`.${props.gstContainerId}`).append(divElem);
   
-        h4Elem.appendChild(aElem);
+           divElem=document.createElement("div");
+          divElem.className="invoice-total-footer";
+           h4Elem=document.createElement("h4");
+           aElem=document.createElement("a");
+          
+          h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
+    
+          aElem.style="color:grey;display:flex;flex-direction:column";
+    
+           textElem=document.createTextNode("CGST "+(parseFloat(elem)/2)+" %");
+            spanElem=document.createElement("span")
   
-        h4Elem.appendChild(spanElem);
+            spanElem.appendChild(textElem)
+           
+           
+           aElem.appendChild(spanElem);
   
-        divElem.appendChild(h4Elem);
+           textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
+           spanElem=document.createElement("span")
+   
+           spanElem.style='text-transform:capitaize;font-size:18px'
+           spanElem.appendChild(textElem)
+           aElem.appendChild(spanElem);
+           
+          spanElem=document.createElement("span");
   
-        document.querySelector("."+props.gstContainerId).append(divElem);
+           textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
   
-        divElem = document.createElement("div");
-        divElem.className = "invoice-total-footer";
-        h4Elem = document.createElement("h4");
-        aElem = document.createElement("a");
+           spanElem.appendChild(textElem);
   
-        h4Elem.style =
-          "font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between";
+           spanElem.style='color:grey'
   
-        aElem.style = "color:grey;display:flex;flex-direction:column";
+          h4Elem.appendChild(aElem);
   
-        textElem = document.createTextNode("CGST " + parseFloat(elem) / 2 + " %");
-        spanElem = document.createElement("span");
+          h4Elem.appendChild(spanElem)
+    
+          divElem.appendChild(h4Elem);
   
-        spanElem.appendChild(textElem);
+          document.querySelector(`.${props.gstContainerId}`).append(divElem);
   
-        aElem.appendChild(spanElem);
   
-        textElem = document.createTextNode(
-          "(Amount: " +
-            convertToAccountingStandard(gstCalculationVal[parseFloat(elem)]) +
-            ")"
-        );
-        spanElem = document.createElement("span");
   
-        spanElem.style = "text-transform:capitaize;font-size:18px";
-        spanElem.appendChild(textElem);
-        aElem.appendChild(spanElem);
+        })
+      }
+
+      else{
+        
+        gstPercentageArr.map((elem)=>{
+          let index=gstPercentageArr.indexOf(elem);
   
-        spanElem = document.createElement("span");
+          let divElem=document.createElement("div");
+          divElem.className="invoice-total-footer";
+          let h4Elem=document.createElement("h4");
+          let aElem=document.createElement("a");
+          
+          h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
+    
+          aElem.style="color:grey;display:flex;flex-direction:column";
+    
+          let textElem=document.createTextNode("IGST "+(parseFloat(elem))+" %");
+          let spanElem=document.createElement("span")
   
-        textElem = document.createTextNode(
-          toCurrency(fromCurrency(gstPercentageVal[index] + "") / 2).replace(
-            /[\$]/g,
-            ""
-          )
-        );
+          spanElem.appendChild(textElem)
+          aElem.appendChild(spanElem);
   
-        spanElem.appendChild(textElem);
   
-        spanElem.style = "color:grey";
+          textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
+          spanElem=document.createElement("span")
   
-        h4Elem.appendChild(aElem);
+          spanElem.style='text-transform:capitaize;font-size:18px'
+          spanElem.appendChild(textElem)
+          aElem.appendChild(spanElem);
   
-        h4Elem.appendChild(spanElem);
+          textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")).replace(/[\$]/g,''));
   
-        divElem.appendChild(h4Elem);
+          spanElem=document.createElement("span");
+          spanElem.appendChild(textElem);
   
-        document.querySelector("."+props.gstContainerId).append(divElem);
-      });
+          spanElem.style='color:grey'
+    
+          h4Elem.appendChild(aElem);
+  
+          h4Elem.appendChild(spanElem)
+    
+          divElem.appendChild(h4Elem);
+  
+          document.querySelector(`.${props.gstContainerId}`).append(divElem);
+  
+          //  divElem=document.createElement("div");
+          // divElem.className="invoice-total-footer";
+          //  h4Elem=document.createElement("h4");
+          //  aElem=document.createElement("a");
+          
+          // h4Elem.style="font-family:Times New Roman, Times, serif;display:flex;justify-content:space-between"
+    
+          // aElem.style="color:grey;display:flex;flex-direction:column";
+    
+          //  textElem=document.createTextNode("CGST "+(parseFloat(elem)/2)+" %");
+          //   spanElem=document.createElement("span")
+  
+          //   spanElem.appendChild(textElem)
+           
+           
+          //  aElem.appendChild(spanElem);
+  
+          //  textElem=document.createTextNode("(Amount: "+convertToAccountingStandard(gstCalculationVal[parseFloat(elem)])+")")
+          //  spanElem=document.createElement("span")
+   
+          //  spanElem.style='text-transform:capitaize;font-size:18px'
+          //  spanElem.appendChild(textElem)
+          //  aElem.appendChild(spanElem);
+           
+          // spanElem=document.createElement("span");
+  
+          //  textElem=document.createTextNode(toCurrency(fromCurrency(gstPercentageVal[index]+"")/2).replace(/[\$]/g,''));
+  
+          //  spanElem.appendChild(textElem);
+  
+          //  spanElem.style='color:grey'
+  
+          // h4Elem.appendChild(aElem);
+  
+          // h4Elem.appendChild(spanElem)
+    
+          // divElem.appendChild(h4Elem);
+  
+          // document.querySelector(".gstContainer").append(divElem);
+  
+  
+  
+        })
+      }
+
     }
   
   
@@ -686,7 +837,7 @@ function ViewInvoice(props) {
                 ? 0
                 : parseFloat(res.data.otherDiscount);
             // if (discnt != null && discnt != undefined && discnt != "")
-              setdiscount(discnt + otherDiscount);
+              setDiscount(discnt + otherDiscount);
   
             let tot = res.data.invoiceValue;
             if (tot != null && tot != undefined && tot != "") settotal(tot);
@@ -696,7 +847,7 @@ function ViewInvoice(props) {
             let tempGstPercentageVal = [];
             let tempGstCalculationVal = {};
   
-            res.data.invoiceProductDO.map((ele) => {
+            res.data.invoiceProductDO && res.data.invoiceProductDO.map((ele) => {
               let trEle = document.createElement("tr");
               let tdEle = document.createElement("td");
               let textEle = document.createTextNode(ele.productName +" - "+ele.productDescription);
@@ -749,21 +900,21 @@ function ViewInvoice(props) {
   
               document.querySelector("#"+props.productTableId).appendChild(trEle);
   
-              let index = tempGstPercentageArr.indexOf(ele.tax);
+              let index = tempGstPercentageArr.indexOf(parseFloat(ele.tax));
               if (index < 0) {
-                tempGstPercentageArr = [...tempGstPercentageArr, ele.tax];
+                tempGstPercentageArr = [...tempGstPercentageArr, parseFloat(ele.tax)];
                 tempGstPercentageVal = [
                   ...tempGstPercentageVal,
                   roundNum((ele.amount * ele.tax) / 100),
                 ];
-                var tempTax = ele.tax;
-                tempGstCalculationVal[tempTax] = ele.amount;
+                var tempTax = parseFloat(ele.tax);
+                tempGstCalculationVal[tempTax] = parseFloat(ele.amount);
               } else {
                 tempGstPercentageVal[index] =
                   tempGstPercentageVal[index] +
                   roundNum((ele.amount * ele.tax) / 100);
-                tempGstCalculationVal[ele.tax] =
-                  tempGstCalculationVal[ele.tax] + ele.amount;
+                tempGstCalculationVal[parseFloat(ele.tax)] =
+                  tempGstCalculationVal[parseFloat(ele.tax)] + parseFloat(ele.amount);
               }
             });
             let transportChargesGst = res.data.transportGst;
@@ -830,12 +981,12 @@ function ViewInvoice(props) {
             }
   
             setGstPercentageVal(tempGstPercentageVal);
+
+            setGstPercentageArr(tempGstPercentageArr)
+
+            setGstCalculationVal(tempGstCalculationVal)
             
-            props.invoiceType.toLowerCase()!='cash' && addGstElems(
-              tempGstPercentageArr,
-              tempGstPercentageVal,
-              tempGstCalculationVal
-            );
+            
   
             settaxable(totalAmount);
   
@@ -865,6 +1016,14 @@ function ViewInvoice(props) {
       }
     },[]);
   
+
+    useEffect(()=>{
+      props.invoiceType.toLowerCase()!='cash' && addGstElems(
+        gstPercentageArr,
+        gstPercentageVal,
+        gstCalculationVal
+      );
+    },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,customerDetails,userDetails])
   
     useEffect(()=>{
         if(custName==null) return;
@@ -1211,12 +1370,15 @@ function ViewInvoice(props) {
                                 Total Amount{" "}
                                 <span>
                                   &#x20B9;
-                                  {taxable +
+                                  {currencyFormat(taxable +
                                     addChrg -
                                     discount +
-                                    (gstPercentageVal.length > 0
-                                      ? gstPercentageVal.reduce((x, y) => x + y)
-                                      : 0)}
+                                    (tempGstPercentageVal.length > 0
+                                      ? tempGstPercentageVal.reduce((x, y) => x + y)
+                                      : 0)
+                                    )
+                                    }
+                                      
                                 </span>
                               </h4>
                             </div>

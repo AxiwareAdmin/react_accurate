@@ -18,6 +18,11 @@ function Dashboard() {
         }
       }
 
+
+      function currencyFormat(num) {
+        debugger;
+        return (num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+    }
       
 
     const [sales,setSales]=useState(0);
@@ -49,7 +54,7 @@ function Dashboard() {
     useEffect(()=>{
 
 		
-		debugger;
+		// debugger;
 	    const script11 = document.createElement("script");
         script11.src = "/assets/js/jquery-3.6.0.min.js";
         script11.async = false;
@@ -151,7 +156,7 @@ function Dashboard() {
             let tempSalesBarvalues=[];
             
             res.data.map((invoiceDO)=>{
-                debugger;
+                // debugger;
                 invoiceDO=JSON.parse(invoiceDO)
                 tempSalesBarLabel.push(invoiceDO.month);
                 tempSalesBarvalues.push(invoiceDO.amount);
@@ -172,7 +177,7 @@ function Dashboard() {
             let tempPurchaseBarvalues=[];
             
             res.data.map((invoiceDO)=>{
-                debugger;
+                // debugger;
                 invoiceDO=JSON.parse(invoiceDO)
                 tempPurchaseBarLabel.push(invoiceDO.month);
                 tempPurchaseBarvalues.push(invoiceDO.amount);
@@ -206,7 +211,7 @@ function Dashboard() {
         .then((res)=>{
 
             if(res.data.res) return;
-
+debugger;
             let totalAmt=0;
             let count=0;
             let srno=1;
@@ -345,10 +350,10 @@ function Dashboard() {
                                 <img src="assets/img/invoices-icon1.svg" alt=""/>
                             </span>
                             <div class="inovices-dash-count">
-                                <div class="inovices-amount">₹{sales}</div>
+                                <div class="inovices-amount">₹{currencyFormat(sales)}</div>
                             </div>
                         </div>
-                        <p class="inovices-all">Sales <span>{salesCount}</span></p>
+                        <p class="inovices-all">Sales <span>{currencyFormat(salesCount)}</span></p>
                     </div>
                 </div>
             </div>
@@ -360,10 +365,10 @@ function Dashboard() {
                                 <img src="assets/img/invoices-icon2.svg" alt=""/>
                             </span>
                             <div class="inovices-dash-count">
-                                <div class="inovices-amount">₹{purchase}</div>
+                                <div class="inovices-amount">₹{currencyFormat(purchase)}</div>
                             </div>
                         </div>
-                        <p class="inovices-all">Purchase <span>{purchaseCount}</span></p>
+                        <p class="inovices-all">Purchase <span>{currencyFormat(purchaseCount)}</span></p>
                     </div>
                 </div>
             </div>
@@ -375,10 +380,10 @@ function Dashboard() {
                                 <img src="assets/img/invoices-icon3.svg" alt=""/>
                             </span>
                             <div class="inovices-dash-count">
-                                <div class="inovices-amount">₹{outstandingReceivable}</div>
+                                <div class="inovices-amount">₹{currencyFormat(outstandingReceivable)}</div>
                             </div>
                         </div>
-                        <p class="inovices-all">Outstanding Receivable<span>{outstandingReceivableCount}</span></p>
+                        <p class="inovices-all">Outstanding Receivable<span>{currencyFormat(outstandingReceivableCount)}</span></p>
                     </div>
                 </div>
             </div>
@@ -390,10 +395,10 @@ function Dashboard() {
                                 <img src="assets/img/invoices-icon4.svg" alt=""/>
                             </span>
                             <div class="inovices-dash-count">
-                                <div class="inovices-amount">₹{outstandingPayable}</div>
+                                <div class="inovices-amount">₹{currencyFormat(outstandingPayable)}</div>
                             </div>
                         </div>
-                        <p class="inovices-all">Outstanding Payable <span>{outstandingPayableCount}</span></p>
+                        <p class="inovices-all">Outstanding Payable <span>{currencyFormat(outstandingPayableCount)}</span></p>
                     </div>
                 </div>
             </div>

@@ -2642,7 +2642,7 @@ Swal.fire(
                   </li>
                 </ul>
               </div>
-              <div className="col-auto">
+              <div className="col-auto d-none">
                 <div className="invoices-create-btn">
                   <a
                     className="invoices-preview-link"

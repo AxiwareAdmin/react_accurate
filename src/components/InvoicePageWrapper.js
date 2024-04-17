@@ -1554,7 +1554,7 @@ useEffect(()=>{
 
       if(invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE) return;
 debugger;
-      if(clientState==state){
+      if(clientState && state &&clientState.toLowerCase()==state.toLowerCase()){
 
         gstPercentageArr.map((elem)=>{
           let index=gstPercentageArr.indexOf(elem);

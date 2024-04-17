@@ -456,7 +456,7 @@ function ViewInvoice(props) {
       manageDiscount(gstPercentageArr,gstPercentageVal,gstCalculationVal,discount)
 
       setTempGstPercentageVal(gstPercentageVal);     
-      if(clientState==state){
+      if(clientState.toLowerCase()==state.toLowerCase()){
 
         gstPercentageArr.map((elem)=>{
           let index=gstPercentageArr.indexOf(elem);

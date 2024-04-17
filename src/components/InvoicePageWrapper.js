@@ -2038,9 +2038,18 @@ e.target.style.opacity = "0.5";
     let totalSgst=0;
     let totalCgst=0;
 
+    let totalIgst=0
+
+    
+
     gstPercentageVal.map(elem=>{
+      if(clientState && state && clientState.toLowerCase()==state.toLowerCase()){
       totalSgst=roundNum(totalSgst+roundNum(parseFloat(elem)/2));
       totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
+      }
+      else{
+        totalIgst=roundNum(totalIgst+roundNum(parseFloat(elem)));
+      }
     })
 
     // let tempPoNumber=$("#poNumbers option:selected").text();
@@ -2051,6 +2060,7 @@ e.target.style.opacity = "0.5";
       invoiceId : invoiceId,
       sgstValue:totalSgst,
       cgstValue:totalCgst,
+      igstValue:totalIgst,  
       taxableValue:totalTaxableAmt,
       invoiceValue:finalAmt,
       transportCharges:transportCharge,
@@ -2138,10 +2148,18 @@ e.target.style.opacity = "";
   const onPrintValid=(e)=>{
     let totalSgst=0;
     let totalCgst=0;
+    let totalIgst=0
+
+    
 
     gstPercentageVal.map(elem=>{
+      if(clientState=state){
       totalSgst=roundNum(totalSgst+roundNum(parseFloat(elem)/2));
       totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
+      }
+      else{
+        totalIgst=roundNum(totalIgst+roundNum(parseFloat(elem)));
+      }
     })
 
     // let tempPoNumber=$("#poNumbers option:selected").text();
@@ -2152,6 +2170,7 @@ e.target.style.opacity = "";
       invoiceId : invoiceId,
       sgstValue:totalSgst,
       cgstValue:totalCgst,
+      igstValue:totalIgst,
       taxableValue:totalTaxableAmt,
       invoiceValue:finalAmt,
       transportCharges:transportCharge,
@@ -2362,9 +2381,18 @@ Swal.fire(
     let totalSgst=0;
     let totalCgst=0;
 
+    let totalIgst=0
+
+    
+
     gstPercentageVal.map(elem=>{
+      if(clientState=state){
       totalSgst=roundNum(totalSgst+roundNum(parseFloat(elem)/2));
       totalCgst=roundNum(totalCgst+roundNum(parseFloat(elem)/2));
+      }
+      else{
+        totalIgst=roundNum(totalIgst+roundNum(parseFloat(elem)));
+      }
     })
 
     // let tempPoNumber=$("#poNumbers option:selected").text();
@@ -2375,6 +2403,7 @@ Swal.fire(
       invoiceId : invoiceId,
       sgstValue:totalSgst,
       cgstValue:totalCgst,
+      igstValue:totalIgst,
       taxableValue:totalTaxableAmt,
       invoiceValue:finalAmt,
       transportCharges:transportCharge,

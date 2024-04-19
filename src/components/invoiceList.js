@@ -1150,7 +1150,7 @@ const exportToExcel = async () => {
 					// 	  })	
 
 					let custname=e.target.closest("tr").querySelector("td:nth-child(4)").innerText
-					alert(custname)
+					// alert(custname)
 					window.location.href=`/viewInvoice?invNo=${invt}&custName=${custname}&action=send&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
 
 					

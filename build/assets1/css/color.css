@@ -1,0 +1,29 @@
+:root {
+    --main-theme-color: #5b6fe6;
+    --dark-bg-color: #f8f9ff;
+    --heading-color: #2c3552;
+    --paragraph-color: #777c87;
+    --banner-paragraph-color: #344a6f;
+}
+
+/*text color*/
+
+
+.single-blog-post .post-content h3 a,
+.single-box a:hover h4,
+a.text-link:hover,
+.widget-link-items li a:hover,
+.title-right-icon li:nth-child(1) i,
+.seat li:nth-child(1) i {
+    color: var(--main-theme-color);
+}
+
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--heading-color);
+}

@@ -193,9 +193,9 @@ a:focus {
 }
 
 .form-control:focus {
-	border-color: #ccc;
-	box-shadow: none;
-	outline: 0 none;
+	border-color: blue;
+	box-shadow: 1px solid gray;
+	outline: 1px solid blue;
 }
 
 .form-control[disabled],

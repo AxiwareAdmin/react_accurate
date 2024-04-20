@@ -21,7 +21,7 @@ export default function AddCustomer(props) {
     const [email , setEmail] = useState();
     const [contactNo , setContactNo] = useState();
     const [shippingAddress1 , setShippingAddress1] = useState();
-    const [paymentTerms , setPaymentTerms] = useState("Y");
+    const [paymentTerms , setPaymentTerms] = useState();
     const [sameAddressChk , setSameAddressChk] = useState(false);
     const [shippingCustomerName , setShippingCustomerName] = useState();
     const [shippingAddress2 , setShippingAddress2] = useState();
@@ -29,6 +29,7 @@ export default function AddCustomer(props) {
     const [shippingPincode , setShippingPincode] = useState();
     const [shippingCountry , setShippingCountry] = useState("India");
     const [openingStock, setOpeningStock] = useState();
+    
 
     const states=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat',
        'Haryana' ,'Himachal Pradesh','Jammu and Kashmir','Jharkhand','Karnataka','Kerala','Madhya Pradesh',
@@ -36,20 +37,23 @@ export default function AddCustomer(props) {
        'Tamil Nadu','Telangana','Tripura','Uttarakhand','Uttar Pradesh','West Bengal',
        'Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli','Daman and Diu','Delhi',
        'Lakshadweep','Puducherry']; 
+
+       
        
  
      const BACKEND_SERVER=process.env.REACT_APP_LOCAL_URL;
 
      function checksum(g){
-        let regTest = /\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}/.test(g)
-         if(regTest){
-            let a=65,b=55,c=36;
-            return Array['from'](g).reduce((i,j,k,g)=>{ 
-               var p=(p=(j.charCodeAt(0)<a?parseInt(j):j.charCodeAt(0)-b)*(k%2+1))>c?1+(p-c):p;
-               return k<14?i+p:j==((c=(c-(i%c)))<10?c:String.fromCharCode(c+b));
-            },0); 
+        let regTest = /\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}/;
+         if(regTest.test(g) === false){
+            // let a=65,b=55,c=36;
+            // return Array['from'](g).reduce((i,j,k,g)=>{ 
+            //    var p=(p=(j.charCodeAt(0)<a?parseInt(j):j.charCodeAt(0)-b)*(k%2+1))>c?1+(p-c):p;
+            //    return k<14?i+p:j==((c=(c-(i%c)))<10?c:String.fromCharCode(c+b));
+            // },0); 
+            return false;
         }
-        return regTest
+        return true;
     }
     function checkMobileNo(number){
         const reg = /^[0]?[789]\d{9}$/;
@@ -70,44 +74,52 @@ export default function AddCustomer(props) {
 
      function saveCustomer(e){
          e.preventDefault();
-
+          debugger;
          if(customerName == null || customerName == "" || customerName == undefined){
             validations("Please Enter Billing Customer Name.");
-         }else if(gstNo == null || gstNo == "" || gstNo == undefined){
-            validations("Please Enter Billing GST_NO");
+         }else if(gstNo != null && gstNo != "" && gstNo != undefined){
+            if(!checksum(gstNo)){
+                validations("Please Enter Valid Billing GST_NO");
+             }
+            //validations("Please Enter Billing GST_NO");
          }
          //27AAPFU0939F1ZV--true
          //27AASCS2460H1Z0-false
-         else if(!checksum(gstNo)){
-            validations("Please Enter Valid Billing GST_NO");
-         }
+        //  else if(!checksum(gstNo)){
+        //     validations("Please Enter Valid Billing GST_NO");
+        //  }
          else if(address1 == null || address1 == "" || address1 == undefined){
             validations("Please Enter Billing Address.");
          }else if(city == null || city == "" || city == undefined){
             validations("Please Enter Billing city.");
-         }else if(pincode == null || pincode == "" || pincode == undefined){
-            validations("Please Enter Billing pincode.");
+        //  }else if(pincode == null || pincode == "" || pincode == undefined){
+        //     validations("Please Enter Billing pincode.");
          }else if(state == null || state == "--Select State--" || state == undefined){
             validations("Please select Billing State.");
          }else if(country == null || country == "" || country == undefined){
             validations("Please Enter Billing country.");
          }else if(shippingCustomerName == null || shippingCustomerName == "" || shippingCustomerName == undefined){
             validations("Please Enter Shipping Customer Name.");
-         }else if(shippingGstNo == null || shippingGstNo == "" || shippingGstNo == undefined){
-            validations("Please Enter Shipping GST_NO");
+         }else if(shippingGstNo != null && shippingGstNo != "" && shippingGstNo != undefined){
+            if(!checksum(shippingGstNo)){
+                validations("Please Enter valid Shipping GST_NO");
+             }
+  
          }else if(shippingAddress1 == null || shippingAddress1 == "" || shippingAddress1 == undefined){
             validations("Please Enter Shipping Address.");
          }else if(shippingCity == null || shippingCity == "" || shippingCity == undefined){
             validations("Please Enter Shipping city.");
-         }else if(shippingPincode == null || shippingPincode == "" || shippingPincode == undefined){
-            validations("Please Enter Shipping pincode.");
+        //  }else if(shippingPincode == null || shippingPincode == "" || shippingPincode == undefined){
+        //     validations("Please Enter Shipping pincode.");
          }else if(shippingState == null || shippingState == "--Select State--" || shippingState == undefined){
             validations("Please select Shipping State.");
          }else if(shippingCountry == null || shippingCountry == "" || shippingCountry == undefined){
             validations("Please Enter Shipping country.");
-         }else if(!checkMobileNo(contactNo )){
+         }else if(contactNo != null && contactNo != "" && contactNo != undefined){
+            if(!checkMobileNo(contactNo ))
             validations("Please Enter valid Mobile No.");
-         }else if(!checkemail(email)){
+         }else if(email != null && email != "" && email != undefined){
+            if(!checkemail(email))
             validations("Please Enter valid Email id.");
          }else{
 
@@ -193,9 +205,11 @@ export default function AddCustomer(props) {
 
         useEffect (() => {
 
-            window.selectPaymentTern = (e) => {
-                selectPaymentTern(e);
-            }
+            
+
+            // window.selectPaymentTern = (e) => {
+            //     selectPaymentTern(e);
+            // }
 
             window.selectShippState = (e) => {
                 selectShippState(e);
@@ -208,9 +222,9 @@ export default function AddCustomer(props) {
 
         });
 
-        const selectPaymentTern = (e) => {
-            setPaymentTerms(e.target.value);
-        }
+        // const selectPaymentTern = (e) => {
+        //     setPaymentTerms(e.target.value);
+        // }
 
         const selectShippState = (e) => {
             setShippingState(e.target.value);
@@ -288,13 +302,13 @@ export default function AddCustomer(props) {
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
                                         {/* <label>Customer Name<span class="text-danger">*</span></label> */}
-                                        <input type="text" onChange={e => setCustomerName(e.target.value)} class="form-control" placeholder="Customer Name" />
+                                        <input type="text"   onChange={e => setCustomerName(e.target.value)} class="form-control" placeholder="Customer Name" />
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
                                         {/* <label>GST NO<span class="text-danger">*</span></label> */}
-                                        <input type="text" onChange={e => setGstNo(e.target.value)} class="form-control" placeholder="GST NO"/>
+                                        <input type="text" style={{focus:'2px solid blue'}} onChange={e => setGstNo(e.target.value)} class="form-control" placeholder="GST NO"/>
                                         </div>
                                 </div>
                                 </div>
@@ -431,12 +445,22 @@ export default function AddCustomer(props) {
                                      </div>
                                 </div>
                                 </div>
+
+                                {/* sachin */}
+                                <div class="row">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="form-group">
+                                        <textarea type="text" onChange={e => setPaymentTerms(e.target.value)} class="form-control" placeholder="Payment Terms" />
+                                     </div>
+                                </div>
+                                </div>
+                                {/* sachin */}
                                  
                                 <div class="row">
                                 <div class="col-lg-6 col-md-6">
                                 <div class="form-group">
                                         {/* <label>opening Stock</label> */}
-                                        <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="Opening Stock" />
+                                        <input type="text" onChange={e => setOpeningStock(e.target.value)} class="form-control" placeholder="Opening Balance" />
                                      </div>
                                 {/* <div class="row">
                                         <div class="col-md-8">

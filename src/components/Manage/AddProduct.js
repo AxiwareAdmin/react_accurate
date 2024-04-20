@@ -17,11 +17,11 @@ export default function AddProduct(props) {
     const [hsnCode, setHsnCode] = useState();
     const [unit, setUnit] = useState();
     const [unitVarchar, setUnitVarchar] = useState("--Select unit--");
-    const [rate, setRate] = useState();
+    const [rate, setRate] = useState(0);
     const [category, setCategory] = useState();
     const [applicableTax, setApplicableTax] = useState();
     const [openingStock, setOpeningStock] = useState();
-    const [taxoption , setTaxOption] = useState([{key:"0",val:"-Select Tax-"},{key:"0",val:"GST@0%(Nill rated)"},
+    const [taxoption , setTaxOption] = useState([{key:"-1",val:"-Select Tax-"},{key:"0",val:"GST@0%(Nill rated)"},
     {key:"0.1",val:"GST@0.1%"},{key:"0.25",val:"GST@0.25%"},{key:"1",val:"GST@1%"},
     {key:"1.5",val:"GST@1.5%"},{key:"5",val:"GST@5%"},{key:"6",val:"GST@6%"},
     {key:"7.5",val:"GST@7.5%"},{key:"12",val:"GST@12%"},{key:"18",val:"GST@18%"},{key:"28",val:"GST@28%"}]);
@@ -45,11 +45,11 @@ export default function AddProduct(props) {
         //     validations("Please Enter hsnCode");
          }else if(unitVarchar == null || unitVarchar == undefined || unitVarchar == "--Select unit--"){
             validations("Please Select  unit");
-         }else if(rate == null || rate == undefined || rate == ""){
-            validations("Please Enter rate");
+        //  }else if(rate == null || rate == undefined || rate == ""){
+        //     validations("Please Enter rate");
          }else if(category == null || category == undefined || category =="--Select--"){
             validations("Please select  category");
-         }else if(applicableTax == null || applicableTax == undefined || applicableTax == "0"){
+         }else if(applicableTax == null || applicableTax == undefined || applicableTax == "-1"){
             validations("Please select  applicableTax");
         //  }else if(openingStock == null || openingStock == undefined || openingStock == ""){
         //      validations("Please Enter openingStock");

@@ -1354,22 +1354,15 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
     script.src = "/assets/js/app.js";
     script.async = false;
 
+    script.onload=()=>{
+      setScriptLoaded(true);
+    }
     document.body.appendChild(script);
 
 
    
 
-    setTimeout(()=>{
-
-      debugger;
-
-      addProductForCopy=window.addProductForCopy;
-      
-      onCopyInvoiceAddInvoiceDetails()
-      
-      onPoNumberChange();
-    },1000)
-
+  
 
     return () => {
       document.body.removeChild(script);
@@ -1389,7 +1382,26 @@ axios.get(BACKEND_SERVER+"/getDocMaster/GST Invoice",{//change
     
   }, []);
 
+  const [scriptLoaded,setScriptLoaded]=useState(false)
+  useEffect(()=>{
+    if(scriptLoaded==true){
+    setTimeout(()=>{
+
+      debugger;
+      addProductForCopy=window.addProductForCopy;
+      console.log("addproductforcopy:")
+      console.log(addProductForCopy)
+      
+      onCopyInvoiceAddInvoiceDetails()
+      
+      onPoNumberChange();
+    },1000)
+  }
+  },[scriptLoaded])
+
   const [fromAddr1, setFromAddr1] = useState("");
+
+  
 
   const [clientState,setClientState]=useState("");
 

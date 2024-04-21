@@ -341,7 +341,7 @@ export default function SalesRegister () {
                                     </div>
                                 </li>
                                 <li class="list-inline-item">
-                                    <Link class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" to={`/add-invoice?${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`}>Create Invoice</Link>
+                                    <a class="add btn btn-gradient-primary font-weight-bold text-white todo-list-add-btn btn-rounded" href={`/add-invoice?${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`}>Create Invoice</a>
                                 </li>
                             </ul>
                         </div>

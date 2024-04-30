@@ -46,7 +46,7 @@ export default function ViewInvoiceTriplet() {
 
     const downloadpdf = () => {
       const { clientWidth, clientHeight } = invoicepdf.current;
-      // debugger;
+      // 
   
       var nodeList=document.querySelectorAll(".page-wrapper");
       for(let i=0;i<nodeList.length;i++){
@@ -95,11 +95,11 @@ export default function ViewInvoiceTriplet() {
         console.log(invoicepdf.current)
 
         invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem=>elem.style.display='none');
-        // debugger;
+        // 
         html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
           const imgData = canvas.toDataURL('image/png');
 
-          // debugger;
+          // 
           
           const printWindow = window.open('', '_blank');
           printWindow.document.open();
@@ -727,7 +727,7 @@ function ViewInvoice(props) {
         axios
           .get(`${process.env.REACT_APP_LOCAL_URL}/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':props.invoiceType.toLowerCase()=='proforma'?"viewProformaInvoice":'viewInvoice'}?invId=` + id1, header)
           .then((res) => {
-            debugger;
+            
   
             setInvoiceDetails(res.data);
   
@@ -810,9 +810,7 @@ function ViewInvoice(props) {
             if (vehicleNo != null && vehicleNo != undefined && vehicleNo != "")
               setVehicleNumber(vehicleNo);
   
-            // let taxableT = res.data.taxableValue;
-            // if(taxableT != null && taxableT != undefined && taxableT != "")
-            // settaxable(taxableT);
+
   
             let addchrgs =
               res.data.additionalCharges == null ||
@@ -1002,6 +1000,8 @@ function ViewInvoice(props) {
             if(res.data!='client not found'){
               setClientDetails(res.data);
             }
+          }).catch((error)=>{
+            alert("error:"+error)
           })
   
           axios.get(`${process.env.REACT_APP_LOCAL_URL}/user`,header)
@@ -1018,18 +1018,19 @@ function ViewInvoice(props) {
   
 
     useEffect(()=>{
+      if(gstPercentageArr.length>0 && Object.keys(clientDetails).length>0 && Object.keys(customerDetails).length>0)
       props.invoiceType.toLowerCase()!='cash' && addGstElems(
         gstPercentageArr,
         gstPercentageVal,
         gstCalculationVal
       );
-    },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,customerDetails,userDetails])
+    },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,clientDetails,customerDetails])
   
     useEffect(()=>{
         if(custName==null) return;
   
         axios.get(`${process.env.REACT_APP_LOCAL_URL}/customer/custname/${custName}`,header).then((res)=>{
-          debugger;
+          
             if(res!='Customers not found'){
               setCustomerDetails(res.data);
             }

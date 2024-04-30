@@ -29,142 +29,7 @@ export default function InvoicePageWrapper(props) {
  
   let addProductForCopy;
 
-  // function addProductForCopy(data,prodCont) {
-  //   debugger;
-  //  var optionList='';
-  //  var token=localStorage.getItem("token")
-  //   $.ajax({
-  //       url:'http://localhost:8080/invoiceproducts',
-  //       method:'GET',
-  //       headers:{
-  //           "Content-Type":"application/json",
-  //           "Authorization":'Bearer '+token
-  //         },
-  //       async:false,
-  //       success:(data)=>{
-  //           data.map((product)=>{
-  //               optionList+='<option value="'+product.invoiceProductId+'">'+product.productName+'</option>' 
-  //           })
-  //       },
-  //       error:(error)=>{
-  //  console.log("error")
-  //       }
-  //   })
-   
-   
-   
-  //   var experiencecontent = '<tr class="add-row">' +
-  //       '<td>' +
-  //           '<select class="prodListSelect prodListSelect'+(prodCont+1)+'" name="state"><option  onchange="window [prodSelectOnChange](e);" value="-1">--Select--</option>'+optionList+'</select>' +
-  //       '<input id="productId" type="hidden" value="'+(prodCont+1)+'"'+
-  //           '</td>' +
-  //       '<td>' +
-  //           '<input type="text" id="description" class="form-control description'+(prodCont+1)+'">' +
-  //       '</td>' +
-  //       '<td>' +
-  //           '<input type="text" id="hsnSac" class="form-control hsnSac'+(prodCont+1)+'">' +
-  //       '</td>' +
-  //       '<td>' +
-  //           '<input type="text" id="quantity" class="form-control quantity'+(prodCont+1)+'">' +
-  //       '</td>' +
-  //       '<td>' +
-  //       '<input type="text" id="unit" class="form-control unit'+(prodCont+1)+'">' +
-  //       '</td>' +
-  //       '<td>' +
-  //           '<input type="text" id="price" class="form-control price'+(prodCont+1)+'">' +
-  //       '</td>' +
-  //       '<td>' +
-  //       '<input type="text" id="discount" class="form-control discount'+(prodCont+1)+'">' +
-  //       '</td>' +
-  //       '<td>' +
-  //           '<input type="text" id="amount" class="form-control amount'+(prodCont+1)+'">' +
-  //       '</td>' +
-  //       '<td>' +
-  //           '<input type="text" id="tax" class="form-control tax'+(prodCont+1)+'">' +
-  //       '</td>' +
-       
-  //       '<td class="add-remove text-end">' +
-  //           '<a href="javascript:void(0);" class="add-btns me-2"><i class="fas fa-plus-circle"></i></a> ' +
-  //           '<a href="#" className="copy-btn me-2"><i className="fas fa-cart-plus" style={{color:"navy"}} onClick="(e)=>{window.AddProductDetails(e)}"></i></a>'+
-  //           '<a href="javascript:void(0);" class="remove-btn"><i class="fa fa-trash-alt"></i></a>' +
-  //       '</td>' +
-  //   '</tr>';
-  //   $(".add-table-items").append(experiencecontent);
-  //   setTimeout(()=>{
-       
-  //       $('.prodListSelect'+(prodCont+1)).select2();
-  //       // $('.prodListSelect'+(prodCont+1)).on('change',(event)=>{
-   
-  //           data.productId=(prodCont+1);
-   
-  //           var td=$('.prodListSelect'+(prodCont+1)).parent()[0];
-   
-  //           var $select=document.querySelector('.prodListSelect'+(prodCont+1));
-  //           const $options = Array.from($select.options);
-              
-  //           const optionToSelect = $options.find(item => item.text ===data.productName);
-  //           $select.value = optionToSelect.value;
-   
-  //            //below code is used to dispatch change event on customer select box becuase i is not getting updated otherwise
-  //            var event = new Event('change');
-   
-  //            // Dispatch it.
-  //            $select.dispatchEvent(event);
-   
-  //           var productId=td.querySelector("#productId").value;
-  //           // console.log("calling:"+event.target.value)
-   
-  //           td=td.parentElement;
-  //           var description=td.querySelector("#description");
-   
-  //           description.addEventListener('change',(e)=>{window.onDescriptionChange(e)});
-   
-  //           var hsnSac=td.querySelector("#hsnSac");
-  //           hsnSac.style="text-align:end;"
-  //           var tax=td.querySelector("#tax");
-  //           tax.style="text-align:end;"
-  //           var quantity=td.querySelector("#quantity");
-  //           quantity.style="text-align:end;"
-  //           var price=td.querySelector("#price");
-  //           price.style="text-align:end;"
-  //           var amount=td.querySelector("#amount");
-  //           amount.style="text-align:end;";
-  //           amount.readOnly=true;
-  //           var discount=td.querySelector("#discount");
-  //           discount.style="text-align:end;"
-   
-  //           td.querySelector("#tax").readOnly=true;
-  //           var unit=td.querySelector("#unit");
-  //           unit.readOnly=true;
-                  
-  //                   description.value=data.productDescription;
-  //                   hsnSac.value=data.hsnSac;
-  //                   tax.value=toCurrency(data.tax).replace(/[\$]/g,'')+'%';
-  //                  quantity.value=toCurrency(data.quantity).replace(/[\$]/g,'');
-  //                  price.value=toCurrency(data.rate).replace(/[\$]/g,'');
-  //                  discount.value=toCurrency(data.discount).replace(/[\$]/g,'').replace('%','');
-   
-  //                  let amt=roundNum(
-  //                   quantity.value * price.value - quantity.value * price.value * (discount.value / 100)
-  //                 );
-  //                  if(data.unit!=null && data.unit!=undefined && data.rate!=null && data.rate!=undefined){
-  //                   amount.value=toCurrency(amt).replace(/[\$]/g,'');
-  //                  }     
-   
-  //                  unit.value=data.unit;
-  //                  discount.value+="%"
-           
-  //                   //window.prodSelectOnChangeForCopy(data)
-  //       // })
-   
-  //       $('.quantity'+(prodCont+1)).on('change',(e)=>{window.onQuantityUnitChange(e)})
-  //       $('.price'+(prodCont+1)).on('change',(e)=>{window.onPriceUnitChange(e)})
-  //       $('.discount'+(prodCont+1)).on('change',(e)=>{window.onDiscountUnitChange(e)})
-  //   },1)
-  //   return false;
-  //  }
-
-
+ 
 
   const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -2612,10 +2477,34 @@ Swal.fire(
 
                 setTransportCharge(fromCurrency(res.data.transportCharges));
               }
+              
+              if(res.data.transportCharges!=null){
+
+                var transportChargeTemp=document.querySelector("#transportCharge")
+                transportChargeTemp.value=res.data.transportCharges;
+
+                setTransportCharge(fromCurrency(res.data.transportCharges));
+              }
+
+              if(res.data.transportGst!=null){
+
+                var transportGstTemp=document.querySelector("#transportGstRate")
+                transportGstTemp.value=res.data.transportGst;
+
+                setTransportGstRate(res.data.transportGst);
+              }
 
               if(res.data.additionalCharges!=null){
                 document.querySelector("#otherCharge").value=res.data.additionalCharges;
                 setOtherCharge(fromCurrency(res.data.additionalCharges))
+              }
+
+              if(res.data.additionalChargesGst!=null){
+
+                var additionalChargesGstTemp=document.querySelector("#additionalChargesGst")
+                additionalChargesGstTemp.value=res.data.additionalChargesGst;
+
+                setOtherChargesGstRate(res.data.additionalChargesGst);
               }
 
               if(res.data.discount!=null){
@@ -3364,6 +3253,7 @@ Swal.fire(
                                        borderRadius:'6px',
                                       textAlign:"end"
                                     }}
+                                    id="transportGstRate"
                                     onChange={onTransportGstChange}
                                     >
                                     {
@@ -3431,6 +3321,7 @@ Swal.fire(
                                        borderRadius:'6px',
                                       textAlign:"end"
                                     }}
+                                    id="additionalChargesGst"
                                     onChange={onOtherChargeGstChange}
                                     >
                                     {

@@ -886,12 +886,13 @@ export default function ViewInvoice() {
   },[]);
 
   useEffect(()=>{
+    if(gstPercentageArr.length>0 && Object.keys(clientDetails).length>0 && Object.keys(customerDetails).length>0)
     invoiceType!=process.env.REACT_APP_CASH_SALE_INVOICE && addGstElems(
       gstPercentageArr,
       gstPercentageVal,
       gstCalculationVal
     );
-  },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,customerDetails,userDetails])
+  },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,clientDetails,customerDetails])
 
 
   useEffect(()=>{

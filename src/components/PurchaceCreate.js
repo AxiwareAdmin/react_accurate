@@ -974,7 +974,7 @@ export default function InvoicePageWrapper(props) {
 
   const [gstCalculationVal, setGstCalculationVal] = useState({});
 
-  const [invoiceDate, setInvoiceDate] = useState("");
+  const [invoiceDate, setInvoiceDate] = useState(getFormattedDate(new Date()));
 
   const [poDate, setPoDate] = useState("");
 

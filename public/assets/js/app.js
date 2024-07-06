@@ -1484,9 +1484,9 @@ console.log("error")
                  description.value=data.productDescription;
                  hsnSac.value=data.hsnSac;
                  tax.value=toCurrency(data.tax).replace(/[\$]/g,'')+'%';
-                quantity.value=toCurrency(data.quantity).replace(/[\$]/g,'');
-                price.value=toCurrency(data.rate).replace(/[\$]/g,'');
-                discount.value=toCurrency(data.discount).replace(/[\$]/g,'').replace('%','');
+                quantity.value=fromCurrency(toCurrency(data.quantity).replace(/[\$]/g,''));
+                price.value=fromCurrency(toCurrency(data.rate).replace(/[\$]/g,''));
+                discount.value=fromCurrency(toCurrency(data.discount).replace(/[\$]/g,'').replace('%',''));
 
                 let amt=roundNum(
                  quantity.value * price.value - quantity.value * price.value * (discount.value / 100)

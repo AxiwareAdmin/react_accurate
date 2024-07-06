@@ -1998,11 +1998,11 @@ e.target.style.opacity = "0.5";
         setAlertMsg(null)
 
       
-        window.location.href = '/invoiceList?month='+month; 
+        window.location.href = '/invoiceList?month='+month+'&'+process.env.REACT_APP_INVOICE_TYPE+"="+invoiceType; 
       },2000)
 
         setTimeout(()=>{
-          window.location.href = '/invoiceList?month='+month; 
+          window.location.href = '/invoiceList?month='+month+'&'+process.env.REACT_APP_INVOICE_TYPE+"="+invoiceType; 
 
         },1000)
 

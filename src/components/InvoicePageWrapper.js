@@ -1886,7 +1886,7 @@ const onDescriptionChange=(e)=>{
     e.preventDefault();
 
     e.target.style.pointerEvents = "none"; // Disable pointer events
-e.target.style.opacity = "0.5";
+    e.target.style.opacity = "0.5";
 
     var token=localStorage.getItem("token");
     axios.get(`${process.env.REACT_APP_LOCAL_URL}/clientValidity`,{ headers:{

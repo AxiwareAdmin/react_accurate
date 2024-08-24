@@ -28,11 +28,11 @@ import axios from "axios";
 import SalesCashRegister from "./components/SalesCashRegister";
 import CashInvoiceList from "./components/CashInvoiceList";
 
-import CreateQuotation from "./components/Quotation/createQuotation";
-import SalesRegisterQuotation from "./components/Quotation/SalesRegister";
-import QuotationList from "./components/Quotation/QuotationList";
-import ViewQuotation from "./components/Quotation/ViewQuotation";
-import ViewQuotationTriplet from "./components/Quotation/ViewQuotationTriplet";
+import CreateQuotation from "./components/Quotation/CreateQuotationNew";
+import SalesRegisterQuotation from "./components/Quotation/SalesRegisterNew";
+import QuotationList from "./components/Quotation/QuotationListNew";
+import ViewQuotation from "./components/Quotation/ViewQuotationsNew";
+import ViewQuotationTriplet from "./components/Quotation/ViewQuotationTripletNew";
 
 
 import CreateSupplierQuotation from "./components/SupplierQuotation/CreateSupplierQuotation";

@@ -1,10 +1,10 @@
 //invoice wrapper
 
 import React, { useCallback, useEffect, useState } from "react";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
+import Navbar from "../Navbar";
+import Sidebar from "../Sidebar";
 import axios from "axios";
-import Alert from "./alert";
+import Alert from "../alert";
 import {
   Navigate,
   useAsyncError,
@@ -13,22 +13,22 @@ import {
 } from "react-router-dom";
 import { useRef } from "react";
 import Swal from "sweetalert2";
-import AddProduct from "./Manage/AddProduct";
+import AddProduct from "../Manage/AddProduct";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import AddCustomer from "./Manage/AddCustomer";
+import AddCustomer from "../Manage/AddCustomer";
 import $ from "jquery";
 import "select2";
 import { Helmet } from "react-helmet-async";
-import Theme from "./Theme/Theme";
+import Theme from "../Theme/Theme";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function InvoicePageWrapper(props) {
+export default function CreateQuotation(props) {
   let addProductForCopy;
 
   const location = useLocation();
@@ -589,229 +589,6 @@ export default function InvoicePageWrapper(props) {
       });
   }
 
-  function onPoNumberChangeOld(e) {
-    console.log("executed");
-    debugger;
-
-    let tempCopyOtherDiscount = 0;
-    let tempTotalAmt = 0;
-    var url = new URL(window.location.href);
-    let invNoEdit = e.target.value;
-
-    var token = localStorage.getItem("token");
-    document.querySelector("#prodtable").innerHTML = "";
-
-    axios
-      .get(`${process.env.REACT_APP_LOCAL_URL}/customerPo/id/${invNoEdit}`, {
-        //change
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      })
-      .then((res) => {
-        console.log("after got data" + res.data.purchaseNo);
-
-        if (res.data.poDate != null) {
-          let finvdate = getFormattedDate(new Date(res.data.poDate));
-          setPoDate(finvdate);
-        }
-
-        if (res.data.paymentTerms != null) {
-          const text = res.data.paymentTerms;
-          const $select = document.querySelector("#paymentTerm");
-          const $options = Array.from($select.options);
-          const optionToSelect = $options.find((item) => item.text === text);
-          $select.value = optionToSelect.value;
-        }
-
-        if (res.data.transportCharges != null) {
-          var transportChargeTemp = document.querySelector("#transportCharge");
-          transportChargeTemp.value = res.data.transportCharges;
-
-          setTransportCharge(fromCurrency(res.data.transportCharges));
-        }
-
-        if (res.data.additionalCharges != null) {
-          document.querySelector("#otherCharge").value =
-            res.data.additionalCharges;
-          setOtherCharge(fromCurrency(res.data.additionalCharges));
-        }
-
-        if (res.data.discount != null) {
-          document.querySelector("#otherDiscount").value = res.data.discount;
-          setDiscountInRupees(res.data.discount);
-        }
-
-        if (res.data.otherDiscount != null) {
-          tempCopyOtherDiscount = res.data.otherDiscount;
-        }
-
-        var productUnitsTemp = [];
-
-        res.data.invoiceProductDO &&
-          res.data.invoiceProductDO.map((elem, index) => {
-            console.log(
-              "product data " + elem.productName + ":index id :" + index
-            );
-
-            tempTotalAmt += fromCurrency(elem.amount);
-
-            addProductForCopy(elem, index);
-
-            setProdCount(index + 1);
-
-            productUnitsTemp.push(elem);
-          });
-
-        prodSelectOnChangeForCopy(productUnitsTemp);
-      })
-      .catch(function (error) {
-        console.log(error);
-      })
-      .finally(() => {
-        if (tempCopyOtherDiscount > 0) {
-          let temp = toCurrency(
-            (fromCurrency(tempCopyOtherDiscount) / fromCurrency(tempTotalAmt)) *
-              100
-          ).replace(/[\$]/g, "");
-
-          document.querySelector("#discountInPercentage").value = temp;
-
-          setDiscountInPercentage(temp);
-        }
-      });
-
-    if (invNoEdit == -1) {
-      setTransportCharge(0);
-      setOtherCharge(0);
-      setDiscountInPercentage(0);
-      setDiscountInRupees(0);
-
-      var transportChargeTemp = document.querySelector("#transportCharge");
-
-      transportChargeTemp.value = 0;
-
-      document.querySelector("#otherCharge").value = 0;
-
-      document.querySelector("#otherDiscount").value = 0;
-
-      document.querySelector("#discountInPercentage").value = 0;
-    }
-  }
-
-  function selectCustomerOnCopy(customerId, customerName) {
-    // e.preventDefault();
-
-    var token = localStorage.getItem("token");
-
-    if (customerId == -1) {
-      setPoNumbers([]);
-    } else {
-      var url = new URL(window.location.href);
-      let invNoEdit = url.searchParams.get("InvNo");
-      let actionedit = url.searchParams.get("action");
-
-      if (actionedit == "Edit" || actionedit == "Clone") {
-        axios
-          .get(BACKEND_SERVER + `/poByCustomerNameForCopy/${customerName}`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-            },
-          })
-          .then((res) => {
-            console.log(res.data);
-            setPoNumbers(res.data);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      } else {
-        debugger;
-        axios
-          .get(BACKEND_SERVER + `/poByCustomerName/${customerName}`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: "Bearer " + token,
-            },
-          })
-          .then((res) => {
-            console.log(res.data);
-            setPoNumbers(res.data);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      }
-    }
-
-    axios
-      .get(BACKEND_SERVER + "/customer/" + customerId, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + token,
-        },
-      })
-      .then((res) => {
-        var address1 = res.data.address1;
-        var address2 = res.data.address2;
-
-        var tempTermsAndCondition = res.data.termsAndCondition;
-
-        setTermsAndCondition(tempTermsAndCondition);
-
-        if (
-          tempTermsAndCondition != null &&
-          tempTermsAndCondition != undefined &&
-          tempTermsAndCondition != "NULL"
-        )
-          document.getElementById("termsAndCondition").value =
-            tempTermsAndCondition;
-
-        var remark = res.data.remarks;
-        console.log("remark:" + remark);
-        setRemarks(remark);
-
-        if (remarks != null && remark != undefined && remark != "NULL")
-          document.getElementById("remark").value = remark;
-        else document.getElementById("remark").value = "";
-
-        if (address1 != null && address1 != undefined && address1 != "")
-          setFromAddr1(address1);
-
-        if (address2 != null && address2 != undefined && address2 != "")
-          setFromAddr2(address2);
-
-        var shippingAddr1 = res.data.shippingAddress1;
-
-        var shippingAddr2 = res.data.shippingAddress2;
-
-        var gstNo = res.data.gstNo;
-
-        var shippingGstNo = res.data.shippingGstNo;
-
-        var state = res.data.state;
-
-        var shippingState = res.data.shippingState;
-
-        setGstNo(gstNo);
-
-        setShippingGstNo(shippingGstNo);
-
-        setState(state);
-
-        setShippingState(shippingState);
-
-        setShippingAddress1(shippingAddr1);
-        setShippingAddress2(shippingAddr2);
-
-        let poNum = res.data.poNumber;
-        if (poNum != null && poNum != undefined && poNum != "")
-          setPoNumber(poNum);
-      });
-  }
-
   function selectCustomer(e) {
     e.preventDefault();
 
@@ -966,7 +743,7 @@ export default function InvoicePageWrapper(props) {
     //it was GET method earlier
 
     axios
-      .get(BACKEND_SERVER + "/getDocMaster/GST Invoice", {
+      .get(BACKEND_SERVER + "/getDocMaster/Quotation", {
         //change
         headers: {
           "Content-Type": "application/json",
@@ -1007,7 +784,7 @@ export default function InvoicePageWrapper(props) {
                   ? "cashInvoices"
                   : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
                   ? "proformaInvoices"
-                  : "invoices"
+                  : "Quotations"
               }/year/` +
               localStorage.getItem("financialYear"),
             {
@@ -1101,7 +878,6 @@ export default function InvoicePageWrapper(props) {
 
     axios
       .get(BACKEND_SERVER + "/invoiceproducts", {
-        //change
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + token,
@@ -2039,7 +1815,7 @@ export default function InvoicePageWrapper(props) {
             ? "saveCashInvoice"
             : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
             ? "saveProformaInvoice"
-            : "saveInvoice"
+            : "saveQuotation"
         }`,
         invoiceData,
         {
@@ -2055,7 +1831,11 @@ export default function InvoicePageWrapper(props) {
         if (response != null && response.data.res == "success") {
           // setAlertMsg("Invoice created successfully!!")
 
-          Swal.fire("", "Invoice created successfully!", "success");
+          Swal.fire(
+            "",
+            "Quotation created successfully!", //change
+            "success"
+          );
 
           setIsSaved(1);
 
@@ -2066,29 +1846,29 @@ export default function InvoicePageWrapper(props) {
             setAlertMsg(null);
 
             window.location.href =
-              "/invoiceList?month=" +
+              "/QuotationList?month=" +
               month +
               "&" +
               process.env.REACT_APP_INVOICE_TYPE +
               "=" +
-              invoiceType;
+              invoiceType; //change
           }, 2000);
 
           setTimeout(() => {
             window.location.href =
-              "/invoiceList?month=" +
+              "/QuotationList?month=" +
               month +
               "&" +
               process.env.REACT_APP_INVOICE_TYPE +
               "=" +
-              invoiceType;
+              invoiceType; //change
           }, 1000);
         } else {
           e.target.style.pointerEvents = ""; // Re-enable pointer events
           e.target.style.opacity = "";
           alert(
-            "There is some issue in creating invoice. kindly check whether all the data is entered or not."
-          );
+            "There is some issue in creating Quotation. kindly check whether all the data is entered or not."
+          ); //change
         }
       })
       .catch(function (error) {
@@ -2163,7 +1943,7 @@ export default function InvoicePageWrapper(props) {
             ? "saveCashInvoice"
             : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
             ? "saveProformaInvoice"
-            : "saveInvoice"
+            : "saveQuotation"
         }`,
         invoiceData,
         {
@@ -2179,18 +1959,16 @@ export default function InvoicePageWrapper(props) {
         if (response != null && response.data.res == "success") {
           // setAlertMsg("Invoice created successfully!!")
 
-          Swal.fire("", "Invoice created successfully!", "success");
+          Swal.fire(
+            "",
+            "Quotation created successfully!", //change
+            "success"
+          );
 
           const date = new Date(); // 2009-11-10
           const month = date.toLocaleString("default", { month: "long" });
-          debugger;
 
-          let module =
-            invoiceType == process.env.REACT_APP_CASH_SALE_INVOICE
-              ? "CASH_SALE"
-              : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
-              ? "PROFORMA_SALE"
-              : "GST_SALE";
+          let module = "Quotation";
           axios
             .post(
               `${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`,
@@ -2207,20 +1985,28 @@ export default function InvoicePageWrapper(props) {
               debugger;
               setAlertMsg(null);
 
-              window.location.href = "/viewInvoice?invNo=" + res.data;
+              window.location.href = "/viewQuotation?invNo=" + res.data; //change
             });
           setIsSaved(1);
         } else {
           e.target.style.pointerEvents = ""; // Re-enable pointer events
           e.target.style.opacity = "";
           // alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
-          Swal.fire("", "There is some issue in creating invoice.", "error");
+          Swal.fire(
+            "",
+            "There is some issue in creating Quotation.", //change
+            "error"
+          );
         }
       })
       .catch(function (error) {
         e.target.style.pointerEvents = ""; // Re-enable pointer events
         e.target.style.opacity = "";
-        Swal.fire("", "There is some issue in creating invoice.", "error");
+        Swal.fire(
+          "",
+          "There is some issue in creating Quotation.", //change
+          "error"
+        );
       });
   };
 
@@ -2322,12 +2108,7 @@ export default function InvoicePageWrapper(props) {
     e.target.style.pointerEvents = "none"; // Disable pointer events
     e.target.style.opacity = "0.5";
     if (isSaved == 1) {
-      let module =
-        invoiceType == process.env.REACT_APP_CASH_SALE_INVOICE
-          ? "CASH_SALE"
-          : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
-          ? "PROFORMA_SALE"
-          : "GST_SALE";
+      let module = "Quotation";
       axios
         .post(
           `${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`,
@@ -2342,7 +2123,7 @@ export default function InvoicePageWrapper(props) {
         )
         .then((res) => {
           alert(res.data);
-          window.location.href = "/viewInvoice?invNo=" + res.data;
+          window.location.href = "/viewQuotation?invNo=" + res.data; //change
         })
         .catch(() => {
           e.target.style.pointerEvents = ""; // Disable pointer events
@@ -2469,7 +2250,7 @@ export default function InvoicePageWrapper(props) {
                 ? "viewCashInvoice"
                 : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
                 ? "viewProformaInvoice"
-                : "viewInvoice"
+                : "viewQuotation"
             }?invId=${invNoEdit}`,
             {
               //change
@@ -2662,7 +2443,7 @@ export default function InvoicePageWrapper(props) {
                   <ul className="breadcrumb invoices-breadcrumb">
                     <li className="breadcrumb-item invoices-breadcrumb-item">
                       <a href="invoices.html">
-                        <i className="fa fa-chevron-left"></i> Back to Invoice
+                        <i className="fa fa-chevron-left"></i> Back to Quotation
                         List
                       </a>
                     </li>
@@ -2684,7 +2465,7 @@ export default function InvoicePageWrapper(props) {
                       data-bs-target="#delete_invoices_details"
                       className="btn delete-invoice-btn"
                     >
-                      Delete Invoice
+                      Delete Quotation
                     </a>
                     <a
                       href="#"
@@ -2705,13 +2486,14 @@ export default function InvoicePageWrapper(props) {
                   <div className="card-body">
                     <form className="invoices-form">
                       <div className="invoices-main-form">
-                        <div className="row">
-                          <div className="col-xl-4 col-md-6 col-sm-12 col-12">
+                      <div className="row">
+                          <div className="col-xl-6 col-md-8 col-sm-12 col-12">
                             <p class="mg-b-10">Customer Name</p>
                             <select
                               class="form-control select2"
                               name="product"
                               id="customer"
+                              style={{ width: "80%" }}
                             >
                               <option value="-1">Select Customer</option>
                             </select>
@@ -2723,127 +2505,54 @@ export default function InvoicePageWrapper(props) {
                             >
                               Create Customer
                             </button>
-                            {/* <div className="form-group"> */}
-                            {/* <label>Customer Name</label> */}
 
-                            {/* <div className="multipleSelection">
-                              <div className="selectBox">
-                                <p className="mb-0">Select Customer</p>
-                                <span className="down-icon">
-                                  <i data-feather="chevron-down"></i>
-                                </span>
-                              </div>
-                              <div id="checkBoxes-one">
-                                <p className="checkbox-title">
-                                  Customer Search
+                            <div className="mt-4" style={{ height: "100%" }}>
+                              <p
+                                style={{
+                                  fontSize: ".9375rem",
+                                  color: " #1f1f1f",
+                                  marginBottom: "0px",
+                                }}
+                              >
+                                Billing Address{" "}
+                              </p>
+                              <div
+                                className="w-100 invoice-details-box p-2"
+                                style={{ height: "43%", marginTop: "2px" }}
+                              >
+                                <p
+                                  id="fromAddress"
+                                  className="invoice-details invoice-details-two"
+                                >
+                                  {fromAddr1} <br />
+                                  {fromAddr2}
+                                  <br />
                                 </p>
-                                <div className="form-custom">
-                                  <input
-                                    type="text"
-                                    className="form-control bg-grey"
-                                    placeholder="Enter Customer Name"
-                                  />
-                                </div>
-                                <div className="selectBox-cont"></div>
-                                <button
-                                  type="submit"
-                                  className="btn w-100 btn-primary"
-                                  onClick={selectCustomer}
-                                >
-                                  Apply
-                                </button>
-                                <button
-                                  type="reset"
-                                  className="btn w-100 btn-grey"
-                                >
-                                  Reset
-                                </button>
                               </div>
-                            </div> */}
-                            {/* </div> */}
-
-                            {/* <div className="inovices-month-info"> */}
-                            <div className="form-group mt-5">
-                              <label className="custom_check w-100">
-                                <input
-                                  type="checkbox"
-                                  id="enableTax"
-                                  name="invoice"
-                                />
-                                <span className="checkmark"></span> Enable tax
-                              </label>
-                              <label className="custom_check w-100">
-                                <input
-                                  type="checkbox"
-                                  id="chkYes"
-                                  name="invoice"
-                                  checked={serviceCheck}
-                                />
-                                <span
-                                  onClick={onServiceCheckChange}
-                                  className="checkmark"
-                                ></span>{" "}
-                                Service Invoice
-                              </label>
                             </div>
-                            {/*<div id="show-invoices">
-                               <div className="row">
-                                <div className="col-md-6">
-                                  <div className="form-group">
-                                    <select className="select">
-                                      <option>By month</option>
-                                      <option>March</option>
-                                      <option>April</option>
-                                      <option>May</option>
-                                      <option>June</option>
-                                      <option>July</option>
-                                    </select>
-                                  </div>
-                                </div>
-                                <div className="col-md-6">
-                                  <div className="form-group">
-                                    <input
-                                      className="form-control"
-                                      type="text"
-                                      placeholder="Enter Months"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>*/}
-                            {/* </div>  */}
                           </div>
 
-                          <div className="col-xl-3 col-md-12 col-sm-12 col-12">
+                          <div className="col-xl-1 col-md-10 col-sm-12 col-12">
                             <input type="hidden" />
                           </div>
 
                           <div className="col-xl-5 col-md-6 col-sm-12 col-12">
                             <h4 className="invoice-details-title">
-                              Invoice details
+                              Quotation details
                             </h4>
                             <div className="invoice-details-box">
                               <div className="invoice-inner-head">
                                 <span className="d-flex align-items-center justify-content-between">
-                                  Invoice No.{" "}
+                                  Quotation No.{" "}
                                   {invoiceMode == "Auto" ? (
-                                    <a
-                                      style={{
-                                        border: "1px solid #9a55ff",
-                                        width: "65%",
-                                        padding: "10px",
-                                        color: "#9a55ff",
-                                        borderRadius: "5px",
-                                      }}
-                                      href="view-invoice.html"
-                                    >
+                                    <a href="view-invoice.html">
                                       {invoiceNumber}
                                     </a>
                                   ) : (
                                     <input
                                       className="form-control"
                                       type="text"
-                                      placeholder="Enter Invoice Number"
+                                      placeholder="Enter Quotation Number"
                                       value={invoiceNumber}
                                       onChange={onInvoiceNumberChange}
                                       style={{
@@ -2856,9 +2565,8 @@ export default function InvoicePageWrapper(props) {
                                   )}
                                 </span>
                                 <br />
-                                <br />
                                 <span className="d-flex align-items-center justify-content-between">
-                                  Invoice Date.{" "}
+                                  Quotation Date.{" "}
                                   <input
                                     className="form-control datetimepicker"
                                     type="text"
@@ -2889,13 +2597,10 @@ export default function InvoicePageWrapper(props) {
                                     <div className="invoice-inner-date">
                                       <div className="form-group">
                                         Po Number
-                                        {/* <select id="poNumbers" style={{width:'100%'}}>
-                                    <option selected value='-1'>--Select PO--</option>
-                                    </select> */}
                                         <input
                                           className="form-control"
                                           type="text"
-                                          placeholder="Enter PO Number"
+                                          placeholder="Enter Reference Number"
                                           value={poNumber}
                                           onChange={onInputPONumChange}
                                           style={{
@@ -2945,286 +2650,96 @@ export default function InvoicePageWrapper(props) {
                           overflowX: "hidden",
                         }}
                       >
-                        <div className="row">
-                          <div
-                            className="col-xl-6 col-lg-6 col-md-6 h-100 "
-                            style={{
-                              borderRight: "1px solid #E5E5E5",
-                              marginBottom: "0px",
-                              padding: "20px 0px 0px 20px",
-                            }}
-                          >
-                            <div className="invoice-info w-100">
-                              <strong className="customer-text">
-                                Billing Address{" "}
-                                <a className="small" href="edit-invoice.html">
-                                  Edit Address
-                                </a>
-                              </strong>
-                              <p
-                                id="fromAddress"
-                                className="invoice-details invoice-details-two"
-                              >
-                                {fromAddr1} <br />
-                                {fromAddr2}
-                                <br />
-                              </p>
-                            </div>
-                          </div>
-                          <div
-                            className="col-xl-6 col-lg-6 col-md-6 h-100"
-                            style={{ paddingLeft: "0px" }}
-                          >
+                          <div className="row">
+                          <div className="col-xl-12 col-lg-12 col-md-12 h-100 d-flex align-items-center">
                             <div
-                              className="invoice-info w-100"
-                              style={{ marginBottom: "0px", padding: "20px" }}
+                              className="d-flex"
+                              style={{
+                                marginBottom: "0px",
+                                padding: "20px",
+                                display: "flex",
+                                flexDirection: "column",
+                              }}
                             >
-                              <strong className="customer-text">
-                                Shipping Address
-                              </strong>
-                              <p
-                                id="toAddress"
-                                className="invoice-details invoice-details-two"
-                              >
-                                {shippingAddress1} <br />
-                                {shippingAddress2} <br />
-                              </p>
+                              GST No. &nbsp;
+                              <input
+                                class="form-control"
+                                type="text"
+                                value={gstNo}
+                                style={{
+                                  border: "1px solid rgb(154, 85, 255)",
+                                  width: "100%",
+                                  padding: "10px",
+                                }}
+                              ></input>
                             </div>
-                          </div>
-                        </div>
 
-                        <div
-                          className="row"
-                          style={{ borderTop: "1px solid #E5E5E5" }}
-                        >
-                          {/* nadim       address footer start */}
-                          {/* <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}> */}
-                          <div
-                            className="col-xl-3 col-lg-6 col-md-6 d-flex"
-                            style={{
-                              marginBottom: "0px",
-                              padding: "20px",
-                              display: "flex",
-                              flexDirection: "column",
-                            }}
-                          >
-                            GST No. &nbsp;
-                            <input
-                              class="form-control"
-                              type="text"
-                              value={gstNo}
+                            <div
+                              className="d-flex"
                               style={{
-                                border: "1px solid rgb(154, 85, 255)",
-                                width: "100%",
-                                padding: "10px",
+                                marginBottom: "0px",
+                                padding: "20px",
+                                display: "flex",
+                                flexDirection: "column",
                               }}
-                            ></input>
-                          </div>
+                            >
+                              State&nbsp;
+                              <input
+                                class="form-control"
+                                type="text"
+                                value={state}
+                                style={{
+                                  border: "1px solid rgb(154, 85, 255)",
+                                  width: "100%",
+                                  padding: "10px",
+                                }}
+                              ></input>
+                            </div>
 
-                          <div
-                            className="col-xl-3 col-lg-6 col-md-6 d-flex"
-                            style={{
-                              borderRight: "1px solid #E5E5E5",
-                              marginBottom: "0px",
-                              padding: "20px",
-                              display: "flex",
-                              flexDirection: "column",
-                            }}
-                          >
-                            State&nbsp;
-                            <input
-                              class="form-control"
-                              type="text"
-                              value={state}
+                            <div
+                              class="invoice-inner-date form-group  d-flex flex-column"
                               style={{
-                                border: "1px solid rgb(154, 85, 255)",
-                                width: "100%",
-                                padding: "10px",
+                                border: "none",
+                                padding: "20px",
+                                marginBottom: "0px",
+                                width: "230px",
                               }}
-                            ></input>
-                          </div>
-                          {/* </div> */}
-                          {/* address footer end */}
-
-                          {/* address footer start */}
-                          {/* <div className="h-100 d-flex" style={{borderTop:'1px solid #E5E5E5'}}> */}
-                          <div
-                            className="col-xl-3 col-lg-6 col-md-6 d-flex"
-                            style={{
-                              marginBottom: "0px",
-                              padding: "20px",
-                              display: "flex",
-                              flexDirection: "column",
-                            }}
-                          >
-                            GST No. &nbsp;
-                            <input
-                              class="form-control"
-                              type="text"
-                              value={shippingGstNo}
-                              style={{
-                                border: "1px solid rgb(154, 85, 255)",
-                                width: "100%",
-                                padding: "10px",
-                              }}
-                            ></input>
-                          </div>
-
-                          <div
-                            className="col-xl-3 col-lg-6 col-md-6 d-flex"
-                            style={{
-                              marginBottom: "0px",
-                              padding: "20px",
-                              display: "flex",
-                              flexDirection: "column",
-                            }}
-                          >
-                            State&nbsp;
-                            <input
-                              class="form-control"
-                              type="text"
-                              value={shippingState}
-                              style={{
-                                border: "1px solid rgb(154, 85, 255)",
-                                width: "100%",
-                                padding: "10px",
-                              }}
-                            ></input>
-                          </div>
-                          {/* </div> */}
-                          {/* address footer end */}
-                        </div>
-                      </div>
-
-                      <div class="invoice-details-box">
-                        <div class="invoice-inner-footer">
-                          <div class="row align-items-center">
-                            <div class="col-lg-2 col-md-4">
-                              <div
-                                class="invoice-inner-date"
-                                style={{ border: "none" }}
+                            >
+                              <label>Payment Terms</label>
+                              {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
+                              <select
+                                id="paymentTerm"
+                                style={{ width: "100%" }}
                               >
-                                <div class="form-group">
-                                  <label>Challan No.</label>
-                                  <input
-                                    value={challanNumber}
-                                    onChange={onChallanNumberChange}
-                                    style={{
-                                      border: "1px solid #9a55ff",
-                                      width: "100%",
-                                      padding: "10px",
-                                    }}
-                                    class="form-control"
-                                    type="text"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-md-4">
-                              <div
-                                class="invoice-inner-date invoice-inner-datepic"
-                                style={{ borderRight: "1px solid #E5E5E5" }}
-                              >
-                                <div class="form-group">
-                                  <label for="">Challan Date</label>
-                                  <input
-                                    class="form-control datetimepicker"
-                                    style={{
-                                      border: "1px solid #9a55ff",
-                                      width: "100%",
-                                      padding: "10px",
-                                    }}
-                                    id="challanDate"
-                                    type="text"
-                                    value={challanDate}
-                                    placeholder="Select"
-                                  />
-                                </div>
-                              </div>
+                                {paymentTerm.map((val, key) => {
+                                  return <option value={val}>{val}</option>;
+                                })}
+                              </select>
                             </div>
 
-                            <div class="col-lg-2 col-md-4">
-                              <div
-                                class="invoice-inner-date"
-                                style={{ border: "none" }}
-                              >
-                                <div class="form-group">
-                                  <label>Payment Terms</label>
-                                  {/* <input value={paymentTerms} onChange={onPaymentTermsChange}  style = {{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
-                                  <select id="paymentTerm">
-                                    {paymentTerm.map((val, key) => {
-                                      return <option value={val}>{val}</option>;
-                                    })}
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-md-4">
-                              <div
-                                class="invoice-inner-date invoice-inner-datepic"
-                                style={{ borderRight: "1px solid #E5E5E5" }}
-                              >
-                                <div class="form-group">
-                                  <label for="">Due Date</label>
-                                  <input
-                                    class="form-control datetimepicker"
-                                    style={{
-                                      border: "1px solid #9a55ff",
-                                      width: "100%",
-                                      padding: "10px",
-                                    }}
-                                    id="dueDate"
-                                    type="text"
-                                    placeholder="Select"
-                                    readOnly="true"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="col-lg-2 col-md-4">
-                              <div
-                                class="invoice-inner-date"
-                                style={{ border: "none" }}
-                              >
-                                <div class="form-group">
-                                  <label>Transport Mode</label>
-                                  {/* <input value={transportMode} onChange={onTransportModeChange}  style ={{ border:"1px solid #9a55ff", width:"100%", padding:"10px"}} class="form-control" type="text" /> */}
-                                  <select
-                                    id="transportModes"
-                                    onChange={onTransportModeChange}
-                                    style={{
-                                      border: "1px solid #9a55ff",
-                                      width: "100%",
-                                      padding: "10px",
-                                    }}
-                                  >
-                                    {transportModes.map((val, key) => {
-                                      return <option value={val}>{val}</option>;
-                                    })}
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="col-lg-2 col-md-4">
-                              <div class="form-group">
-                                <label for="">Vehicle No.</label>
-                                <input
-                                  value={vehicleNumber}
-                                  onChange={onVehicleNumberChange}
-                                  style={{
-                                    border: "1px solid #9a55ff",
-                                    width: "90%",
-                                    padding: "10px",
-                                  }}
-                                  class="form-control"
-                                  type="text"
-                                />
-                              </div>
+                            <div
+                              style={{ padding: "10px", marginBottom: "0px" }}
+                              class="invoice-inner-date invoice-inner-datepic form-group d-flex flex-column"
+                            >
+                              <label for="">Due Date</label>
+                              <input
+                                class="form-control datetimepicker"
+                                style={{
+                                  border: "1px solid #9a55ff",
+                                  width: "100%",
+                                  padding: "10px",
+                                }}
+                                id="dueDate"
+                                type="text"
+                                placeholder="Select"
+                                readOnly="true"
+                              />
                             </div>
                           </div>
                         </div>
                       </div>
+
+                
 
                       <div className="invoice-add-table">
                         <h4>Item Details</h4>

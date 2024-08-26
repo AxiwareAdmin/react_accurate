@@ -4,7 +4,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-export default function AddCustomer(props) {
+export default function AddSupplier(props) {
 
     //const [customerId , setCustomerId] = useState();
     const [alertMsg,setAlertMsg]=useState(null);
@@ -115,14 +115,14 @@ export default function AddCustomer(props) {
          var token=localStorage.getItem("token")
     //it was GET method earlier
     axios
-      .post(BACKEND_SERVER+"/addCustomerDetails" ,customerData,{
+      .post(BACKEND_SERVER+"/addSupplierDetails" ,customerData,{
         headers:{
           "Content-Type":"application/json",
           "Authorization":'Bearer '+token
         }
       })
       .then((res) => {
-        console.log("In customer pop up all invoice data"+ res.data);
+        console.log("In supplier pop up all invoice data"+ res.data);
 
         if(res!==null && res.data.res !== "failure"){
            
@@ -249,7 +249,7 @@ export default function AddCustomer(props) {
                 <div class="modal-content" style={{marginTop :"-30px"}}>
                     <div class="modal-header" >
                         <div class="form-header text-start mb-0">
-                            <h4 class="mb-0 text-dark fw-bold">Create Customer</h4>
+                            <h4 class="mb-0 text-dark fw-bold">Create Supllier</h4>
                         </div>
                         
                         <button type="button" class="close" onClick={() => {props.sendToParent({custId : null,flag : false,custName : null})}}>
@@ -262,7 +262,7 @@ export default function AddCustomer(props) {
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
                                         {/* <label>Customer Name<span class="text-danger">*</span></label> */}
-                                        <input type="text" onChange={e => setCustomerName(e.target.value)} class="form-control" placeholder="Customer Name" />
+                                        <input type="text" onChange={e => setCustomerName(e.target.value)} class="form-control" placeholder="Supplier Name" />
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6">

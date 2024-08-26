@@ -243,7 +243,7 @@ export default function ViewQuotationTriplet() {
 }
 
 function ViewInvoice(props) {
-   console.log("viewInvoicce:invoieType::"+props.invoiceType)
+  //  console.log("viewInvoicce:invoieType::"+props.invoiceType)
     var token = localStorage.getItem("token");
     var header = {
       headers: {
@@ -725,7 +725,7 @@ function ViewInvoice(props) {
       if (!initilized.current) {
         initilized.current = true;
         axios
-          .get(`${process.env.REACT_APP_LOCAL_URL}/${props.invoiceType.toLowerCase()=='cash'?'viewCashInvoice':props.invoiceType.toLowerCase()=='proforma'?"viewProformaInvoice":'viewQuotation'}?invId=` + id1, header)
+          .get(`${process.env.REACT_APP_LOCAL_URL}/viewQuotation?invId=` + id1, header)
           .then((res) => {
             
   
@@ -1017,14 +1017,7 @@ function ViewInvoice(props) {
     },[]);
   
 
-    useEffect(()=>{
-      if(gstPercentageArr.length>0 && Object.keys(clientDetails).length>0 && Object.keys(customerDetails).length>0)
-      props.invoiceType.toLowerCase()!='cash' && addGstElems(
-        gstPercentageArr,
-        gstPercentageVal,
-        gstCalculationVal
-      );
-    },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,clientDetails,customerDetails])
+  
   
     useEffect(()=>{
         if(custName==null) return;

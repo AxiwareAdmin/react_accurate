@@ -15,20 +15,15 @@ import { useRef } from "react";
 import Swal from "sweetalert2";
 import AddProduct from "../Manage/AddProduct";
 import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import AddCustomer from "../Manage/AddCustomer";
+import AddSupplier from "../Manage/AddSupplier";
 import $ from "jquery";
 import "select2";
-import { Helmet } from "react-helmet-async";
 import Theme from "../Theme/Theme";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function CreateQuotation(props) {
+export default function CreateSupplierQuotation(props) {
   let addProductForCopy;
 
   const location = useLocation();
@@ -85,7 +80,7 @@ export default function CreateQuotation(props) {
       option.append(document.createTextNode(custName));
       document.querySelector("#customer").append(option);
 
-      toast.success("Customer created successfully!", {
+      toast.success("Supplier created successfully!", {
         position: "top-center",
         theme: "colored",
         autoClose: 500,
@@ -474,7 +469,7 @@ export default function CreateQuotation(props) {
 
   function onPoNumberChange() {
     console.log("executed");
-    
+    debugger;
 
     let tempCopyOtherDiscount = 0;
     let tempTotalAmt = 0;
@@ -600,7 +595,7 @@ export default function CreateQuotation(props) {
     var token = localStorage.getItem("token");
 
     axios
-      .get(BACKEND_SERVER + "/customer/" + customerId, {
+      .get(BACKEND_SERVER + "/supplier/" + customerId, {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + token,
@@ -736,14 +731,11 @@ export default function CreateQuotation(props) {
     window.getProductCount = () => getProductCount();
   });
   useEffect(() => {
-    // document.querySelectorAll("script").forEach(e => e.remove());
-    // document.querySelectorAll("script[src]").forEach(a=>a.remove())
-    // document.querySelectorAll(".sidebar-overlay").forEach(e => e.remove());
     var token = localStorage.getItem("token");
     //it was GET method earlier
 
     axios
-      .get(BACKEND_SERVER + "/getDocMaster/Quotation", {
+      .get(BACKEND_SERVER + "/getDocMaster/SupplierQuotation", {
         //change
         headers: {
           "Content-Type": "application/json",
@@ -784,7 +776,7 @@ export default function CreateQuotation(props) {
                   ? "cashInvoices"
                   : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
                   ? "proformaInvoices"
-                  : "Quotations"
+                  : "SupplierQuotations"
               }/year/` +
               localStorage.getItem("financialYear"),
             {
@@ -828,7 +820,7 @@ export default function CreateQuotation(props) {
       });
 
     axios
-      .get(BACKEND_SERVER + "/customers", {
+      .get(BACKEND_SERVER + "/suppliers", {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + token,
@@ -856,8 +848,8 @@ export default function CreateQuotation(props) {
             // label.appendChild(customerName);
             // label.appendChild(hiddenInput);
             var option = document.createElement("option");
-            option.value = a.customerId;
-            option.append(document.createTextNode(a.customerName));
+            option.value = a.supplierId;
+            option.append(document.createTextNode(a.supplierName));
             document.querySelector("#customer").append(option);
 
             // var str='<label className="custom_check w-100"><input type="checkbox" name="username" /><span className="checkmark"></span>'+a.customerName+'</label>'
@@ -985,14 +977,14 @@ export default function CreateQuotation(props) {
   useEffect(() => {
     if (scriptLoaded == true) {
       setTimeout(() => {
-        
+        debugger;
         addProductForCopy = window.addProductForCopy;
         console.log("addproductforcopy:");
         console.log(addProductForCopy);
 
         onCopyInvoiceAddInvoiceDetails();
 
-        onPoNumberChange();
+        // onPoNumberChange();
       }, 1000);
     }
   }, [scriptLoaded]);
@@ -1132,8 +1124,7 @@ export default function CreateQuotation(props) {
     //adding transport charge to gst calsulation
     var tempTransportGstRate = roundNum(transportGstRate);
     let index = tempGstPercentageArr.indexOf(tempTransportGstRate);
-    debugger;
-    if (roundNum(tempTransportGstRate) > 0) {
+    if (roundNum(transportCharge) > 0) {
       if (index >= 0) {
         tempGstPercentageVal[index] =
           tempGstPercentageVal[index] +
@@ -1158,7 +1149,7 @@ export default function CreateQuotation(props) {
     //adding other charge to gst
     var tempOtherChargesGstRate = roundNum(otherChargesGstRate);
     index = tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
-    if (roundNum(tempOtherChargesGstRate) > 0) {
+    if (roundNum(otherCharge) > 0) {
       if (index >= 0) {
         tempGstPercentageVal[index] =
           tempGstPercentageVal[index] +
@@ -1216,7 +1207,7 @@ export default function CreateQuotation(props) {
     //change here based on invoicetype
 
     if (invoiceType == process.env.REACT_APP_CASH_SALE_INVOICE) return;
-    
+    debugger;
     if (
       clientState &&
       state &&
@@ -1735,7 +1726,7 @@ export default function CreateQuotation(props) {
         },
       })
       .then((res) => {
-        
+        debugger;
         if (res.data == true) {
           onValid(e);
         } else {
@@ -1816,7 +1807,7 @@ export default function CreateQuotation(props) {
             ? "saveCashInvoice"
             : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
             ? "saveProformaInvoice"
-            : "saveQuotation"
+            : "saveSupplierQuotation"
         }`,
         invoiceData,
         {
@@ -1847,22 +1838,14 @@ export default function CreateQuotation(props) {
             setAlertMsg(null);
 
             window.location.href =
-              "/QuotationList?month=" +
-              month +
-              "&" +
-              process.env.REACT_APP_INVOICE_TYPE +
-              "=" +
-              invoiceType; //change
+              "/SupplierQuotationList?month=" +
+              month; //change
           }, 2000);
 
           setTimeout(() => {
             window.location.href =
-              "/QuotationList?month=" +
-              month +
-              "&" +
-              process.env.REACT_APP_INVOICE_TYPE +
-              "=" +
-              invoiceType; //change
+              "/SupplierQuotationList?month=" +
+              month; //change
           }, 1000);
         } else {
           e.target.style.pointerEvents = ""; // Re-enable pointer events
@@ -1944,7 +1927,7 @@ export default function CreateQuotation(props) {
             ? "saveCashInvoice"
             : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
             ? "saveProformaInvoice"
-            : "saveQuotation"
+            : "saveSupplierQuotation"
         }`,
         invoiceData,
         {
@@ -1969,7 +1952,7 @@ export default function CreateQuotation(props) {
           const date = new Date(); // 2009-11-10
           const month = date.toLocaleString("default", { month: "long" });
 
-          let module = "Quotation";
+          let module = "SupplierQuotation";//change
           axios
             .post(
               `${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`,
@@ -1983,10 +1966,10 @@ export default function CreateQuotation(props) {
               }
             )
             .then((res) => {
-              
+              debugger;
               setAlertMsg(null);
 
-              window.location.href = "/viewQuotation?invNo=" + res.data; //change
+              window.location.href = "/viewSupplierQuotation?invNo=" + res.data; //change
             });
           setIsSaved(1);
         } else {
@@ -2109,7 +2092,7 @@ export default function CreateQuotation(props) {
     e.target.style.pointerEvents = "none"; // Disable pointer events
     e.target.style.opacity = "0.5";
     if (isSaved == 1) {
-      let module = "Quotation";
+      let module = "SupplierQuotation";//change
       axios
         .post(
           `${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`,
@@ -2124,7 +2107,7 @@ export default function CreateQuotation(props) {
         )
         .then((res) => {
           alert(res.data);
-          window.location.href = "/viewQuotation?invNo=" + res.data; //change
+          window.location.href = "/viewSupplierQuotation?invNo=" + res.data; //change
         })
         .catch(() => {
           e.target.style.pointerEvents = ""; // Disable pointer events
@@ -2200,7 +2183,7 @@ export default function CreateQuotation(props) {
         },
       })
       .then((res) => {
-        
+        debugger;
         if (res.data == true) {
           onPrintValid(e);
         } else {
@@ -2235,7 +2218,7 @@ export default function CreateQuotation(props) {
 
   function onCopyInvoiceAddInvoiceDetails() {
     if (editref.current) {
-      
+      debugger;
       var url = new URL(window.location.href);
       let invNoEdit = url.searchParams.get("InvNo");
       let actionedit = url.searchParams.get("action");
@@ -2251,7 +2234,7 @@ export default function CreateQuotation(props) {
                 ? "viewCashInvoice"
                 : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
                 ? "viewProformaInvoice"
-                : "viewQuotation"
+                : "viewSupplierQuotation"
             }?invId=${invNoEdit}`,
             {
               //change
@@ -2317,15 +2300,15 @@ export default function CreateQuotation(props) {
               setChallanDate(finvdate);
             }
 
-            // if (res.data.transportMode != null) {
-            //   const text = res.data.transportMode;
-            //   const $select = document.querySelector("#transportModes");
-            //   const $options = Array.from($select.options);
-            //   const optionToSelect = $options.find(
-            //     (item) => item.text === text
-            //   );
-            //   $select.value = optionToSelect.value;
-            // }
+            if (res.data.transportMode != null) {
+              const text = res.data.transportMode;
+              const $select = document.querySelector("#transportModes");
+              const $options = Array.from($select.options);
+              const optionToSelect = $options.find(
+                (item) => item.text === text
+              );
+              $select.value = optionToSelect.value;
+            }
 
             if (res.data.paymentTerms != null) {
               // let payterm = (res.data.paymentTerms).replace('-'," ");
@@ -2364,61 +2347,26 @@ export default function CreateQuotation(props) {
             }
 
             if (res.data.transportGst != null) {
-              debugger;
-              // var transportGstTemp =
-              //   document.querySelector("#transportGstRate");
-              // transportGstTemp.value = res.data.transportGst;
+              var transportGstTemp =
+                document.querySelector("#transportGstRate");
+              transportGstTemp.value = res.data.transportGst;
 
-
-              const $select = document.querySelector("#transportGstRate");
-              const $options = Array.from($select.options);
-              const optionToSelect = $options.find(
-                (item) =>
-                  {
-                        if(item.text === res.data.transportGst+'%') return true;
-
-
-                  } 
-              );
-              if(optionToSelect){
-              $select.value = optionToSelect.value;
-              setTransportGstRate(fromCurrency(res.data.transportGst));
-              }
-              else{
-                setTransportGstRate(fromCurrency('0'));
-              }
-            
+              setTransportGstRate(res.data.transportGst);
             }
 
             if (res.data.additionalCharges != null) {
               document.querySelector("#otherCharge").value =
                 res.data.additionalCharges;
               setOtherCharge(fromCurrency(res.data.additionalCharges));
-              
             }
 
             if (res.data.additionalChargesGst != null) {
-
-              
-              const $select = document.querySelector("#additionalChargesGst");
-              const $options = Array.from($select.options);
-              const optionToSelect = $options.find(
-                (item) =>
-                  {
-                        if(item.text === res.data.additionalChargesGst+'%') return true;
-
-
-                  } 
+              var additionalChargesGstTemp = document.querySelector(
+                "#additionalChargesGst"
               );
-              if(optionToSelect){
-              $select.value = optionToSelect.value;
-              setOtherChargesGstRate(fromCurrency(res.data.additionalChargesGst));
-              }
-              else{
-                setOtherChargesGstRate(fromCurrency('0'));
-              }
+              additionalChargesGstTemp.value = res.data.additionalChargesGst;
 
-              
+              setOtherChargesGstRate(res.data.additionalChargesGst);
             }
 
             if (res.data.discount != null) {
@@ -2440,7 +2388,6 @@ export default function CreateQuotation(props) {
 
             res.data.invoiceProductDO &&
               res.data.invoiceProductDO.map((elem, index) => {
-                debugger;
                 console.log(
                   "product data " + elem.productName + ":index id :" + index
                 );
@@ -3450,7 +3397,7 @@ export default function CreateQuotation(props) {
                       class="btn btn-danger"
                       onClick={() => {
                         window.location.href =
-                          "/SalesRegisterQuotation";
+                          "/SalesRegisterSupplierQuotation";
                       }}
                       id="submitButton"
                       type="submit"
@@ -3876,10 +3823,10 @@ export default function CreateQuotation(props) {
       {/*   add product details code start */}
 
       <Dialog open={isOpenCustomer}>
-        <AddCustomer
+        <AddSupplier
           toChild={isOpenCustomer}
           sendToParent={custData}
-        ></AddCustomer>
+        ></AddSupplier>
       </Dialog>
       {/* add product code end */}
     </>

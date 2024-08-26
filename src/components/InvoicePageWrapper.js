@@ -1356,7 +1356,7 @@ export default function InvoicePageWrapper(props) {
     //adding transport charge to gst calsulation
     var tempTransportGstRate = roundNum(transportGstRate);
     let index = tempGstPercentageArr.indexOf(tempTransportGstRate);
-    if (roundNum(transportCharge) > 0) {
+    if (roundNum(tempTransportGstRate) > 0) {
       if (index >= 0) {
         tempGstPercentageVal[index] =
           tempGstPercentageVal[index] +
@@ -1381,7 +1381,7 @@ export default function InvoicePageWrapper(props) {
     //adding other charge to gst
     var tempOtherChargesGstRate = roundNum(otherChargesGstRate);
     index = tempGstPercentageArr.indexOf(tempOtherChargesGstRate);
-    if (roundNum(otherCharge) > 0) {
+    if (roundNum(tempOtherChargesGstRate) > 0) {
       if (index >= 0) {
         tempGstPercentageVal[index] =
           tempGstPercentageVal[index] +
@@ -2582,11 +2582,24 @@ export default function InvoicePageWrapper(props) {
             }
 
             if (res.data.transportGst != null) {
-              var transportGstTemp =
-                document.querySelector("#transportGstRate");
-              transportGstTemp.value = res.data.transportGst;
+              const $select = document.querySelector("#transportGstRate");
+              const $options = Array.from($select.options);
+              const optionToSelect = $options.find(
+                (item) =>
+                  {
+                        if(item.text === res.data.transportGst+'%') return true;
 
-              setTransportGstRate(res.data.transportGst);
+
+                  } 
+              );
+              if(optionToSelect){
+              $select.value = optionToSelect.value;
+              setTransportGstRate(fromCurrency(res.data.transportGst));
+              }
+              else{
+                setTransportGstRate(fromCurrency('0'));
+              }
+            
             }
 
             if (res.data.additionalCharges != null) {
@@ -2596,12 +2609,23 @@ export default function InvoicePageWrapper(props) {
             }
 
             if (res.data.additionalChargesGst != null) {
-              var additionalChargesGstTemp = document.querySelector(
-                "#additionalChargesGst"
-              );
-              additionalChargesGstTemp.value = res.data.additionalChargesGst;
+              const $select = document.querySelector("#additionalChargesGst");
+              const $options = Array.from($select.options);
+              const optionToSelect = $options.find(
+                (item) =>
+                  {
+                        if(item.text === res.data.additionalChargesGst+'%') return true;
 
-              setOtherChargesGstRate(res.data.additionalChargesGst);
+
+                  } 
+              );
+              if(optionToSelect){
+              $select.value = optionToSelect.value;
+              setOtherChargesGstRate(fromCurrency(res.data.additionalChargesGst));
+              }
+              else{
+                setOtherChargesGstRate(fromCurrency('0'));
+              }
             }
 
             if (res.data.discount != null) {

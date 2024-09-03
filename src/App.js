@@ -35,37 +35,38 @@ import ViewQuotation from "./components/Quotation/ViewQuotationsNew";
 import ViewQuotationTriplet from "./components/Quotation/ViewQuotationTripletNew";
 
 
-import CreateSupplierQuotation from "./components/SupplierQuotation/CreateSupplierQuotation";
-import SalesRegisterSupplierQuotation from "./components/SupplierQuotation/SupplierSalesRegister";
-import SupplierQuotationList from "./components/SupplierQuotation/SupplierQuotationList";
-import ViewSupplierQuotation from "./components/SupplierQuotation/ViewSupplierQuotation";
-import ViewSupplierQuotationTriplet from "./components/SupplierQuotation/ViewSupplierQuotationTriplet";
-import SalesRegisterCustomerPO from "./components/CustomerPurchaseOrder/SalesRegister";
-import CreateCustomerPo from "./components/CustomerPurchaseOrder/CreateCustomerPO";
-import CustomerPurchaseOrderList from "./components/CustomerPurchaseOrder/CustomerPurchaseOrderList";
-import ViewCustomerPurchaseOrder from "./components/CustomerPurchaseOrder/ViewCustomerPurchaseOrder";
-import ViewCustomerPurchaseOrderTriplet from "./components/CustomerPurchaseOrder/ViewCustomerPurchaseOrderTriplet";
+import CreateSupplierQuotation from "./components/SupplierQuotation/CreateSupplierQuotationNew";
+import SalesRegisterSupplierQuotation from "./components/SupplierQuotation/SupplierSalesRegisterNew";
+import SupplierQuotationList from "./components/SupplierQuotation/SupplierQuotationListNew";
+import ViewSupplierQuotation from "./components/SupplierQuotation/ViewSupplierQuotationNew";
+import ViewSupplierQuotationTriplet from "./components/SupplierQuotation/ViewSupplierQuotationTripletNew";
+
+import SalesRegisterCustomerPO from "./components/CustomerPurchaseOrder/SalesRegisterNew";
+import CreateCustomerPo from "./components/CustomerPurchaseOrder/CreateCustomerPoNew";
+import CustomerPurchaseOrderList from "./components/CustomerPurchaseOrder/CustomerPurchaseOrderListNew";
+import ViewCustomerPurchaseOrder from "./components/CustomerPurchaseOrder/ViewCustomerPurchaseOrderNew";
+import ViewCustomerPurchaseOrderTriplet from "./components/CustomerPurchaseOrder/ViewCustomerPurchaseOrderTripletNew";
 
 
-import CreateSupplierPo from "./components/SupplierPurchaseOrder/CreateSupplierPurchaseOrder";
-import SalesRegisterSupplierPo from "./components/SupplierPurchaseOrder/SupplierPoSalesRegister";
-import SupplierPoList from "./components/SupplierPurchaseOrder/SupplierPurchaseOrderList";
-import ViewSupplierPo from "./components/SupplierPurchaseOrder/ViewSupplierPo";
-import ViewSupplierPoTriplet from "./components/SupplierPurchaseOrder/ViewSupplierPoTriplet";
+import CreateSupplierPo from "./components/SupplierPurchaseOrder/CreateSupplierPurchaseOrderNew";
+import SalesRegisterSupplierPo from "./components/SupplierPurchaseOrder/SupplierPoSalesRegisterNew";
+import SupplierPoList from "./components/SupplierPurchaseOrder/SupplierPurchaseOrderListNew";
+import ViewSupplierPo from "./components/SupplierPurchaseOrder/ViewSupplierPoNew";
+import ViewSupplierPoTriplet from "./components/SupplierPurchaseOrder/ViewSupplierPoTripletNew";
 
 
-import CreateMaterialInward from "./components/MaterialInward/CreateMaterialInward";
-import SalesRegisterMaterialInward from "./components/MaterialInward/MaterialInwardSalesRegister";
-import MaterialInwardList from "./components/MaterialInward/MaterialInwardList";
-import ViewMaterialInward from "./components/MaterialInward/ViewMaterialInward";
-import ViewMaterialInwardTriplet from "./components/MaterialInward/ViewMaterialInwardTriplet";
+import CreateMaterialInward from "./components/MaterialInward/CreateMaterialInwardNew";
+import SalesRegisterMaterialInward from "./components/MaterialInward/MaterialInwardSalesRegisterNew";
+import MaterialInwardList from "./components/MaterialInward/MaterialInwardListNew";
+import ViewMaterialInward from "./components/MaterialInward/ViewMaterialInwardNew";
+import ViewMaterialInwardTriplet from "./components/MaterialInward/ViewMaterialInwardTripletNew";
 
 
-import CreateMaterialOutward from "./components/MaterialOutward/CreateMaterialOutward";
-import SalesRegisterMaterialOutward from "./components/MaterialOutward/SalesRegister";
-import MaterialOutwardList from "./components/MaterialOutward/MaterialOutwardList";
-import ViewMaterialOutward from "./components/MaterialOutward/ViewMaterialOutward";
-import ViewMaterialOutwardTriplet from "./components/MaterialOutward/ViewMaterialOutwardTriplet";
+import CreateMaterialOutward from "./components/MaterialOutward/CreateMaterialOutwardNew";
+import SalesRegisterMaterialOutward from "./components/MaterialOutward/SalesRegisterNew";
+import MaterialOutwardList from "./components/MaterialOutward/MaterialOutwardListNew";
+import ViewMaterialOutward from "./components/MaterialOutward/ViewMaterialOutwardNew";
+import ViewMaterialOutwardTriplet from "./components/MaterialOutward/ViewMaterialOutwardTripletNew";
 
 
 import CreateDebitNote from "./components/DebitNote/CreateDebitNote";

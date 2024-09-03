@@ -10,7 +10,7 @@ import Loader from "../Loader";
 import Swal from "sweetalert2";
 import Theme from "../Theme/Theme";
 
-export default function ViewQuotation() {
+export default function ViewMaterialInward() {
   var token = localStorage.getItem("token");
   var header = {
     headers: {
@@ -574,7 +574,7 @@ export default function ViewQuotation() {
     if (!initilized.current) {
       initilized.current = true;
       axios
-        .get(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewCashInvoice':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewProformaInvoice':'viewQuotation'}?invId=` + invId, header)
+        .get(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewCashInvoice':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewProformaInvoice':'viewMaterialInward'}?invId=` + invId, header)
         .then((res) => {
           debugger;
 
@@ -585,7 +585,7 @@ export default function ViewQuotation() {
           setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
 
           setPoDate(getFormattedDate(new Date(res.data.poDate)));
-          debugger;
+
           setServiceCheck(true);
 
           let billingaddr = res.data.billingAddress;
@@ -898,8 +898,8 @@ export default function ViewQuotation() {
   useEffect(()=>{
       if(custName==null) return;
 
-      axios.get(`${process.env.REACT_APP_LOCAL_URL}/customer/custname/${custName}`,header).then((res)=>{
-          if(res!='Customers not found'){
+      axios.get(`${process.env.REACT_APP_LOCAL_URL}/supplier/suppliername/${custName}`,header).then((res)=>{
+          if(res!='Suppliers are not found'){
             setCustomerDetails(res.data);
           }
       })
@@ -974,7 +974,7 @@ export default function ViewQuotation() {
           Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'There is some issue to mail invoice',
+            text: 'There is some issue to mail Material Inward',
             footer: ''
             })
         });
@@ -1001,7 +1001,7 @@ export default function ViewQuotation() {
                     <div class="col-md-12">
                         <div class="invoice-info" style={{borderBottom:'1px solid black'}}>
                           <strong class="customer-text-one" style={{textAlign:'center'}}>
-                           Customer Quotation
+                          Material Inward
                           </strong>
                         </div>
                       </div>
@@ -1036,8 +1036,8 @@ export default function ViewQuotation() {
                         style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                       >
                         <div class="invoice-item-box">
-                          <p>Quotation No. : {invNo}</p>
-                          <p class="mb-0">Quotaion Date : {invoiceDate}</p>
+                          <p>Material Inward No. : {invNo}</p>
+                          <p class="mb-0">Material Inward Date : {invoiceDate}</p>
                         </div>
 
                         <div class="invoice-item-box">

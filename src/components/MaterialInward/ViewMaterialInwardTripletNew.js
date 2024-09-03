@@ -8,7 +8,7 @@ import Loader from "../Loader";
 import Navbar from "../Navbar";
 import Theme from "../Theme/Theme";
 
-export default function ViewQuotationTriplet() {
+export default function ViewMaterialInwardTriplet() {
 
   
   // const location=useLocation();
@@ -444,7 +444,29 @@ function ViewInvoice(props) {
       })
         }
       
-  
+        useEffect(()=>{
+          if(custName==null) return;
+    
+          axios.get(`${process.env.REACT_APP_LOCAL_URL}/supplier/suppliername/${custName}`,header).then((res)=>{
+            
+              if(res!='Suppliers are not found'){
+                setCustomerDetails(res.data);
+              }
+          })
+    
+    
+      },[custName])
+
+
+      useEffect(()=>{
+        if(gstPercentageArr.length>0 && Object.keys(clientDetails).length>0 && Object.keys(customerDetails).length>0)
+        addGstElems(
+          gstPercentageArr,
+          gstPercentageVal,
+          gstCalculationVal
+        );
+      },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,clientDetails,customerDetails])
+
     function addGstElems(gstPercentageArr, gstPercentageVal, gstCalculationVal) {
 
       debugger;
@@ -716,16 +738,7 @@ function ViewInvoice(props) {
         //   document.body.removeChild(script11);
       };
     }, []);
-
-    useEffect(()=>{
-      if(gstPercentageArr.length>0 && Object.keys(clientDetails).length>0 && Object.keys(customerDetails).length>0)
-      addGstElems(
-        gstPercentageArr,
-        gstPercentageVal,
-        gstCalculationVal
-      );
-    },[discount,gstCalculationVal,gstPercentageArr,gstPercentageVal,clientDetails,customerDetails])
-
+  
     useEffect(() => {
       var url = new URL(window.location.href);
       let id1 = props.id;
@@ -734,7 +747,7 @@ function ViewInvoice(props) {
       if (!initilized.current) {
         initilized.current = true;
         axios
-          .get(`${process.env.REACT_APP_LOCAL_URL}/viewQuotation?invId=` + id1, header)
+          .get(`${process.env.REACT_APP_LOCAL_URL}/viewMaterialInward?invId=` + id1, header)
           .then((res) => {
             
   
@@ -748,7 +761,6 @@ function ViewInvoice(props) {
   
             setPoDate(getFormattedDate(new Date(res.data.poDate)));
   
-            debugger;
             setServiceCheck(true);
   
             let billingaddr = res.data.billingAddress;
@@ -994,7 +1006,7 @@ function ViewInvoice(props) {
 
             setGstCalculationVal(tempGstCalculationVal)
             
-            
+            // addGstElems(tempGstPercentageArr,tempGstPercentageVal,tempGstCalculationVal)
   
             settaxable(totalAmount);
   
@@ -1029,18 +1041,7 @@ function ViewInvoice(props) {
 
   
   
-    useEffect(()=>{
-        if(custName==null) return;
-  
-        axios.get(`${process.env.REACT_APP_LOCAL_URL}/customer/custname/${custName}`,header).then((res)=>{
-          
-            if(res!='Customers not found'){
-              setCustomerDetails(res.data);
-            }
-        })
-  
-  
-    },[custName])
+
   
    
   
@@ -1060,7 +1061,7 @@ function ViewInvoice(props) {
                       <div class="col-md-12">
                           <div class="invoice-info" style={{borderBottom:'1px solid black',display:'flex'}}>
                             <strong class="customer-text-one" style={{textAlign:'center',flexGrow:'1'}}>
-                             Customer Quotation
+                            Material Inward
                             </strong>
 
                             {/* <strong class="customer-text-one" style={{textAlign:'end'}}>
@@ -1103,8 +1104,8 @@ function ViewInvoice(props) {
                           style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                         >
                           <div class="invoice-item-box">
-                            <p>Quotation No. : {invNo}</p>
-                            <p class="mb-0">Quotation Date : {invoiceDate}</p>
+                            <p>Material Inward No. : {invNo}</p>
+                            <p class="mb-0">Material Inward Date : {invoiceDate}</p>
                           </div>
   
                           <div class="invoice-item-box">

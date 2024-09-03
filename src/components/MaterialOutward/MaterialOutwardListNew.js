@@ -9,7 +9,7 @@ import ExcelJS from 'exceljs';
 import Theme from "../Theme/Theme";
 
 
-export default function QuotationList () {
+export default function MaterialOutwardList () {
 
 	var token=localStorage.getItem("token");
 
@@ -355,7 +355,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}`;//change
+			window.location.href=`/ViewMaterialOutwardTriplet?id=${elem.invoiceId}`;//change
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -595,7 +595,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"Quotations"}/${month1}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) => {//change
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"materialOutward"}/${month1}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) => {//change
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -676,7 +676,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}`;
+                window.location.href=`/ViewMaterialOutwardTriplet?id=${elem.invoiceId}`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -1031,7 +1031,7 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			window.location.href=`/CreateQuotation?InvNo=${invt}&action=Edit`;//change
+			window.location.href=`/CreateMaterialOutward?InvNo=${invt}&action=Edit`;//change
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }
 		//  else if(name=="Book"){
@@ -1042,15 +1042,15 @@ const exportToExcel = async () => {
 		 else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-			window.location.href=`/ViewQuotationTriplet?id=${invt}`;
+			window.location.href=`/ViewMaterialOutwardTriplet?id=${invt}`;
 		 }else if(name == "Delete"){
-			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteQuo?QuoId=${invt}`,header).then((res) => {//change
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteMaterialOutward?QuoId=${invt}`,header).then((res) => {//change
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
 				Swal.fire(
 					'',
-					'Quotation deleted successfully!!',
+					'Material Outward deleted successfully!!',
 					'success'
 				  )
 				  //remving the deleted row from DOM
@@ -1061,7 +1061,7 @@ const exportToExcel = async () => {
 				  Swal.fire({
 					icon: 'error',
 					title: 'Oops...',
-					text: 'There is some issue delete Quotation.',
+					text: 'There is some issue delete Material Outward.',
 					footer: ''
 				  })	   
 		    });
@@ -1072,11 +1072,11 @@ const exportToExcel = async () => {
 			//new code
 			console.log(e)
 			// axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
-			axios.get(`${process.env.REACT_APP_LOCAL_URL}/cancelQuotation?QuoId=${invt}`,header).then((res)=>{//change
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/cancelMaterialOutward?QuoId=${invt}`,header).then((res)=>{//change
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
-						'Quotation cancelled successfully!!',
+						'Material Outward cancelled successfully!!',
 						'success'
 					  )	
 
@@ -1094,7 +1094,7 @@ const exportToExcel = async () => {
 					Swal.fire({
 						icon: 'error',
 						title: 'Oops...',
-						text: 'There is some issue to cancel quotation',
+						text: 'There is some issue to cancel Material Outward',
 						footer: ''
 					  })	
 				}
@@ -1102,7 +1102,7 @@ const exportToExcel = async () => {
 				Swal.fire({
 					icon: 'error',
 					title: 'Oops...',
-					text: 'There is some issue to cancel quotation',
+					text: 'There is some issue to cancel Material Outward',
 					footer: ''
 				  })	
 			})
@@ -1130,12 +1130,12 @@ const exportToExcel = async () => {
 
 					let custname=e.target.closest("tr").querySelector("td:nth-child(4)").innerText
 					// alert(custname)
-					window.location.href=`/ViewQuotation?invNo=${invt}&custName=${custname}&action=send`;
+					window.location.href=`/ViewMaterialOutward?invNo=${invt}&custName=${custname}&action=send`;
 
 					
 				
 		 } else if(name == "Copy"){
-			window.location.href=`/CreateQuotation?InvNo=${invt}&action=Clone`;
+			window.location.href=`/CreateMaterialOutward?InvNo=${invt}&action=Clone`;
 			 //comented temporarily	  
 		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
@@ -1162,7 +1162,7 @@ const exportToExcel = async () => {
 				});*/
 		 }else if(name == "Download"){
 
-			window.location.href=`/ViewQuotation?invNo=${invt}&action=download`;
+			window.location.href=`/ViewMaterialOutward?invNo=${invt}&action=download`;
 			// navigate("/viewInvoice?id="+invt+"&action=download");
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
@@ -1367,7 +1367,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
+                window.location.href=`/ViewMaterialOutwardTriplet?id=${elem.invoiceId}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
@@ -1607,12 +1607,12 @@ const exportToExcel = async () => {
                 			<h3 class="page-title m-0">
 			                <span class="page-title-icon bg-gradient-primary text-white me-2">
 			                  <i class="fa fa-file" aria-hidden="true"></i>
-			                </span>{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Quotation </h3>
+			                </span>{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Material Outward </h3>
                 		</div>
                         <div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
 								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-								<li class="breadcrumb-item active">{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Quotation</li>
+								<li class="breadcrumb-item active">{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Material Outward</li>
 							</ul>
                 		</div>
                     </div>
@@ -1902,7 +1902,7 @@ const exportToExcel = async () => {
 										<div class="invoices-tabs">
 											<ul>
 												
-												<li><a href="#" class="active">All Quotations</a></li>
+												<li><a href="#" class="active">All Material Outward</a></li>
 												{/* <li><a href="#" onClick={rendertoInvPaid} >Paid</a></li>	
 												<li><a href="#" onClick={rendertoInvOverDue}>Overdue</a></li>		
 												<li><a href="#" onClick={rendertoInvDraft}>Draft</a></li>	
@@ -1917,7 +1917,7 @@ const exportToExcel = async () => {
 												<i data-feather="settings"></i>
 											</a>
 											<a href="/CreateQuotation" class="btn">
-												<i data-feather="plus-circle"></i> New Quotation
+												<i data-feather="plus-circle"></i> New Material Outward
 											</a>
 										</div>
 									</div>
@@ -1937,7 +1937,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(allInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>All Quotations <div style={{fontSize:'15px'}}>{accountingFormat(allInv)}</div></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>All Material Outward <div style={{fontSize:'15px'}}>{accountingFormat(allInv)}</div></p>
 								</div>
 							</div>
 						</div>
@@ -1952,7 +1952,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(paidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Paid Quotations <span style={{fontSize:'15px'}}>{accountingFormat(paidInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Paid Material Outward <span style={{fontSize:'15px'}}>{accountingFormat(paidInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1967,7 +1967,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(unpaidInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Unpaid Quotations <span style={{fontSize:'15px'}}>{accountingFormat(unPaidInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'18px',display:'flex',justifyContent:'space-evenly',alignItems:'end',flexWrap:'wrap'}}>Unpaid Material Outward <span style={{fontSize:'15px'}}>{accountingFormat(unPaidInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1982,7 +1982,7 @@ const exportToExcel = async () => {
 											<div class="inovices-amount">&#8377;&nbsp;{accountingFormat(canInvVal)}</div>
 										</div>
 									</div>
-									<p class="inovices-all" style={{fontSize:'16px',display:'flex',justifyContent:'space-around',alignItems:'end',flexWrap:'wrap'}}>Cancelled Quotations <span style={{fontSize:'14px'}}>{accountingFormat(canInv)}</span></p>
+									<p class="inovices-all" style={{fontSize:'16px',display:'flex',justifyContent:'space-around',alignItems:'end',flexWrap:'wrap'}}>Cancelled Material Outward <span style={{fontSize:'14px'}}>{accountingFormat(canInv)}</span></p>
 								</div>
 							</div>
 						</div>
@@ -1997,7 +1997,7 @@ const exportToExcel = async () => {
 											<thead class="thead-light">
 												<tr style={{background: "linear-gradient(90deg, rgba(67,203,255,1) 25%, rgba(151,8,204,1) 100%)",color:"white"}}>
 													<th>Sr No</th>
-													<th>Quotation No</th>
+													<th>Material Outward No</th>
 													<th>Date</th>
 												    <th>Customer Name</th>
 												    <th>Gross Total</th>

@@ -776,7 +776,7 @@ export default function CreateSupplierQuotation(props) {
                   ? "cashInvoices"
                   : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
                   ? "proformaInvoices"
-                  : "SupplierQuotations"
+                  : "supplierQuotations"
               }/year/` +
               localStorage.getItem("financialYear"),
             {
@@ -1102,7 +1102,7 @@ export default function CreateSupplierQuotation(props) {
 
       let index = tempGstPercentageArr.indexOf(prodUnit.tax);
       if (index < 0) {
-        tempGstPercentageArr = [...tempGstPercentageArr, prodUnit.tax];
+        tempGstPercentageArr = [...tempGstPercentageArr, fromCurrency(prodUnit.tax)];
         tempGstPercentageVal = [
           ...tempGstPercentageVal,
           roundNum((prodUnit.amount * prodUnit.tax) / 100),
@@ -1135,7 +1135,7 @@ export default function CreateSupplierQuotation(props) {
           tempGstCalculationVal[tempTransportGstRate] +
           roundNum(transportCharge);
       } else {
-        tempGstPercentageArr = [...tempGstPercentageArr, tempTransportGstRate];
+        tempGstPercentageArr = [...tempGstPercentageArr, roundNum(tempTransportGstRate)];
         tempGstPercentageVal = [
           ...tempGstPercentageVal,
           roundNum(
@@ -1162,7 +1162,7 @@ export default function CreateSupplierQuotation(props) {
       } else {
         tempGstPercentageArr = [
           ...tempGstPercentageArr,
-          tempOtherChargesGstRate,
+          roundNum(tempOtherChargesGstRate),
         ];
         tempGstPercentageVal = [
           ...tempGstPercentageVal,
@@ -1318,6 +1318,7 @@ export default function CreateSupplierQuotation(props) {
       });
     } else {
       gstPercentageArr.map((elem) => {
+        debugger;
         let index = gstPercentageArr.indexOf(elem);
 
         let divElem = document.createElement("div");
@@ -1409,7 +1410,7 @@ export default function CreateSupplierQuotation(props) {
         // document.querySelector(".gstContainer").append(divElem);
       });
     }
-  }, [gstPercentageArr, gstPercentageVal]);
+  }, [gstPercentageArr, gstPercentageVal, gstCalculationVal]);
 
   useEffect(() => {
     let totalGstVal = 0;
@@ -1434,13 +1435,13 @@ export default function CreateSupplierQuotation(props) {
 
       let index = tempGstPercentageArr.indexOf(prodUnit.tax);
       if (index < 0) {
-        tempGstPercentageArr = [...tempGstPercentageArr, prodUnit.tax];
+        tempGstPercentageArr = [...tempGstPercentageArr, roundNum(prodUnit.tax)];
         tempGstPercentageVal = [
           ...tempGstPercentageVal,
           roundNum((prodUnit.amount * prodUnit.tax) / 100),
         ];
         var tempTax = prodUnit.tax;
-        tempGstCalculationVal[tempTax] = prodUnit.amount;
+        tempGstCalculationVal[tempTax] = roundNum(prodUnit.amount);
       } else {
         tempGstPercentageVal[index] =
           tempGstPercentageVal[index] +
@@ -1465,7 +1466,7 @@ export default function CreateSupplierQuotation(props) {
           tempGstCalculationVal[tempTransportGstRate] +
           roundNum(transportCharge);
       } else {
-        tempGstPercentageArr = [...tempGstPercentageArr, tempTransportGstRate];
+        tempGstPercentageArr = [...tempGstPercentageArr, roundNum(tempTransportGstRate)];
         tempGstPercentageVal = [
           ...tempGstPercentageVal,
           roundNum(
@@ -1492,7 +1493,7 @@ export default function CreateSupplierQuotation(props) {
       } else {
         tempGstPercentageArr = [
           ...tempGstPercentageArr,
-          tempOtherChargesGstRate,
+          roundNum(tempOtherChargesGstRate),
         ];
         tempGstPercentageVal = [
           ...tempGstPercentageVal,
@@ -1589,6 +1590,7 @@ export default function CreateSupplierQuotation(props) {
     });
 
     Object.keys(tempCalculation).forEach((a) => {
+      debugger;
       let key = parseFloat(a);
 
       let val = tempCalculation[key];
@@ -2472,14 +2474,14 @@ export default function CreateSupplierQuotation(props) {
                       <div className="invoices-main-form">
                       <div className="row">
                           <div className="col-xl-6 col-md-8 col-sm-12 col-12">
-                            <p class="mg-b-10">Customer Name</p>
+                            <p class="mg-b-10">Supplier Name</p>
                             <select
                               class="form-control select2"
                               name="product"
                               id="customer"
                               style={{ width: "80%" }}
                             >
-                              <option value="-1">Select Customer</option>
+                              <option value="-1">Select Supplier</option>
                             </select>
 
                             <button
@@ -2487,7 +2489,7 @@ export default function CreateSupplierQuotation(props) {
                               style={{ fontSize: "12px", marginTop: "5px" }}
                               onClick={handleClickOpenCustomer}
                             >
-                              Create Customer
+                              Create Supplier
                             </button>
 
                             <div className="mt-4" style={{ height: "100%" }}>

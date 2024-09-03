@@ -8,7 +8,7 @@ import Loader from "../Loader";
 import Navbar from "../Navbar";
 import Theme from "../Theme/Theme";
 
-export default function ViewQuotationTriplet() {
+export default function ViewMaterialOutwardTriplet() {
 
   
   // const location=useLocation();
@@ -734,7 +734,7 @@ function ViewInvoice(props) {
       if (!initilized.current) {
         initilized.current = true;
         axios
-          .get(`${process.env.REACT_APP_LOCAL_URL}/viewQuotation?invId=` + id1, header)
+          .get(`${process.env.REACT_APP_LOCAL_URL}/viewMaterialOutward?invId=` + id1, header)
           .then((res) => {
             
   
@@ -1060,7 +1060,7 @@ function ViewInvoice(props) {
                       <div class="col-md-12">
                           <div class="invoice-info" style={{borderBottom:'1px solid black',display:'flex'}}>
                             <strong class="customer-text-one" style={{textAlign:'center',flexGrow:'1'}}>
-                             Customer Quotation
+                             Customer Material Outward
                             </strong>
 
                             {/* <strong class="customer-text-one" style={{textAlign:'end'}}>
@@ -1103,8 +1103,8 @@ function ViewInvoice(props) {
                           style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                         >
                           <div class="invoice-item-box">
-                            <p>Quotation No. : {invNo}</p>
-                            <p class="mb-0">Quotation Date : {invoiceDate}</p>
+                            <p>Material Outward No. : {invNo}</p>
+                            <p class="mb-0">Material Outward Date : {invoiceDate}</p>
                           </div>
   
                           <div class="invoice-item-box">

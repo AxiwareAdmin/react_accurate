@@ -9,7 +9,7 @@ import ExcelJS from 'exceljs';
 import Theme from "../Theme/Theme";
 
 
-export default function QuotationList () {
+export default function SupplierQuotationList () {
 
 	var token=localStorage.getItem("token");
 
@@ -83,7 +83,7 @@ export default function QuotationList () {
 			// return false;
 		  });
 
-		  if(customerName!=null && customerName.length>0 && customerName!='--Select Customer--')
+		  if(customerName!=null && customerName.length>0 && customerName!='--Select Supplier--')
 		tempInvoiceDo=tempInvoiceDo.filter(elem=>{
 			  return elem.customerName==customerName
 			// return false;
@@ -355,7 +355,7 @@ const exportToExcel = async () => {
 		aElem.className="invoice-link";
 		aElem.addEventListener('click',()=>{
 
-			window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}`;//change
+			window.location.href=`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`;//change
 		})
 		// aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 		aElem.appendChild(textElem); 
@@ -595,7 +595,7 @@ const exportToExcel = async () => {
 		  let igst = 0;
 		  let cgst = 0;
 		  let sgst = 0;
-        axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"Quotations"}/${month1}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) => {//change
+        axios.post(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?"cashInvoices":invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"proformaInvoices":"supplierQuotations"}/${month1}`,{financialYear:localStorage.getItem("financialYear")},header).then((res) => {//change
 			setInvoicedo(res.data);
 			setFilteredInvoiceList(res.data);
 			
@@ -676,7 +676,7 @@ const exportToExcel = async () => {
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
 			aElem.addEventListener('click',()=>{
 
-                window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}`;
+                window.location.href=`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}`;
             })
             aElem.appendChild(textElem); 
 			tdElem.appendChild(aElem);
@@ -869,12 +869,12 @@ const exportToExcel = async () => {
 
 		  })
 
-		axios.get(`${process.env.REACT_APP_LOCAL_URL}/customers`,header).then((res) => {
+		axios.get(`${process.env.REACT_APP_LOCAL_URL}/suppliers`,header).then((res) => {
 		console.log(res.data);
 		res.data.map((a) => {
         var option = document.createElement("option");
-        option.value = a.customerId;
-        option.append(document.createTextNode(a.customerName));
+        option.value = a.supplierId;
+        option.append(document.createTextNode(a.supplierName));
         document.querySelector("#customer").append(option);
 			});
 		}).catch((e)=>{
@@ -1031,7 +1031,7 @@ const exportToExcel = async () => {
          console.log("on click target value"+name+"invoice no :"+invt);
 		 if(name == "Edit"){
 
-			window.location.href=`/CreateQuotation?InvNo=${invt}&action=Edit`;//change
+			window.location.href=`/CreateSupplierQuotation?InvNo=${invt}&action=Edit`;//change
 			// navigate("/add-invoice?InvNo="+invt+"&action=Edit");
 		 }
 		//  else if(name=="Book"){
@@ -1042,9 +1042,9 @@ const exportToExcel = async () => {
 		 else if(name == "View" || name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
-			window.location.href=`/ViewQuotationTriplet?id=${invt}`;
+			window.location.href=`/ViewSupplierQuotationTriplet?id=${invt}`;
 		 }else if(name == "Delete"){
-			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteQuo?QuoId=${invt}`,header).then((res) => {//change
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteSupplierQuo?QuoId=${invt}`,header).then((res) => {//change
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){
 				// alert("Invoice deleted successfully!!");	
@@ -1072,7 +1072,7 @@ const exportToExcel = async () => {
 			//new code
 			console.log(e)
 			// axios.post("http://localhost:8080/cancelInvoice/"+invt,{},header).then((res)=>{
-			axios.get(`${process.env.REACT_APP_LOCAL_URL}/cancelQuotation?QuoId=${invt}`,header).then((res)=>{//change
+			axios.get(`${process.env.REACT_APP_LOCAL_URL}/cancelSupplierQuotation?QuoId=${invt}`,header).then((res)=>{//change
 				if(res!=null && res.data.res=='success'){
 					Swal.fire(
 						'',
@@ -1130,12 +1130,12 @@ const exportToExcel = async () => {
 
 					let custname=e.target.closest("tr").querySelector("td:nth-child(4)").innerText
 					// alert(custname)
-					window.location.href=`/ViewQuotation?invNo=${invt}&custName=${custname}&action=send`;
+					window.location.href=`/ViewSupplierQuotation?invNo=${invt}&custName=${custname}&action=send`;
 
 					
 				
 		 } else if(name == "Copy"){
-			window.location.href=`/CreateQuotation?InvNo=${invt}&action=Clone`;
+			window.location.href=`/CreateSupplierQuotation?InvNo=${invt}&action=Clone`;
 			 //comented temporarily	  
 		/*			axios.get("http://localhost:8080/cloneInv?invNo="+invt,header).then((res) => {
 					console.log(res.data);
@@ -1162,7 +1162,7 @@ const exportToExcel = async () => {
 				});*/
 		 }else if(name == "Download"){
 
-			window.location.href=`/ViewQuotation?invNo=${invt}&action=download`;
+			window.location.href=`/ViewSupplierQuotation?invNo=${invt}&action=download`;
 			// navigate("/viewInvoice?id="+invt+"&action=download");
 
 			// html2canvas(document.querySelector("#invoicelist")).then(canvas => {
@@ -1367,7 +1367,7 @@ const exportToExcel = async () => {
 			aElem.className="invoice-link";
 			aElem.addEventListener('click',()=>{
 
-                window.location.href=`/ViewQuotationTriplet?id=${elem.invoiceId}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
+                window.location.href=`/ViewSupplierQuotationTriplet?id=${elem.invoiceId}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
             })
 		    // aElem.href="/viewInvoiceTriplet?id="+elem.invoiceId;
             aElem.appendChild(textElem); 
@@ -1607,12 +1607,12 @@ const exportToExcel = async () => {
                 			<h3 class="page-title m-0">
 			                <span class="page-title-icon bg-gradient-primary text-white me-2">
 			                  <i class="fa fa-file" aria-hidden="true"></i>
-			                </span>{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Quotation </h3>
+			                </span>{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""}Supplier Quotation </h3>
                 		</div>
                         <div class="col p-0 text-end">
                 			<ul class="breadcrumb bg-white float-end m-0 ps-0 pe-0">
 								<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-								<li class="breadcrumb-item active">{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""} Quotation</li>
+								<li class="breadcrumb-item active">{invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?"Proforma":""}Supplier Quotation</li>
 							</ul>
                 		</div>
                     </div>
@@ -1661,7 +1661,7 @@ const exportToExcel = async () => {
 												{/*<i style={{position: "absolute",zIndex: "1",marginTop: "7%",marginLeft:"4%",color: "#9a55ff"}}data-feather="user-plus" class="me-1 select-icon"></i> */}
 												<select class="form-control select2 invoiceListCustomerOption"
 					                              name="product"	id="customer">
-												  <option  value="-1" >--Select Customer--</option>
+												  <option  value="-1" >--Select Supplier--</option>
 												  </select>	</span>  
 												{/* <div id="checkBoxes">
 													<form action="#">

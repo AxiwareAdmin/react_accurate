@@ -10,7 +10,7 @@ import Loader from "../Loader";
 import Swal from "sweetalert2";
 import Theme from "../Theme/Theme";
 
-export default function ViewQuotation() {
+export default function ViewCreditNote() {
   var token = localStorage.getItem("token");
   var header = {
     headers: {
@@ -574,7 +574,7 @@ export default function ViewQuotation() {
     if (!initilized.current) {
       initilized.current = true;
       axios
-        .get(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewCashInvoice':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewProformaInvoice':'viewQuotation'}?invId=` + invId, header)
+        .get(`${process.env.REACT_APP_LOCAL_URL}/${invoiceType==process.env.REACT_APP_CASH_SALE_INVOICE?'viewCashInvoice':invoiceType==process.env.REACT_APP_PROFORMA_INVOICE?'viewProformaInvoice':'viewCreditNote'}?invId=` + invId, header)
         .then((res) => {
           debugger;
 
@@ -1001,7 +1001,7 @@ export default function ViewQuotation() {
                     <div class="col-md-12">
                         <div class="invoice-info" style={{borderBottom:'1px solid black'}}>
                           <strong class="customer-text-one" style={{textAlign:'center'}}>
-                           Customer Quotation
+                          Credit Note
                           </strong>
                         </div>
                       </div>
@@ -1036,8 +1036,8 @@ export default function ViewQuotation() {
                         style={{ display: "flex", flexDirection: "column", alignItems:"end" }}
                       >
                         <div class="invoice-item-box">
-                          <p>Quotation No. : {invNo}</p>
-                          <p class="mb-0">Quotation Date : {invoiceDate}</p>
+                          <p>Credit Note No. : {invNo}</p>
+                          <p class="mb-0">Credit Note Date : {invoiceDate}</p>
                         </div>
 
                         <div class="invoice-item-box">

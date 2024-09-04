@@ -28,7 +28,7 @@ import Theme from "../Theme/Theme";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function CreateMaterialOutward(props) {
+export default function CreateQuotation(props) {
   let addProductForCopy;
 
   const location = useLocation();
@@ -743,7 +743,7 @@ export default function CreateMaterialOutward(props) {
     //it was GET method earlier
 
     axios
-      .get(BACKEND_SERVER + "/getDocMaster/MaterialOutward", {
+      .get(BACKEND_SERVER + "/getDocMaster/Quotation", {
         //change
         headers: {
           "Content-Type": "application/json",
@@ -784,7 +784,7 @@ export default function CreateMaterialOutward(props) {
                   ? "cashInvoices"
                   : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
                   ? "proformaInvoices"
-                  : "materialOutward"
+                  : "Quotations"
               }/year/` +
               localStorage.getItem("financialYear"),
             {
@@ -1816,7 +1816,7 @@ export default function CreateMaterialOutward(props) {
             ? "saveCashInvoice"
             : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
             ? "saveProformaInvoice"
-            : "saveMaterialOutward"
+            : "saveQuotation"
         }`,
         invoiceData,
         {
@@ -1834,7 +1834,7 @@ export default function CreateMaterialOutward(props) {
 
           Swal.fire(
             "",
-            "Material Outward created successfully!", //change
+            "Quotation created successfully!", //change
             "success"
           );
 
@@ -1847,7 +1847,7 @@ export default function CreateMaterialOutward(props) {
             setAlertMsg(null);
 
             window.location.href =
-              "/MaterialOutwardList?month=" +
+              "/QuotationList?month=" +
               month +
               "&" +
               process.env.REACT_APP_INVOICE_TYPE +
@@ -1857,7 +1857,7 @@ export default function CreateMaterialOutward(props) {
 
           setTimeout(() => {
             window.location.href =
-              "/MaterialOutwardList?month=" +
+              "/QuotationList?month=" +
               month +
               "&" +
               process.env.REACT_APP_INVOICE_TYPE +
@@ -1868,7 +1868,7 @@ export default function CreateMaterialOutward(props) {
           e.target.style.pointerEvents = ""; // Re-enable pointer events
           e.target.style.opacity = "";
           alert(
-            "There is some issue in creating Material Outward. kindly check whether all the data is entered or not."
+            "There is some issue in creating Quotation. kindly check whether all the data is entered or not."
           ); //change
         }
       })
@@ -1944,7 +1944,7 @@ export default function CreateMaterialOutward(props) {
             ? "saveCashInvoice"
             : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
             ? "saveProformaInvoice"
-            : "saveMaterialOutward"
+            : "saveQuotation"
         }`,
         invoiceData,
         {
@@ -1962,14 +1962,14 @@ export default function CreateMaterialOutward(props) {
 
           Swal.fire(
             "",
-            "Material Outward created successfully!", //change
+            "Quotation created successfully!", //change
             "success"
           );
 
           const date = new Date(); // 2009-11-10
           const month = date.toLocaleString("default", { month: "long" });
 
-          let module = "MaterialOutward";
+          let module = "Quotation";
           axios
             .post(
               `${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`,
@@ -1986,7 +1986,7 @@ export default function CreateMaterialOutward(props) {
               
               setAlertMsg(null);
 
-              window.location.href = "/viewMaterialOutward?invNo=" + res.data; //change
+              window.location.href = "/viewQuotation?invNo=" + res.data; //change
             });
           setIsSaved(1);
         } else {
@@ -1995,7 +1995,7 @@ export default function CreateMaterialOutward(props) {
           // alert("There is some issue in creating invoice. kindly check whether all the data is entered or not.")
           Swal.fire(
             "",
-            "There is some issue in creating Material Outward.", //change
+            "There is some issue in creating Quotation.", //change
             "error"
           );
         }
@@ -2005,7 +2005,7 @@ export default function CreateMaterialOutward(props) {
         e.target.style.opacity = "";
         Swal.fire(
           "",
-          "There is some issue in creating Material Outward.", //change
+          "There is some issue in creating Quotation.", //change
           "error"
         );
       });
@@ -2109,7 +2109,7 @@ export default function CreateMaterialOutward(props) {
     e.target.style.pointerEvents = "none"; // Disable pointer events
     e.target.style.opacity = "0.5";
     if (isSaved == 1) {
-      let module = "MaterialOutward";
+      let module = "Quotation";
       axios
         .post(
           `${process.env.REACT_APP_LOCAL_URL}/invoiceidbyno`,
@@ -2124,7 +2124,7 @@ export default function CreateMaterialOutward(props) {
         )
         .then((res) => {
           alert(res.data);
-          window.location.href = "/viewMaterialOutward?invNo=" + res.data; //change
+          window.location.href = "/viewQuotation?invNo=" + res.data; //change
         })
         .catch(() => {
           e.target.style.pointerEvents = ""; // Disable pointer events
@@ -2251,7 +2251,7 @@ export default function CreateMaterialOutward(props) {
                 ? "viewCashInvoice"
                 : invoiceType == process.env.REACT_APP_PROFORMA_INVOICE
                 ? "viewProformaInvoice"
-                : "viewMaterialOutward"
+                : "viewQuotation"
             }?invId=${invNoEdit}`,
             {
               //change
@@ -2480,7 +2480,7 @@ export default function CreateMaterialOutward(props) {
                   <ul className="breadcrumb invoices-breadcrumb">
                     <li className="breadcrumb-item invoices-breadcrumb-item">
                       <a href="invoices.html">
-                        <i className="fa fa-chevron-left"></i> Back to Material Outward
+                        <i className="fa fa-chevron-left"></i> Back to Quotation
                         List
                       </a>
                     </li>
@@ -2502,7 +2502,7 @@ export default function CreateMaterialOutward(props) {
                       data-bs-target="#delete_invoices_details"
                       className="btn delete-invoice-btn"
                     >
-                      Delete Material Outward
+                      Delete Quotation
                     </a>
                     <a
                       href="#"
@@ -2575,12 +2575,12 @@ export default function CreateMaterialOutward(props) {
 
                           <div className="col-xl-5 col-md-6 col-sm-12 col-12">
                             <h4 className="invoice-details-title">
-                            Material Outward details
+                              Quotation details
                             </h4>
                             <div className="invoice-details-box">
                               <div className="invoice-inner-head">
                                 <span className="d-flex align-items-center justify-content-between">
-                                Material Outward No.{" "}
+                                  Quotation No.{" "}
                                   {invoiceMode == "Auto" ? (
                                     <a href="view-invoice.html">
                                       {invoiceNumber}
@@ -2589,7 +2589,7 @@ export default function CreateMaterialOutward(props) {
                                     <input
                                       className="form-control"
                                       type="text"
-                                      placeholder="Enter Material Outward Number"
+                                      placeholder="Enter Quotation Number"
                                       value={invoiceNumber}
                                       onChange={onInvoiceNumberChange}
                                       style={{
@@ -2603,7 +2603,7 @@ export default function CreateMaterialOutward(props) {
                                 </span>
                                 <br />
                                 <span className="d-flex align-items-center justify-content-between">
-                                Material Outward Date.{" "}
+                                  Quotation Date.{" "}
                                   <input
                                     className="form-control datetimepicker"
                                     type="text"
@@ -3450,7 +3450,7 @@ export default function CreateMaterialOutward(props) {
                       class="btn btn-danger"
                       onClick={() => {
                         window.location.href =
-                          "/SalesRegisterMaterialOutward";
+                          "/SalesRegisterQuotation";
                       }}
                       id="submitButton"
                       type="submit"

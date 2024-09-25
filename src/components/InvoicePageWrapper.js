@@ -817,7 +817,7 @@ export default function InvoicePageWrapper(props) {
 
     var a = document.querySelector("#customer option:checked");
     var customerId = a.value;
-
+    debugger;
     var customerName = a.textContent;
 
     var token = localStorage.getItem("token");

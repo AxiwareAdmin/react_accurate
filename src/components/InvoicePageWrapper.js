@@ -2104,7 +2104,7 @@ export default function InvoicePageWrapper(props) {
     let totalIgst = 0;
 
     gstPercentageVal.map((elem) => {
-      if ((clientState = state)) {
+      if ((clientState == state)) {
         totalSgst = roundNum(totalSgst + roundNum(parseFloat(elem) / 2));
         totalCgst = roundNum(totalCgst + roundNum(parseFloat(elem) / 2));
       } else {
@@ -2206,7 +2206,7 @@ export default function InvoicePageWrapper(props) {
             .then((res) => {
               debugger;
               setAlertMsg(null);
-
+              debugger;
               window.location.href = "/viewInvoice?invNo=" + res.data;
             });
           setIsSaved(1);
@@ -2358,7 +2358,7 @@ export default function InvoicePageWrapper(props) {
     let totalIgst = 0;
 
     gstPercentageVal.map((elem) => {
-      if ((clientState = state)) {
+      if ((clientState == state)) {
         totalSgst = roundNum(totalSgst + roundNum(parseFloat(elem) / 2));
         totalCgst = roundNum(totalCgst + roundNum(parseFloat(elem) / 2));
       } else {

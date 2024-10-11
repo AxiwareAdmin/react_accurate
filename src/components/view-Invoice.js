@@ -1347,7 +1347,10 @@ export default function ViewInvoice() {
           </div>
         </div>
 
-        <div class="page-header invoices-page-header">
+        
+      </div>
+
+      <div class="page-header invoices-page-header">
           <div class="row">
             <div class="col-lg-11 col-md-12">
               <a style={{ color: "grey" }} />
@@ -1377,7 +1380,6 @@ export default function ViewInvoice() {
             </div>
           </div>
         </div>
-      </div>
 
       <iframe
         id="ifmcontentstoprint"

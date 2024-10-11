@@ -1060,11 +1060,17 @@ const exportToExcel = async () => {
 		// 	// window.location.href=`/add-invoice?InvNo=${invt}&action=Book&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`
 		//  }
 		 
-		 else if(name == "View" || name == "Print"){
+		 else if(name == "View"){
+			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
+
+			window.location.href=`/viewInvoice?invNo=${invt}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
+		 }
+		 else if(name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
 			window.location.href=`/viewInvoiceTriplet?id=${invt}&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`;
-		 }else if(name == "Delete"){
+		 }
+		 else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteInv?invoiceId=${invt}&invoiceType=${invoiceType}`,header).then((res) => {
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){

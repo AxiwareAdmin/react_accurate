@@ -2175,6 +2175,7 @@ export default function InvoicePageWrapper(props) {
         }
       )
       .then(function (response) {
+        debugger;
         console.log(response);
         if (response != null && response.data.res == "success") {
           // setAlertMsg("Invoice created successfully!!")
@@ -2197,6 +2198,7 @@ export default function InvoicePageWrapper(props) {
               { invoiceNumber, module },
               {
                 //save invoice //change
+                
                 headers: {
                   "Content-Type": "application/json",
                   Authorization: "Bearer " + token,

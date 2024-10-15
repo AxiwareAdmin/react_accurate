@@ -25,6 +25,7 @@ export default function ViewInvoice() {
 
 
   const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+  const [amountInWords,setAmountInWords]=useState("");
 
   useEffect(() => {
     console.log("changing")
@@ -45,6 +46,8 @@ export default function ViewInvoice() {
   const [dueAmt, setdueAmt] = useState(0);
   const [taxable, settaxable] = useState(0);
   const [addChrg, setaddChrg] = useState(0);
+  const [otherCharges,setOtherCharges]=useState(0);
+  const [transportCharges,setTransportCharges]=useState(0);
   const [discount, setdiscount] = useState(0);
   const [total, settotal] = useState(0);
   const [subTotal, setsubTotal] = useState(0);
@@ -208,6 +211,68 @@ export default function ViewInvoice() {
       nWindow.print();
     });
   };
+
+  function convertNumberToWords(number) {
+    const belowTwenty = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+    const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    const thousands = ["", "thousand", "million", "billion"];
+
+    // Helper function to convert numbers below 1000
+    function convertBelowThousand(num) {
+        let result = "";
+
+        if (num >= 100) {
+            result += belowTwenty[Math.floor(num / 100)] + " hundred ";
+            num %= 100;
+        }
+
+        if (num >= 20) {
+            result += tens[Math.floor(num / 10)] + " ";
+            num %= 10;
+        }
+
+        if (num > 0) {
+            result += belowTwenty[num] + " ";
+        }
+
+        return result.trim();
+    }
+
+    // Main conversion logic for thousands and above
+    if (number === 0) return "zero";
+    
+    let wordRepresentation = "";
+    let scaleIndex = 0;
+
+    // Separate the integer and decimal parts
+    const [integerPart, decimalPart] = number.toString().split('.');
+
+    let intNumber = parseInt(integerPart, 10);
+    
+    while (intNumber > 0) {
+        const chunk = intNumber % 1000;
+
+        if (chunk > 0) {
+            const chunkInWords = convertBelowThousand(chunk);
+            wordRepresentation = chunkInWords + (thousands[scaleIndex] ? " " + thousands[scaleIndex] : "") + " " + wordRepresentation;
+        }
+
+        intNumber = Math.floor(intNumber / 1000);
+        scaleIndex++;
+    }
+
+    wordRepresentation = wordRepresentation.trim();  // Remove trailing spaces
+
+    // Handle the decimal part if it exists
+    if (decimalPart) {
+        wordRepresentation += " point ";
+        for (let digit of decimalPart) {
+            wordRepresentation += belowTwenty[parseInt(digit)] + " ";
+        }
+    }
+
+    return wordRepresentation.charAt(0).toUpperCase() + wordRepresentation.slice(1).trim();
+}
 
   function ImageSourcetoPrint(source) {
     return (
@@ -666,12 +731,15 @@ export default function ViewInvoice() {
             res.data.additionalCharges == undefined
               ? 0
               : parseFloat(res.data.additionalCharges);
+
+          setOtherCharges(addchrgs);
           let transportCharge =
             res.data.transportCharges == null ||
             res.data.transportCharges == undefined
               ? 0
               : parseFloat(res.data.transportCharges);
 
+          setTransportCharges(transportCharge);
           setaddChrg(addchrgs + transportCharge);
 
           let discnt =
@@ -907,23 +975,104 @@ export default function ViewInvoice() {
 
   },[custName])
 
+  useEffect(()=>{
+    setAmountInWords(convertNumberToWords(taxable +
+      addChrg -
+      discount +
+      (tempGstPercentageVal.length > 0
+        ? tempGstPercentageVal.reduce((x, y) => x + y)
+        : 0)))
+  },[taxable,addChrg,discount,tempGstPercentageVal])
+
   const invoicepdf = useRef(null);
   // useEffect (() =>{
 
   //   if(initilized.current){
-  const downloadpdf= (invoiceNo) => {
-    html2canvas(invoicepdf.current).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({
-        compress:true
-      });
-      pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
-      pdf.save(invoiceNo + ".pdf");
+  // const downloadpdf= (invoiceNo) => {
+  //   html2canvas(invoicepdf.current).then((canvas) => {
+  //     const imgData = canvas.toDataURL("image/png");
+  //     const pdf = new jsPDF({
+  //       compress:true
+  //     });
+  //     pdf.addImage(imgData, "JPEG", 0, 0, 210, 310);
+  //     pdf.save(invoiceNo + ".pdf");
 
-      //   });
-      // }
+  //     //   });
+  //     // }
+  //   });
+  // };
+
+  const  downloadpdf = () => {
+    const nodeList = document.querySelectorAll(".page-wrapper");
+    setDisplayFlag("true");
+    // Hide signature containers before capturing
+    invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'none');
+
+    const doc = new jsPDF('p', 'mm', 'a4'); // Initialize jsPDF for A4 paper
+    const imgWidth = 210; // A4 page width in mm
+    const pageHeight = 295; // A4 page height in mm
+    const margin = 10; // Margin for the content
+    const contentHeight = pageHeight - margin * 2; // Usable height for content per page
+
+    // Function to add each canvas to PDF
+    const addCanvasToPDF = (canvas, doc, isFirstPage) => {
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let position = 0;
+        let remainingHeight = canvas.height;
+
+        // Loop through canvas height and split into multiple pages if necessary
+        while (remainingHeight > 0) {
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = Math.min(contentHeight * (canvas.width / imgWidth), remainingHeight);
+
+            const ctx = pageCanvas.getContext('2d');
+            ctx.drawImage(
+                canvas,
+                0, position, // Source starting point on the original canvas
+                canvas.width, pageCanvas.height, // Source dimensions
+                0, 0, // Destination starting point on the new canvas
+                canvas.width, pageCanvas.height // Destination dimensions
+            );
+
+            const imgData = pageCanvas.toDataURL('image/png',0.7);
+
+            if (!isFirstPage) {
+                doc.addPage();
+            }
+
+            doc.addImage(imgData, 'PNG', margin, margin, imgWidth - margin * 2, pageCanvas.height * (imgWidth / pageCanvas.width));
+
+            remainingHeight -= pageCanvas.height;
+            position += pageCanvas.height;
+            isFirstPage = false;
+        }
+    };
+
+    // Process each page-wrapper and add to PDF
+    const promises = Array.from(nodeList).map((node, index) => {
+        return html2canvas(node, { scale: 1.2  }).then((canvas) => {
+            addCanvasToPDF(canvas, doc, index === 0);
+        });
     });
-  };
+
+    // After all images are added, save the PDF
+    Promise.all(promises)
+        .then(() => {
+            doc.save('invoice.pdf'); // Download the PDF
+            // setDisplayFlag("false");
+        })
+        .catch((error) => {
+            console.error("Error generating PDF:", error);
+            // setDisplayFlag("false");
+        })
+        .finally(() => {
+            // Show the signature containers again
+            invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'block');
+            setDisplayFlag(null);
+          });
+};
+
 
   const sendMail=  (invoiceNo,custName) => {
     html2canvas(invoicepdf.current).then((canvas) => {
@@ -1278,7 +1427,7 @@ export default function ViewInvoice() {
                         </p>
                       </div>
                       <div>
-                        Amount In Words:
+                        Amount In Words:<strong> {amountInWords}</strong>
                       </div>
                     </div>
                     <div class="col-lg-4 col-md-4">
@@ -1289,7 +1438,10 @@ export default function ViewInvoice() {
                               Taxable <span>&#x20B9;{taxable}</span>
                             </p>
                             <p>
-                              Additional Charges <span>&#x20B9;{addChrg}</span>
+                              Transport Charges <span>&#x20B9;{transportCharges}</span>
+                            </p>
+                            <p>
+                              Other Charges <span>&#x20B9;{otherCharges}</span>
                             </p>
                             <p>
                               Discount <span>&#x20B9;{discount}</span>
@@ -1308,7 +1460,7 @@ export default function ViewInvoice() {
                               <span>
                                 &#x20B9;
                                 {taxable +
-                                  addChrg +
+                                  addChrg -
                                   discount +
                                   (tempGstPercentageVal.length > 0
                                     ? tempGstPercentageVal.reduce((x, y) => x + y)

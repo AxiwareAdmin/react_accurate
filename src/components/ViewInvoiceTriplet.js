@@ -646,7 +646,7 @@ function ViewInvoice(props) {
     
           divElem.appendChild(h4Elem);
   
-          document.querySelector(`.${props.gstContainerId}`).append(divElem);
+          // document.querySelector(`.${props.gstContainerId}`).append(divElem);
   
            divElem=document.createElement("div");
           divElem.className="invoice-total-footer";
@@ -686,6 +686,7 @@ function ViewInvoice(props) {
     
           divElem.appendChild(h4Elem);
   
+          if(document.querySelector(`.${props.gstContainerId}`))
           document.querySelector(`.${props.gstContainerId}`).append(divElem);
   
   
@@ -734,6 +735,7 @@ function ViewInvoice(props) {
     
           divElem.appendChild(h4Elem);
   
+          if(document.querySelector(`.${props.gstContainerId}`))
           document.querySelector(`.${props.gstContainerId}`).append(divElem);
   
           //  divElem=document.createElement("div");

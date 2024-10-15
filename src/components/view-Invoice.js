@@ -976,12 +976,16 @@ export default function ViewInvoice() {
   },[custName])
 
   useEffect(()=>{
-    setAmountInWords(convertNumberToWords(taxable +
-      addChrg -
-      discount +
-      (tempGstPercentageVal.length > 0
-        ? tempGstPercentageVal.reduce((x, y) => x + y)
-        : 0)))
+    setAmountInWords(convertNumberToWords(
+      toCurrency(
+        fromCurrency((taxable +
+  addChrg -
+  discount +
+  (tempGstPercentageVal.length > 0
+    ? tempGstPercentageVal.reduce((x, y) => x + y)
+    : 0)) + "")
+      ).replace(/[\$]/g, "")
+    ))
   },[taxable,addChrg,discount,tempGstPercentageVal])
 
   const invoicepdf = useRef(null);

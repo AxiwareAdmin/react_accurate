@@ -449,12 +449,16 @@ function ViewInvoice(props) {
 
 
     useEffect(()=>{
-      setAmountInWords(convertNumberToWords(taxable +
-        addChrg -
-        discount +
-        (tempGstPercentageVal.length > 0
-          ? tempGstPercentageVal.reduce((x, y) => x + y)
-          : 0)))
+      setAmountInWords(convertNumberToWords(
+        toCurrency(
+          fromCurrency((taxable +
+    addChrg -
+    discount +
+    (tempGstPercentageVal.length > 0
+      ? tempGstPercentageVal.reduce((x, y) => x + y)
+      : 0)) + "")
+        ).replace(/[\$]/g, "")
+      ))
     },[taxable,addChrg,discount,tempGstPercentageVal])
   
     function formatDate(date) {
@@ -1533,7 +1537,7 @@ function ViewInvoice(props) {
                               </span>
                             </p>
                           </div>
-                          <div className="gstContainer"></div>
+                          <div className={props.gstContainerId}></div>
                           <div class="invoice-total-footer">
                             <h4>
                               Total Amount{" "}

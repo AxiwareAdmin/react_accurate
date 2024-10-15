@@ -1502,44 +1502,53 @@ function ViewInvoice(props) {
                         <div class="invoice-total-card">
                           <div class="invoice-total-box">
                             <div class="invoice-total-inner">
-                              <p>
-                                Taxable <span>&#x20B9;{taxable}</span>
-                              </p>
                             <p>
-                              Transport Charges <span>&#x20B9;{transportCharges}</span>
+                              Taxable <span>&#x20B9;{toCurrency(
+                                        fromCurrency(taxable + "")
+                                      ).replace(/[\$]/g, "")}</span>
                             </p>
                             <p>
-                              Other Charges <span>&#x20B9;{otherCharges}</span>
+                              Transport Charges <span>&#x20B9;{toCurrency(
+                                        fromCurrency(transportCharges + "")
+                                      ).replace(/[\$]/g, "")}</span>
                             </p>
-                              <p>
-                                Discount <span>&#x20B9;{discount}</span>
-                              </p>
-                              <p class="mb-0">
-                                Sub total{" "}
-                                <span>
-                                  &#x20B9;{taxable + addChrg - discount}
-                                </span>
-                              </p>
-                            </div>
-                            <div className={props.gstContainerId}></div>
-                            <div class="invoice-total-footer">
-                              <h4>
-                                Total Amount{" "}
-                                <span>
-                                  &#x20B9;
-                                  {currencyFormat(taxable +
-                                    addChrg -
-                                    discount +
-                                    (tempGstPercentageVal.length > 0
-                                      ? tempGstPercentageVal.reduce((x, y) => x + y)
-                                      : 0)
-                                    )
-                                    }
-                                      
-                                </span>
-                              </h4>
-                            </div>
+                            <p>
+                              Other Charges <span>&#x20B9;{toCurrency(
+                                        fromCurrency(otherCharges + "")
+                                      ).replace(/[\$]/g, "")}</span>
+                            </p>
+                            <p>
+                              Discount <span>&#x20B9;{toCurrency(
+                                        fromCurrency(discount + "")
+                                      ).replace(/[\$]/g, "")}</span>
+                            </p>
+                            <p class="mb-0">
+                              Sub total{" "}
+                              <span>
+                                &#x20B9;{toCurrency(
+                                        fromCurrency((taxable + addChrg + discount) + "")
+                                      ).replace(/[\$]/g, "")}
+                              </span>
+                            </p>
                           </div>
+                          <div className="gstContainer"></div>
+                          <div class="invoice-total-footer">
+                            <h4>
+                              Total Amount{" "}
+                              <span>
+                                &#x20B9;
+                                { toCurrency(
+                                        fromCurrency((taxable +
+                                  addChrg -
+                                  discount +
+                                  (tempGstPercentageVal.length > 0
+                                    ? tempGstPercentageVal.reduce((x, y) => x + y)
+                                    : 0)) + "")
+                                      ).replace(/[\$]/g, "")}
+                              </span>
+                            </h4>
+                          </div>
+                        </div>
                         </div>
                       </div>
                     </div>

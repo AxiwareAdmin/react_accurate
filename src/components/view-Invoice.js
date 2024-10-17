@@ -249,6 +249,7 @@ export default function ViewInvoice() {
 
     let intNumber = parseInt(integerPart, 10);
     
+    // Process the integer part
     while (intNumber > 0) {
         const chunk = intNumber % 1000;
 
@@ -265,14 +266,13 @@ export default function ViewInvoice() {
 
     // Handle the decimal part if it exists
     if (decimalPart) {
-        wordRepresentation += " point ";
-        for (let digit of decimalPart) {
-            wordRepresentation += belowTwenty[parseInt(digit)] + " ";
-        }
+        const decimalNumber = parseInt(decimalPart, 10); // Convert decimal part to an integer
+        wordRepresentation += " point " + convertBelowThousand(decimalNumber);
     }
 
     return wordRepresentation.charAt(0).toUpperCase() + wordRepresentation.slice(1).trim();
 }
+
 
   function ImageSourcetoPrint(source) {
     return (
@@ -647,8 +647,10 @@ export default function ViewInvoice() {
 
           setinvNo(res.data.invoiceNo);
 
+          if(res.data.invoiceDate)
           setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
 
+          if(res.data.poDate)
           setPoDate(getFormattedDate(new Date(res.data.poDate)));
 
           setServiceCheck(res.data.serviceCheck);
@@ -976,16 +978,22 @@ export default function ViewInvoice() {
   },[custName])
 
   useEffect(()=>{
-    setAmountInWords(convertNumberToWords(
-      toCurrency(
-        fromCurrency((taxable +
-  addChrg -
-  discount +
-  (tempGstPercentageVal.length > 0
-    ? tempGstPercentageVal.reduce((x, y) => x + y)
-    : 0)) + "")
-      ).replace(/[\$]/g, "")
-    ))
+    let tempVal=toCurrency(
+      fromCurrency((taxable +
+addChrg -
+discount +
+(tempGstPercentageVal.length > 0
+  ? tempGstPercentageVal.reduce((x, y) => x + y)
+  : 0)) + "")
+    ).replace(/[\$,]/g, "").split(".");
+
+    let amountInWord=convertNumberToWords(parseInt(tempVal[0]));
+
+    if(tempVal[1] && parseInt(tempVal[1])>0){
+      amountInWord+=" point "+convertNumberToWords(parseInt(tempVal[1]));
+    }
+
+    setAmountInWords(amountInWord)
   },[taxable,addChrg,discount,tempGstPercentageVal])
 
   const invoicepdf = useRef(null);

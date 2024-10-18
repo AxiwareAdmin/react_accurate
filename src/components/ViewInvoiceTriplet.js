@@ -1509,7 +1509,7 @@ function ViewInvoice(props) {
                           </p>
                         </div>
                         <div>
-                          Amount In Words: <strong> {amountInWords}</strong>
+                          Amount In Words: <strong>&#x20B9; {amountInWords} only</strong>
                         </div>
                       </div>
                       <div class="col-lg-4 col-md-4">

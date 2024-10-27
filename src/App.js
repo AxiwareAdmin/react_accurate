@@ -69,18 +69,18 @@ import ViewMaterialOutward from "./components/MaterialOutward/ViewMaterialOutwar
 import ViewMaterialOutwardTriplet from "./components/MaterialOutward/ViewMaterialOutwardTripletNew";
 
 
-import CreateDebitNote from "./components/DebitNote/CreateDebitNote";
-import SalesRegisterDebitNote from "./components/DebitNote/SalesRegister";
-import DebitNoteList from "./components/DebitNote/DebitNoteList";
-import ViewDebitNote from "./components/DebitNote/viewDebitNote";
-import ViewDebitNoteTriplet from "./components/DebitNote/ViewDebitNoteTriplet";
+import CreateDebitNote from "./components/DebitNote/CreateDebitNoteNew";
+import SalesRegisterDebitNote from "./components/DebitNote/SalesRegisterNew";
+import DebitNoteList from "./components/DebitNote/DebitNoteListNew";
+import ViewDebitNote from "./components/DebitNote/ViewDebitNoteNew";
+import ViewDebitNoteTriplet from "./components/DebitNote/ViewDebitNoteTripletNew";
 
 
-import CreateCreditNote from "./components/CreditNote/CreateCreditNote";
-import SalesRegisterCreditNote from "./components/CreditNote/SalesRegister";
-import CreditNoteList from "./components/CreditNote/CreditNoteList";
-import ViewCreditNote from "./components/CreditNote/ViewCreditNote";
-import ViewCreditNoteTriplet from "./components/CreditNote/ViewCreditNoteTriplet";
+import CreateCreditNote from "./components/CreditNote/CreateCreditNoteNew";
+import SalesRegisterCreditNote from "./components/CreditNote/SalesRegisterNew";
+import CreditNoteList from "./components/CreditNote/CreditNoteListNew";
+import ViewCreditNote from "./components/CreditNote/ViewCreditNoteNew";
+import ViewCreditNoteTriplet from "./components/CreditNote/ViewCreditNoteTripletNew";
 import Landing from "./components/Landing";
 import Dashboard from "./components/Dashboard/Dashboard";
 import GeneralSettings from "./components/Profile/GeneralSettings";

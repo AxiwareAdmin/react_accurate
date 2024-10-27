@@ -985,7 +985,7 @@ discount +
   // useEffect (() =>{
 
   //   if(initilized.current){
-  const  downloadpdf = () => {
+  const  downloadpdf = (invoiceNumber) => {
     const nodeList = document.querySelectorAll(".page-wrapper");
     setDisplayFlag("true");
     // Hide signature containers before capturing
@@ -1042,7 +1042,7 @@ discount +
     // After all images are added, save the PDF
     Promise.all(promises)
         .then(() => {
-            doc.save('invoice.pdf'); // Download the PDF
+            doc.save(`${invoiceNumber}.pdf`);; // Download the PDF
             // setDisplayFlag("false");
         })
         .catch((error) => {

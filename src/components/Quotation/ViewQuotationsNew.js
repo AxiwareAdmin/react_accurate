@@ -94,24 +94,7 @@ export default function ViewQuotation() {
     setInvoiceType(newInvoiceType);
   }, [location.search]);
 
-  useEffect(()=>{
-    let tempVal=toCurrency(
-      fromCurrency((taxable +
-addChrg -
-discount +
-(tempGstPercentageVal.length > 0
-  ? tempGstPercentageVal.reduce((x, y) => x + y)
-  : 0)) + "")
-    ).replace(/[\$,]/g, "").split(".");
 
-    let amountInWord=convertNumberToWords(parseInt(tempVal[0]));
-
-    if(tempVal[1] && parseInt(tempVal[1])>0){
-      amountInWord+=" point "+convertNumberToWords(parseInt(tempVal[1]));
-    }
-
-    setAmountInWords(amountInWord)
-  },[taxable,addChrg,discount,tempGstPercentageVal])
   const navigate=useNavigate();
   const[tempGstPercentageVal,setTempGstPercentageVal] =useState([])
   const [amountInWords,setAmountInWords]=useState("");
@@ -984,11 +967,31 @@ discount +
 
   },[custName])
 
+
+  useEffect(()=>{
+    let tempVal=toCurrency(
+      fromCurrency((taxable +
+addChrg -
+discount +
+(tempGstPercentageVal.length > 0
+  ? tempGstPercentageVal.reduce((x, y) => x + y)
+  : 0)) + "")
+    ).replace(/[\$,]/g, "").split(".");
+
+    let amountInWord=convertNumberToWords(parseInt(tempVal[0]));
+
+    if(tempVal[1] && parseInt(tempVal[1])>0){
+      amountInWord+=" point "+convertNumberToWords(parseInt(tempVal[1]));
+    }
+
+    setAmountInWords(amountInWord)
+  },[taxable,addChrg,discount,tempGstPercentageVal])
+
   const invoicepdf = useRef(null);
   // useEffect (() =>{
 
   //   if(initilized.current){
-  const  downloadpdf = () => {
+  const  downloadpdf = (invoiceNumber) => {
     const nodeList = document.querySelectorAll(".page-wrapper");
     setDisplayFlag("true");
     // Hide signature containers before capturing
@@ -1045,7 +1048,7 @@ discount +
     // After all images are added, save the PDF
     Promise.all(promises)
         .then(() => {
-            doc.save('invoice.pdf'); // Download the PDF
+            doc.save(`${invoiceNumber}.pdf`);; // Download the PDF
             // setDisplayFlag("false");
         })
         .catch((error) => {

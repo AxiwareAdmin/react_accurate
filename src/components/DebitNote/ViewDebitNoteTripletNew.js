@@ -102,7 +102,7 @@ const  downloadpdf = () => {
     // After all images are added, save the PDF
     Promise.all(promises)
         .then(() => {
-            doc.save('invoice.pdf'); // Download the PDF
+            doc.save(`${invoiceNumber}.pdf`);; // Download the PDF
             // setDisplayFlag("false");
         })
         .catch((error) => {
@@ -274,11 +274,16 @@ function convertNumberToWords(number) {
         <Sidebar />
         <Loader display={displayFlag}/>
     <div ref={invoicepdf}>
-      
+    <div className="page-break">
       <ViewInvoice invoiceType={fetchInvoiceType()} id={fetchId()} setInvoiceNumber={setInvoiceNumber} productTableId="productTable1" gstContainerId="gstContainer1" label="Original"/>
+      </div>
+      <div className="page-break">
       <ViewInvoice invoiceType={fetchInvoiceType()} id={fetchId()} productTableId="productTable2" gstContainerId="gstContainer2" label="Duplicate"/>
+      </div>
+      <div className="page-break">
       <ViewInvoice invoiceType={fetchInvoiceType()} id={fetchId()} productTableId="productTable3" gstContainerId="gstContainer3" label="Tripicate"/>
       </div>
+    </div>
       <div class="page-header invoices-page-header">
             <div class="row">
               <div class="col-lg-11 col-md-12">

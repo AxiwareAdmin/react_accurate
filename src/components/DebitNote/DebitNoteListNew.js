@@ -1038,12 +1038,19 @@ const exportToExcel = async () => {
 			
 		// 	// window.location.href=`/add-invoice?InvNo=${invt}&action=Book&${process.env.REACT_APP_INVOICE_TYPE}=${invoiceType}`
 		//  }
-		 
-		 else if(name == "View" || name == "Print"){
+
+		 else if(name == "View"){
+			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
+
+			window.location.href=`/ViewDebitNote?invNo=${invt}`;
+		 }
+		 else if(name == "Print"){
 			// navigate("/viewInvoiceTriplet?id="+invt,{state:{invoiceType:'GST'}});
 
 			window.location.href=`/ViewDebitNoteTriplet?id=${invt}`;
-		 }else if(name == "Delete"){
+		 }
+		 
+		 else if(name == "Delete"){
 			axios.get(`${process.env.REACT_APP_LOCAL_URL}/deleteDebitNote?QuoId=${invt}`,header).then((res) => {//change
 		    console.log(res.data);
 			if(res!=null && res.data.res=='sucess'){

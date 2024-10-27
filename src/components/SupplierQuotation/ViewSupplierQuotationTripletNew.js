@@ -44,132 +44,154 @@ export default function ViewSupplierQuotationTriplet() {
     
     
 
-    const downloadpdf = () => {
-      const { clientWidth, clientHeight } = invoicepdf.current;
-      // 
-  
-      var nodeList=document.querySelectorAll(".page-wrapper");
-      for(let i=0;i<nodeList.length;i++){
-          nodeList[i].style='margin:0;'
-      }
-      setDisplayFlag("true");
-      html2canvas(invoicepdf.current).then((canvas) => {
-        var imgData = canvas.toDataURL('image/png');
+const  downloadpdf = () => {
+    const nodeList = document.querySelectorAll(".page-wrapper");
+    setDisplayFlag("true");
+    // Hide signature containers before capturing
+    invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'none');
 
-        /*
-        Here are the numbers (paper width and height) that I found to work. 
-        It still creates a little overlap part between the pages, but good enough for me.
-        if you can find an official number from jsPDF, use them.
-        */
-        var imgWidth = 210; 
-        var pageHeight = 295;  
-        var imgHeight = canvas.height * imgWidth / canvas.width;
-        var heightLeft = imgHeight;
-  
-        var doc = new jsPDF('p', 'mm',null,true);
-        var position = 0;
-  
-        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-  
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          doc.addPage();
-          doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+    const doc = new jsPDF('p', 'mm', 'a4'); // Initialize jsPDF for A4 paper
+    const imgWidth = 210; // A4 page width in mm
+    const pageHeight = 295; // A4 page height in mm
+    const margin = 10; // Margin for the content
+    const contentHeight = pageHeight - margin * 2; // Usable height for content per page
+
+    // Function to add each canvas to PDF
+    const addCanvasToPDF = (canvas, doc, isFirstPage) => {
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let position = 0;
+        let remainingHeight = canvas.height;
+
+        // Loop through canvas height and split into multiple pages if necessary
+        while (remainingHeight > 0) {
+            const pageCanvas = document.createElement('canvas');
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = Math.min(contentHeight * (canvas.width / imgWidth), remainingHeight);
+
+            const ctx = pageCanvas.getContext('2d');
+            ctx.drawImage(
+                canvas,
+                0, position, // Source starting point on the original canvas
+                canvas.width, pageCanvas.height, // Source dimensions
+                0, 0, // Destination starting point on the new canvas
+                canvas.width, pageCanvas.height // Destination dimensions
+            );
+
+            const imgData = pageCanvas.toDataURL('image/png',0.7);
+
+            if (!isFirstPage) {
+                doc.addPage();
+            }
+
+            doc.addImage(imgData, 'PNG', margin, margin, imgWidth - margin * 2, pageCanvas.height * (imgWidth / pageCanvas.width));
+
+            remainingHeight -= pageCanvas.height;
+            position += pageCanvas.height;
+            isFirstPage = false;
         }
-        doc.save(`${invoiceNumber}.pdf`);﻿
+    };
 
-        
-        setDisplayFlag(null)
-      });
-
-  nodeList.forEach(elem=>elem.style='margin-left:230px')
-  }
-
-    const printButtonClicked = (e) => {
-        var nodeList=document.querySelectorAll(".page-wrapper");
-        for(let i=0;i<nodeList.length;i++){
-            nodeList[i].style='margin:0;'
-        }
-        console.log(invoicepdf.current)
-
-        invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem=>elem.style.display='none');
-        // 
-        html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
-          const imgData = canvas.toDataURL('image/png');
-
-          // 
-          
-          const printWindow = window.open('', '_blank');
-          printWindow.document.open();
-          printWindow.document.write('<html><head><title>Print</title>\
-          <style>\
-                @media print {\
-                  body {\
-                    margin: 0; /* Reset margin to avoid blank page */\
-                  }\
-                  body * {\
-                    visibility: hidden;\
-                  }\
-                  #printImage, #printImage * {\
-                    visibility: visible;\
-                  }\
-                }\
-              </style>\
-          \
-          </head><body>');
-          printWindow.document.write(`<img id="printImage" src="${imgData}" style="width: 100%; height: auto;" onload="window.print()" />`);
-          printWindow.document.write('</body></html>');
-          printWindow.document.close();
-          // printWindow.print();
+    // Process each page-wrapper and add to PDF
+    const promises = Array.from(nodeList).map((node, index) => {
+        return html2canvas(node, { scale: 1.2  }).then((canvas) => {
+            addCanvasToPDF(canvas, doc, index === 0);
         });
-    
-        nodeList.forEach(elem=>elem.style='margin-left:230px')
-          invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem=>elem.style.display='block');
-        // html2canvas(data) // useCORS is optional if your images are externally hosted somewhere like s3
-        // .then(canvas => {
-        //   const contentDataURL = canvas.toDataURL('image/png')
-        //   let pdf = new jsPDF('p', 'mm',[canvas.width,canvas.height]);
-        //   var pdfWidth = pdf.internal.pageSize.getWidth();
-        //   var pdfHeight = pdf.internal.pageSize.getHeight();
-        //   pdf.addImage(contentDataURL, 'PNG', 0, 5,pdfWidth, pdfHeight);
-        //   //  pdf.save('new-file.pdf');
-        //   window.open(pdf.output('bloburl', { filename: 'new-file.pdf' }), '_blank');
-        // });
+    });
 
+    // After all images are added, save the PDF
+    Promise.all(promises)
+        .then(() => {
+            doc.save('invoice.pdf'); // Download the PDF
+            // setDisplayFlag("false");
+        })
+        .catch((error) => {
+            console.error("Error generating PDF:", error);
+            // setDisplayFlag("false");
+        })
+        .finally(() => {
+            // Show the signature containers again
+            invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'block');
+            setDisplayFlag(null);
+          });
+};
 
-        // html2canvas(invoicepdf.current,{scrollY: -window.screenY,scale:1}).then((canvas) => {
-        //   const myImage = canvas.toDataURL("image/png");
-    
-        //   var nWindow = window.open("");
+  const printButtonClicked = (e) => {
+    const nodeList = document.querySelectorAll(".page-wrapper");
 
-        //   const pdf=new jsPDF(
-        //     'p',
-        //     'pt',
-        //     [canvas.width,canvas.height]
-        //   )
+    // Hide signature containers before capturing
+    invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'none');
 
-        //   const imgProps=pdf.getImageProperties(myImage);
-        //   const pdfWidth=pdf.internal.pageSize.getWidth();
-        //   const pdfHeight=pdf.internal.pageSize.getHeight();
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.open();
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Print</title>
+                <style>
+                    @media print {
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            width: 100%;
+                            height: auto; /* Adjust height to content */
+                            overflow: visible !important;
+                        }
+                        .page-break {
+                            page-break-after: always; /* Ensures each invoice is on a new page */
+                            display: block;
+                            width: 100%;
+                        }
+                        body * {
+                            visibility: hidden; /* Hide everything else */
+                        }
+                        .print-image {
+                            visibility: visible; /* Show only the pages we want to print */
+                            width: 100%;
+                            height: auto;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+    `);
 
-        //   pdf.addImage(myImage,'PNG',pdfWidth,pdfHeight);
+    // Capture each invoice in the nodeList
+    const promises = Array.from(nodeList).map((node) => {
+        return html2canvas(node, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            printWindow.document.write(`
+                <div class="page-break">
+                    <img class="print-image" src="${imgData}" />
+                </div>
+            `);
+        });
+    });
 
-          
+    // After all promises are resolved, finalize the print window
+    Promise.all(promises)
+        .then(() => {
+            printWindow.document.write('</body></html>');
+            printWindow.document.close(); // Close the document to finish loading
+            
+            // Wait for the window to load before printing
+            printWindow.onload = () => {
+                // Use setTimeout to ensure the print dialog opens after rendering
+                setTimeout(() => {
+                    printWindow.print(); // Trigger print
+                    printWindow.close(); // Close the print window after printing
+                }, 100); // Delay for images to fully load
+            };
+        })
+        .catch((error) => {
+            console.error("Error capturing the invoices:", error);
+        })
+        .finally(() => {
+            // Show the signatures again
+            invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'block');
+        });
+};
 
-          
-    
-        //   // append the canvas to the body
-        //   nWindow.open(pdf.output('bloburl',{filename:'new.pdf'}),'_blank');
-    
-        //   // focus on the window
-        //   // nWindow.focus();
-    
-        //   // print the window
-        //   // nWindow.print();
-        // });
-      };
     const fetchId=()=>{
         var url = new URL(window.location.href);
       let id1 = url.searchParams.get("id");
@@ -255,6 +277,7 @@ function ViewInvoice(props) {
 
   
   const[tempGstPercentageVal,setTempGstPercentageVal] =useState([])
+  const [amountInWords,setAmountInWords]=useState("");
     const [invNo, setinvNo] = useState(null);
     const [compName, setcmpName] = useState("Shivansh infotech");
     const [fromAddr, setfromAddr] = useState("");
@@ -301,6 +324,85 @@ function ViewInvoice(props) {
   
     const initilized = useRef(false);
 
+    function convertNumberToWords(number) {
+      const belowTwenty = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+      const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+      const thousands = ["", "thousand", "million", "billion"];
+    
+      // Helper function to convert numbers below 1000
+      function convertBelowThousand(num) {
+          let result = "";
+    
+          if (num >= 100) {
+              result += belowTwenty[Math.floor(num / 100)] + " hundred ";
+              num %= 100;
+          }
+    
+          if (num >= 20) {
+              result += tens[Math.floor(num / 10)] + " ";
+              num %= 10;
+          }
+    
+          if (num > 0) {
+              result += belowTwenty[num] + " ";
+          }
+    
+          return result.trim();
+      }
+    
+      // Main conversion logic for thousands and above
+      if (number === 0) return "zero";
+      
+      let wordRepresentation = "";
+      let scaleIndex = 0;
+    
+      // Separate the integer and decimal parts
+      const [integerPart, decimalPart] = number.toString().split('.');
+    
+      let intNumber = parseInt(integerPart, 10);
+      
+      // Process the integer part
+      while (intNumber > 0) {
+          const chunk = intNumber % 1000;
+    
+          if (chunk > 0) {
+              const chunkInWords = convertBelowThousand(chunk);
+              wordRepresentation = chunkInWords + (thousands[scaleIndex] ? " " + thousands[scaleIndex] : "") + " " + wordRepresentation;
+          }
+    
+          intNumber = Math.floor(intNumber / 1000);
+          scaleIndex++;
+      }
+    
+      wordRepresentation = wordRepresentation.trim();  // Remove trailing spaces
+    
+      // Handle the decimal part if it exists
+      if (decimalPart) {
+          const decimalNumber = parseInt(decimalPart, 10); // Convert decimal part to an integer
+          wordRepresentation += " point " + convertBelowThousand(decimalNumber);
+      }
+    
+      return wordRepresentation.charAt(0).toUpperCase() + wordRepresentation.slice(1).trim();
+    }
+
+    useEffect(()=>{
+      let tempVal=toCurrency(
+        fromCurrency((taxable +
+  addChrg -
+  discount +
+  (tempGstPercentageVal.length > 0
+    ? tempGstPercentageVal.reduce((x, y) => x + y)
+    : 0)) + "")
+      ).replace(/[\$,]/g, "").split(".");
+  
+      let amountInWord=convertNumberToWords(parseInt(tempVal[0]));
+  
+      if(tempVal[1] && parseInt(tempVal[1])>0){
+        amountInWord+=" point "+convertNumberToWords(parseInt(tempVal[1]));
+      }
+  
+      setAmountInWords(amountInWord)
+    },[taxable,addChrg,discount,tempGstPercentageVal])
 
     useEffect(()=>{
       console.log("useEffect gst % val");
@@ -1346,7 +1448,7 @@ function ViewInvoice(props) {
                           </p>
                         </div>
                         <div>
-                          Amount In Words:
+                          Amount In Words: <strong>Rupees {amountInWords} only</strong>
                         </div>
                       </div>
                       <div class="col-lg-4 col-md-4">

@@ -96,122 +96,84 @@ export default function ViewInvoice() {
   }
 
   const printButtonClicked = (e) => {
-    // var nodeList=document.querySelectorAll(".page-wrapper");
-    // for(let i=0;i<nodeList.length;i++){
-    //     nodeList[i].style='margin:0;'
-    // }
-    console.log(invoicepdf.current)
-    invoicepdf.current.querySelector("#signatureContainer").style.display='none'
-    debugger;
-    html2canvas(invoicepdf.current, { scale: 2 }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
+    const nodeList = document.querySelectorAll(".page-wrapper");
 
-      invoicepdf.current.querySelector("#signatureContainer").style.display='block'
-      
-      const printWindow = window.open('', '_blank');
-      printWindow.document.open();
-      
-      printWindow.document.write('<html><head><title>Print</title>\
-      <style>\
-            @media print {\
-              body {\
-                margin: 0; /* Reset margin to avoid blank page */\
-              }\
-              body * {\
-                visibility: hidden;\
-              }\
-              #printImage, #printImage * {\
-                visibility: visible;\
-              }\
-            }\
-          </style>\
-      \
-      </head><body>');
-      printWindow.document.write(`<img id="printImage" src="${imgData}" style="width: 100%; height: auto;" onload="window.print()" />`);
-      printWindow.document.write('</body></html>');
-      printWindow.document.close();
-      // printWindow.print();
+    // Hide signature containers before capturing
+    invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'none');
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.open();
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Print</title>
+                <style>
+                    @media print {
+                        body {
+                            margin: 0;
+                            padding: 0;
+                            width: 100%;
+                            height: auto; /* Adjust height to content */
+                            overflow: visible !important;
+                        }
+                        .page-break {
+                            page-break-after: always; /* Ensures each invoice is on a new page */
+                            display: block;
+                            width: 100%;
+                        }
+                        body * {
+                            visibility: hidden; /* Hide everything else */
+                        }
+                        .print-image {
+                            visibility: visible; /* Show only the pages we want to print */
+                            width: 100%;
+                            height: auto;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+    `);
+
+    // Capture each invoice in the nodeList
+    const promises = Array.from(nodeList).map((node) => {
+        return html2canvas(node, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL('image/png');
+            printWindow.document.write(`
+                <div class="page-break">
+                    <img class="print-image" src="${imgData}" />
+                </div>
+            `);
+        });
     });
 
-    // html2canvas(data) // useCORS is optional if your images are externally hosted somewhere like s3
-    // .then(canvas => {
-    //   const contentDataURL = canvas.toDataURL('image/png')
-    //   let pdf = new jsPDF('p', 'mm',[canvas.width,canvas.height]);
-    //   var pdfWidth = pdf.internal.pageSize.getWidth();
-    //   var pdfHeight = pdf.internal.pageSize.getHeight();
-    //   pdf.addImage(contentDataURL, 'PNG', 0, 5,pdfWidth, pdfHeight);
-    //   //  pdf.save('new-file.pdf');
-    //   window.open(pdf.output('bloburl', { filename: 'new-file.pdf' }), '_blank');
-    // });
+    // After all promises are resolved, finalize the print window
+    Promise.all(promises)
+        .then(() => {
+            printWindow.document.write('</body></html>');
+            printWindow.document.close(); // Close the document to finish loading
+            
+            // Wait for the window to load before printing
+            printWindow.onload = () => {
+                // Use setTimeout to ensure the print dialog opens after rendering
+                setTimeout(() => {
+                    printWindow.print(); // Trigger print
+                    printWindow.close(); // Close the print window after printing
+                }, 100); // Delay for images to fully load
+            };
+        })
+        .catch((error) => {
+            console.error("Error capturing the invoices:", error);
+        })
+        .finally(() => {
+            // Show the signatures again
+            invoicepdf.current.querySelectorAll(".signatureContainer").forEach(elem => elem.style.display = 'block');
+        });
+};
 
 
-    // html2canvas(invoicepdf.current,{scrollY: -window.screenY,scale:1}).then((canvas) => {
-    //   const myImage = canvas.toDataURL("image/png");
-
-    //   var nWindow = window.open("");
-
-    //   const pdf=new jsPDF(
-    //     'p',
-    //     'pt',
-    //     [canvas.width,canvas.height]
-    //   )
-
-    //   const imgProps=pdf.getImageProperties(myImage);
-    //   const pdfWidth=pdf.internal.pageSize.getWidth();
-    //   const pdfHeight=pdf.internal.pageSize.getHeight();
-
-    //   pdf.addImage(myImage,'PNG',pdfWidth,pdfHeight);
-
-      
-
-      
-
-    //   // append the canvas to the body
-    //   nWindow.open(pdf.output('bloburl',{filename:'new.pdf'}),'_blank');
-
-    //   // focus on the window
-    //   // nWindow.focus();
-
-    //   // print the window
-    //   // nWindow.print();
-    // });
-  };
-
-  const printButtonClickedOld = (e) => {
-    // var content = document.getElementsByClassName("page-wrapper")[0];
-    // var pri = document.getElementById("ifmcontentstoprint").contentWindow;
-    // pri.document.open();
-    // pri.document.write(content.innerHTML);
-    // pri.document.close();
-    // pri.focus();
-    // pri.print();
-
-    // var panel = document.getElementsByClassName("page-wrapper")[0];
-    // var printWindow = window.open();
-
-    // printWindow.document.write(panel.innerHTML);
-
-    // printWindow.document.close();
-    // setTimeout(function () {
-    //     printWindow.print();
-    // }, 500);
-
-    html2canvas(invoicepdf.current).then((canvas) => {
-      const myImage = canvas.toDataURL("image/png");
-
-      var nWindow = window.open("");
-
-      // append the canvas to the body
-      nWindow.document.body.appendChild(canvas);
-
-      // focus on the window
-      nWindow.focus();
-
-      // print the window
-      nWindow.print();
-    });
-  };
-
+  
   function convertNumberToWords(number) {
     const belowTwenty = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
     const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];

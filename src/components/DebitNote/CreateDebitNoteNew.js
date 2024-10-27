@@ -1885,7 +1885,7 @@ export default function CreateDebitNote(props) {
     let totalIgst = 0;
 
     gstPercentageVal.map((elem) => {
-      if ((clientState = state)) {
+      if ((clientState == state)) {
         totalSgst = roundNum(totalSgst + roundNum(parseFloat(elem) / 2));
         totalCgst = roundNum(totalCgst + roundNum(parseFloat(elem) / 2));
       } else {
@@ -2140,7 +2140,7 @@ export default function CreateDebitNote(props) {
     let totalIgst = 0;
 
     gstPercentageVal.map((elem) => {
-      if ((clientState = state)) {
+      if ((clientState == state)) {
         totalSgst = roundNum(totalSgst + roundNum(parseFloat(elem) / 2));
         totalCgst = roundNum(totalCgst + roundNum(parseFloat(elem) / 2));
       } else {

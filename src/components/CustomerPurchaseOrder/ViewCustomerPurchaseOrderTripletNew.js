@@ -346,6 +346,8 @@ function ViewInvoice(props) {
 
   
   const[tempGstPercentageVal,setTempGstPercentageVal] =useState([])
+  const [otherCharges,setOtherCharges]=useState(0);
+  const [transportCharges,setTransportCharges]=useState(0);
     const [invNo, setinvNo] = useState(null);
     const [amountInWords,setAmountInWords]=useState("");
     const [compName, setcmpName] = useState("Shivansh infotech");
@@ -836,8 +838,10 @@ function ViewInvoice(props) {
 
             props.setInvoiceNumber && props.setInvoiceNumber(res.data.invoiceNo)
   
+            if(res.data.invoiceDate)
             setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
   
+            if(res.data.poDate)
             setPoDate(getFormattedDate(new Date(res.data.poDate)));
   
             debugger;
@@ -919,12 +923,15 @@ function ViewInvoice(props) {
               res.data.additionalCharges == undefined
                 ? 0
                 : parseFloat(res.data.additionalCharges);
+
+                setOtherCharges(addchrgs);
             let transportCharge =
               res.data.transportCharges == null ||
               res.data.transportCharges == undefined
                 ? 0
                 : parseFloat(res.data.transportCharges);
   
+                setTransportCharges(transportCharge);
             setaddChrg(addchrgs + transportCharge);
   
             let discnt =
@@ -1461,41 +1468,53 @@ function ViewInvoice(props) {
                       <div class="col-lg-4 col-md-4">
                         <div class="invoice-total-card">
                           <div class="invoice-total-box">
-                            <div class="invoice-total-inner">
-                              <p>
-                                Taxable <span>&#x20B9;{taxable}</span>
-                              </p>
-                              <p>
-                                Additional Charges <span>&#x20B9;{addChrg}</span>
-                              </p>
-                              <p>
-                                Discount <span>&#x20B9;{discount}</span>
-                              </p>
-                              <p class="mb-0">
-                                Sub total{" "}
-                                <span>
-                                  &#x20B9;{taxable + addChrg - discount}
-                                </span>
-                              </p>
-                            </div>
-                            <div className={props.gstContainerId}></div>
-                            <div class="invoice-total-footer">
-                              <h4>
-                                Total Amount{" "}
-                                <span>
-                                  &#x20B9;
-                                  {currencyFormat(taxable +
-                                    addChrg -
-                                    discount +
-                                    (tempGstPercentageVal.length > 0
-                                      ? tempGstPercentageVal.reduce((x, y) => x + y)
-                                      : 0)
-                                    )
-                                    }
-                                      
-                                </span>
-                              </h4>
-                            </div>
+                          <div class="invoice-total-inner">
+                            <p>
+                              Taxable <span>&#x20B9;{toCurrency(
+                                        fromCurrency(taxable + "")
+                                      ).replace(/[\$]/g, "")}</span>
+                            </p>
+                            <p>
+                              Transport Charges <span>&#x20B9;{toCurrency(
+                                        fromCurrency(transportCharges + "")
+                                      ).replace(/[\$]/g, "")}</span>
+                            </p>
+                            <p>
+                              Other Charges <span>&#x20B9;{toCurrency(
+                                        fromCurrency(otherCharges + "")
+                                      ).replace(/[\$]/g, "")}</span>
+                            </p>
+                            <p>
+                              Discount <span>&#x20B9;{toCurrency(
+                                        fromCurrency(discount + "")
+                                      ).replace(/[\$]/g, "")}</span>
+                            </p>
+                            <p class="mb-0">
+                              Sub total{" "}
+                              <span>
+                                &#x20B9;{toCurrency(
+                                        fromCurrency((taxable + addChrg + discount) + "")
+                                      ).replace(/[\$]/g, "")}
+                              </span>
+                            </p>
+                          </div>
+                          <div className={props.gstContainerId}></div>
+                          <div class="invoice-total-footer">
+                            <h4>
+                              Total Amount{" "}
+                              <span>
+                                &#x20B9;
+                                { toCurrency(
+                                        fromCurrency((taxable +
+                                  addChrg -
+                                  discount +
+                                  (tempGstPercentageVal.length > 0
+                                    ? tempGstPercentageVal.reduce((x, y) => x + y)
+                                    : 0)) + "")
+                                      ).replace(/[\$]/g, "")}
+                              </span>
+                            </h4>
+                          </div>
                           </div>
                         </div>
                       </div>

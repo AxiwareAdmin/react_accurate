@@ -614,13 +614,13 @@ export default function ViewInvoice() {
                 roundNum((ele.amount * ele.tax) / 100),
               ];
               var tempTax = ele.tax;
-              tempGstCalculationVal[tempTax] = ele.amount;
+              tempGstCalculationVal[tempTax] = roundNum(ele.amount);
             } else {
               tempGstPercentageVal[index] =
                 tempGstPercentageVal[index] +
                 roundNum((ele.amount * ele.tax) / 100);
               tempGstCalculationVal[ele.tax] =
-                tempGstCalculationVal[ele.tax] + ele.amount;
+                tempGstCalculationVal[ele.tax] + roundNum(ele.amount);
             }
           });
           let transportChargesGst = res.data.transportGst;

@@ -103,6 +103,8 @@ discount +
     setAmountInWords(amountInWord)
   },[taxable,addChrg,discount,tempGstPercentageVal])
   const [invoiceType,setInvoiceType]=useState(initialInvoiceType);
+  const [otherCharges,setOtherCharges]=useState(0);
+  const [transportCharges,setTransportCharges]=useState(0);
 
   useEffect(() => {
     console.log("changing")
@@ -656,8 +658,10 @@ discount +
 
           setinvNo(res.data.invoiceNo);
 
+          if(res.data.invoiceDate)
           setInvoiceDate(getFormattedDate(new Date(res.data.invoiceDate)));
 
+          if(res.data.poDate)
           setPoDate(getFormattedDate(new Date(res.data.poDate)));
 
           setServiceCheck(true);
@@ -740,12 +744,15 @@ discount +
             res.data.additionalCharges == undefined
               ? 0
               : parseFloat(res.data.additionalCharges);
+
+              setOtherCharges(addchrgs);
           let transportCharge =
             res.data.transportCharges == null ||
             res.data.transportCharges == undefined
               ? 0
               : parseFloat(res.data.transportCharges);
 
+              setTransportCharges(transportCharge);
           setaddChrg(addchrgs + transportCharge);
 
           let discnt =
@@ -829,13 +836,13 @@ discount +
                 roundNum((ele.amount * ele.tax) / 100),
               ];
               var tempTax = ele.tax;
-              tempGstCalculationVal[tempTax] = ele.amount;
+              tempGstCalculationVal[tempTax] = roundNum(ele.amount);
             } else {
               tempGstPercentageVal[index] =
                 tempGstPercentageVal[index] +
                 roundNum((ele.amount * ele.tax) / 100);
               tempGstCalculationVal[ele.tax] =
-                tempGstCalculationVal[ele.tax] + ele.amount;
+                tempGstCalculationVal[ele.tax] + roundNum(ele.amount);
             }
           });
           let transportChargesGst = res.data.transportGst;
@@ -1415,20 +1422,33 @@ discount +
                     <div class="col-lg-4 col-md-4">
                       <div class="invoice-total-card">
                         <div class="invoice-total-box">
-                          <div class="invoice-total-inner">
+                        <div class="invoice-total-inner">
                             <p>
-                              Taxable <span>&#x20B9;{taxable}</span>
+                              Taxable <span>&#x20B9;{toCurrency(
+                                        fromCurrency(taxable + "")
+                                      ).replace(/[\$]/g, "")}</span>
                             </p>
                             <p>
-                              Additional Charges <span>&#x20B9;{addChrg}</span>
+                              Transport Charges <span>&#x20B9;{toCurrency(
+                                        fromCurrency(transportCharges + "")
+                                      ).replace(/[\$]/g, "")}</span>
                             </p>
                             <p>
-                              Discount <span>&#x20B9;{discount}</span>
+                              Other Charges <span>&#x20B9;{toCurrency(
+                                        fromCurrency(otherCharges + "")
+                                      ).replace(/[\$]/g, "")}</span>
+                            </p>
+                            <p>
+                              Discount <span>&#x20B9;{toCurrency(
+                                        fromCurrency(discount + "")
+                                      ).replace(/[\$]/g, "")}</span>
                             </p>
                             <p class="mb-0">
                               Sub total{" "}
                               <span>
-                                &#x20B9;{taxable + addChrg + discount}
+                                &#x20B9;{toCurrency(
+                                        fromCurrency((taxable + addChrg + discount) + "")
+                                      ).replace(/[\$]/g, "")}
                               </span>
                             </p>
                           </div>
@@ -1438,12 +1458,14 @@ discount +
                               Total Amount{" "}
                               <span>
                                 &#x20B9;
-                                {taxable +
-                                  addChrg +
+                                { toCurrency(
+                                        fromCurrency((taxable +
+                                  addChrg -
                                   discount +
                                   (tempGstPercentageVal.length > 0
                                     ? tempGstPercentageVal.reduce((x, y) => x + y)
-                                    : 0)}
+                                    : 0)) + "")
+                                      ).replace(/[\$]/g, "")}
                               </span>
                             </h4>
                           </div>

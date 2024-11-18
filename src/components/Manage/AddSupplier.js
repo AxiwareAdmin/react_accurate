@@ -28,6 +28,7 @@ export default function AddSupplier(props) {
     const [shippingCity , setShippingCity] = useState();
     const [shippingPincode , setShippingPincode] = useState();
     const [shippingCountry , setShippingCountry] = useState();
+    const [vendorCode, setVendorCode]=useState();
 
     const states=['Andaman and Nicobar Islands', 'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chandigarh', 'Chhattisgarh', 'Dadra and Nagar Haveli', 'Daman and Diu', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jammu', 'Jharkhand', 'Karnataka', 'Kashmir', 'Kerala', 'Ladakh', 'Lakshadweep', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Puducherry', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttarakhand', 'Uttar Pradesh', 'West Bengal']
 
@@ -47,6 +48,7 @@ export default function AddSupplier(props) {
 
      function saveCustomer(e){
          e.preventDefault();
+         debugger;
 
          if(customerName == null || customerName == "" || customerName == undefined){
             validations("Please Enter Billing Customer Name.");
@@ -108,19 +110,19 @@ export default function AddSupplier(props) {
             email : email,
             contactNo : contactNo,
             shippingAddress1 : shippingAddress1,
-            paymentTerms : paymentTerms
-
+            paymentTerms : paymentTerms,
+            vendorCode:vendorCode
          }
 
          var token=localStorage.getItem("token")
     //it was GET method earlier
     axios
       .post(BACKEND_SERVER+"/addSupplierDetails" ,customerData,{
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":'Bearer '+token
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": 'Bearer ' + token
         }
-      })
+    })
       .then((res) => {
         console.log("In supplier pop up all invoice data"+ res.data);
 
@@ -145,6 +147,7 @@ export default function AddSupplier(props) {
 
 
       }).catch(function (error) {
+        debugger;
         toast("Something is wrong!",{
             position: "top-center",
             theme:"colored",
@@ -364,11 +367,7 @@ export default function AddSupplier(props) {
                                     <div class="form-group">
                                     <select onChange={selectShippState} id="shippingSelect"  class="form-control">
                                     <option value="--Select State--">--Select State--</option>
-                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
-                                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                                            <option value="Assam">Assam</option>
-                                            <option value="Bihar">Bihar</option>
-                                            <option value="Chhattisgarh">Chhattisgarh</option>
+                                    {states.map(state=><option value={state}>{state}</option>)}
                                     </select>
                                      </div>
                                 </div>
@@ -398,7 +397,7 @@ export default function AddSupplier(props) {
                                 </div>
                                 <div class="col-lg-6 col-md-6">
                                     <div class="form-group">
-                                        <input type="text" class="form-control" placeholder="Vendor (Code)" />
+                                        <input type="text" onChange={e => setVendorCode(e.target.value)} class="form-control" placeholder="Vendor (Code)" />
                                      </div>
                                 </div>
                                 </div>
